@@ -306,4 +306,7 @@
 <string name="menu_create">New PBX linked to my Google Voice</string>
 <string name="menu_register">Register VideoSMS feature</string>
 
+<string name="toast_progress">ENUM lookup in progress</string>
+<string name="toast_notfound">No ENUM results found</string>
+
 </resources>
