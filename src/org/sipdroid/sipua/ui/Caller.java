@@ -25,10 +25,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.opentelecoms.android.sip.ENUMProviderForSIP;
+import org.opentelecoms.android.sip.ENUMUtil;
 import org.sipdroid.media.RtpStreamReceiver;
+import org.sipdroid.sipua.R;
 import org.sipdroid.sipua.UserAgent;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +47,7 @@ import android.provider.Contacts.Phones;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Caller extends BroadcastReceiver {
 
@@ -113,6 +118,11 @@ public class Caller extends BroadcastReceiver {
 				if (SystemClock.elapsedRealtime() < noexclude + 10000) {
 					noexclude = 0;
 					force = true;
+				}
+				
+				if(doENUMRouting(context, number)) {
+					setResultData(null);
+					return;
 				}
 				
 				// Look for numbers that are excluded from SIP routing
@@ -200,6 +210,48 @@ public class Caller extends BroadcastReceiver {
 	            }
 	        }
 	    }
+		
+		// Try to set up a call to the number by using ENUM
+		private boolean doENUMRouting(Context context, String number) {
+			
+			if(number == null)
+				return false;
+			
+			boolean online = ENUMUtil.updateNotification(context);
+			
+			if(!online)
+				return false;
+			
+			if(!number.startsWith("+"))
+				return false;  // FIXME: translate numbers to E.164 format
+			
+			Toast toast = Toast.makeText(context, R.string.toast_progress, Toast.LENGTH_SHORT);
+			toast.show();
+
+			/* ask the ENUM ContentProvider for the records */
+			Uri uri = Uri.withAppendedPath(ENUMProviderForSIP.CONTENT_URI, number);
+			ContentResolver cr = context.getContentResolver();
+			Cursor mCursor = cr.query(uri, null, null, null, null);
+			
+			/* none found - tell the user then dial the original number */
+			if (mCursor == null || mCursor.getCount() <= 0) {
+				if(mCursor != null)
+					mCursor.close();
+				toast.setText(R.string.toast_notfound);
+				toast.show();
+				return false;
+			}
+
+			toast.cancel();
+			
+			mCursor.moveToFirst();
+			String destination = mCursor.getString(2);
+			mCursor.close();
+			
+			Log.v("SipUA:", "ENUM result found, dialing SIP destination: " + destination);
+			
+			return Receiver.engine(context).call(destination, true);
+		}
 		
 		// TODO Remove this code in a future release.
 		private void migratePrefixOption(SharedPreferences sp) {
