@@ -135,6 +135,8 @@
 	        	<data android:path="org.sipdroid.sipua" />
 	      	</intent-filter>
 	    </receiver>
+        <provider android:name="org.opentelecoms.android.sip.ENUMProviderForSIP" android:authorities="enum"
+                android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
     </application>
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -153,6 +155,7 @@
 	<uses-permission android:name="android.permission.CAMERA"></uses-permission>
 	<uses-permission android:name="android.permission.VIBRATE" ></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" ></uses-permission>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" ></uses-permission>
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" ></uses-permission>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" ></uses-permission>
 	<uses-permission android:name="android.permission.BLUETOOTH" ></uses-permission>
