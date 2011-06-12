@@ -137,6 +137,11 @@
 	        	<data android:path="org.sipdroid.sipua" />
 	      	</intent-filter>
 	    </receiver>
+	    <receiver android:name="org.opentelecoms.android.sms.SMSReceiver" android:enabled="true">
+                <intent-filter android:priority="100">
+                    <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                </intent-filter>
+            </receiver>
         <provider android:name="org.opentelecoms.android.sip.ENUMProviderForSIP" android:authorities="enum"
                 android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
@@ -162,4 +167,5 @@
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" ></uses-permission>
 	<uses-permission android:name="android.permission.BLUETOOTH" ></uses-permission>
 	<uses-permission android:name="android.permission.GET_ACCOUNTS" ></uses-permission>
+	<uses-permission android:name="android.permission.RECEIVE_SMS" />
 </manifest> 
