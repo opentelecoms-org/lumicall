@@ -145,59 +145,20 @@ public class Caller extends BroadcastReceiver {
     			} else {
     				// SIP call - start the dial process
 	        		if (number != null && !intent.getBooleanExtra("android.phone.extra.ALREADY_CALLED",false)) {
-	        		    	// Migrate the "prefix" option. TODO Remove this code in a future release.
+
 	        		    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-	        		    	if (sp.contains("prefix")) {
-	        		    	    String prefix = sp.getString(Settings.PREF_PREFIX, Settings.DEFAULT_PREFIX);
-	        		    	    Editor editor = sp.edit();
-	        		    	    if (!prefix.trim().equals("")) {
-	        		    		editor.putString(Settings.PREF_SEARCH, "(.*)," + prefix + "\\1");
-	        		    	    }
-	        		    	    editor.remove(Settings.PREF_PREFIX);
-	        		    	    editor.commit();
-	        		    	}
+		        			
+		        		    // Migrate the "prefix" option.
+		        			migratePrefixOption(sp);
 	        		    	
 	        		    	// Search & replace.
 	    				String search = sp.getString(Settings.PREF_SEARCH, Settings.DEFAULT_SEARCH);
 	    				String callthru_number = searchReplaceNumber(search, number);
 	    				String callthru_prefix;
 	    				
-						if (!ask && !force && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_PAR, Settings.DEFAULT_PAR)) 
-	    				{
-/*	    					String orig = intent.getStringExtra("android.phone.extra.ORIGINAL_URI");	
-	     					if (orig.lastIndexOf("/phones") >= 0) 
-	    					{
-	     						orig = orig.substring(0,orig.lastIndexOf("/phones")+7);
-	        					Uri contactRef = Uri.parse(orig);
-	        					*/
-	        			    	Uri contactRef = Uri.withAppendedPath(Contacts.Phones.CONTENT_FILTER_URL, number);
-	        				    final String[] PHONES_PROJECTION = new String[] {
-	         				        People.Phones.NUMBER, // 0
-	        				        People.Phones.TYPE, // 1
-	        				    };
-	        			        Cursor phonesCursor = context.getContentResolver().query(contactRef, PHONES_PROJECTION, null, null,
-	        			                Phones.ISPRIMARY + " DESC");
-	        			        if (phonesCursor != null) 
-	        			        {	        			        	
-	        			        	number = "";
-	        			            while (phonesCursor.moveToNext()) 
-	        			            {
-	        			                final int type = phonesCursor.getInt(1);
-	        			                String n = phonesCursor.getString(0);
-	         			                if (TextUtils.isEmpty(n)) continue;
-	         			                if (type == Phones.TYPE_MOBILE || type == Phones.TYPE_HOME || type == Phones.TYPE_WORK) 
-	         			                {
-	         			                	if (!number.equals("")) number = number + "&";
-	         			                	n = PhoneNumberUtils.stripSeparators(n);
-	         			                	number = number + searchReplaceNumber(search, n);
-	        			                }
-	        			            }
-	        			            phonesCursor.close();
-	        			            if (number.equals(""))
-	        			            	number = callthru_number;
-	        			        } else
-	        			        	number = callthru_number;
-//	        				}        					
+	    				// if "par" is true, get all numbers from the contact, concatenate with "&"
+	    				if (!ask && !force && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_PAR, Settings.DEFAULT_PAR)) {
+							number = concatenateNumbers(context, number, callthru_number, search);
 	    				} else
 	    					number = callthru_number;
 						
@@ -231,6 +192,57 @@ public class Caller extends BroadcastReceiver {
 	            }
 	        }
 	    }
+		
+		// TODO Remove this code in a future release.
+		private void migratePrefixOption(SharedPreferences sp) {
+		    if (sp.contains("prefix")) {
+		        String prefix = sp.getString(Settings.PREF_PREFIX, Settings.DEFAULT_PREFIX);
+		        Editor editor = sp.edit();
+		        if (!prefix.trim().equals("")) {
+		        	editor.putString(Settings.PREF_SEARCH, "(.*)," + prefix + "\\1");
+		        }
+		        editor.remove(Settings.PREF_PREFIX);
+		        editor.commit();
+		    }
+		}
+		
+		private String concatenateNumbers(Context context, String _number, String callthru_number, String search) {
+			String number = _number;
+			/*	    					String orig = intent.getStringExtra("android.phone.extra.ORIGINAL_URI");	
+				if (orig.lastIndexOf("/phones") >= 0) 
+			{
+					orig = orig.substring(0,orig.lastIndexOf("/phones")+7);
+				Uri contactRef = Uri.parse(orig);
+			 */
+			Uri contactRef = Uri.withAppendedPath(Contacts.Phones.CONTENT_FILTER_URL, number);
+			final String[] PHONES_PROJECTION = new String[] {
+					People.Phones.NUMBER, // 0
+					People.Phones.TYPE, // 1
+			};
+			Cursor phonesCursor = context.getContentResolver().query(contactRef, PHONES_PROJECTION, null, null,
+					Phones.ISPRIMARY + " DESC");
+			if (phonesCursor != null) {	        			        	
+				number = "";
+				while (phonesCursor.moveToNext()) {
+					final int type = phonesCursor.getInt(1);
+					String n = phonesCursor.getString(0);
+					if (TextUtils.isEmpty(n))
+						continue;
+					if (type == Phones.TYPE_MOBILE || type == Phones.TYPE_HOME || type == Phones.TYPE_WORK) {
+						if (!number.equals(""))
+							number = number + "&";
+						n = PhoneNumberUtils.stripSeparators(n);
+						number = number + searchReplaceNumber(search, n);
+					}
+				}
+				phonesCursor.close();
+				if (number.equals(""))
+					number = callthru_number;
+			} else
+				number = callthru_number;
+			//			}			
+			return number;
+		}
 		
 		private String searchReplaceNumber(String pattern, String number) {
 		    // Comma should be safe as separator.
