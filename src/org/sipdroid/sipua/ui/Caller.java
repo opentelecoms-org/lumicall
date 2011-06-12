@@ -46,6 +46,7 @@ import android.util.Log;
 
 public class Caller extends BroadcastReceiver {
 
+		private static final int REDIAL_MINIMUM_INTERVAL = 3000;
 		static long noexclude;
 		String last_number;
 		long last_time;
@@ -58,8 +59,13 @@ public class Caller extends BroadcastReceiver {
 	        
 	        if (intentAction.equals(Intent.ACTION_NEW_OUTGOING_CALL) && number != null)
 	        {
-        		if (!Sipdroid.release) Log.i("SipUA:","outgoing call");
-        		if (!Sipdroid.on(context)) return;
+        		if (!Sipdroid.release)
+        			Log.i("SipUA:","outgoing call");
+        		
+        		// is sipdroid enabled?
+        		if (!Sipdroid.on(context))
+        			return;
+        		
     			boolean sip_type = !PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_PSTN);
     	        boolean ask = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_ASK);
     	        
@@ -79,22 +85,31 @@ public class Caller extends BroadcastReceiver {
        	        	}
        	        	return;
       	        }
-    	        if (last_number != null && last_number.equals(number) && (SystemClock.elapsedRealtime()-last_time) < 3000) {
+      	        
+      	        // Don't redial without required interval between attempts
+    	        if (last_number != null && last_number.equals(number) && (SystemClock.elapsedRealtime()-last_time) < REDIAL_MINIMUM_INTERVAL) {
     	        	setResultData(null);
     	        	return;
     	        }
       	        last_time = SystemClock.elapsedRealtime();
     	        last_number = number;
+    	        
+    	        // Is the user over-riding the default network choice?
  				if (number.endsWith("+")) 
     			{
     				sip_type = !sip_type;
     				number = number.substring(0,number.length()-1);
     				force = true;
     			}
+ 				
 				if (SystemClock.elapsedRealtime() < noexclude + 10000) {
 					noexclude = 0;
 					force = true;
 				}
+				
+				// Look for numbers that are excluded from SIP routing
+				// e.g. user can exclude SIP routing for calls
+				// to PSTN voicemail number
 				if (sip_type && !force) {
 	    			String sExPat = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_EXCLUDEPAT, Settings.DEFAULT_EXCLUDEPAT); 
 	   				boolean bExNums = false;
@@ -124,12 +139,11 @@ public class Caller extends BroadcastReceiver {
 						sip_type = false;
 				}
 
-    			if (!sip_type)
-    			{
+    			if (!sip_type) {
+    				// PSTN call - let the normal handler dial it
     				setResultData(number);
-    			} 
-    			else 
-    			{
+    			} else {
+    				// SIP call - start the dial process
 	        		if (number != null && !intent.getBooleanExtra("android.phone.extra.ALREADY_CALLED",false)) {
 	        		    	// Migrate the "prefix" option. TODO Remove this code in a future release.
 	        		    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -193,9 +207,11 @@ public class Caller extends BroadcastReceiver {
 	    					setResultData(null);
 	    				else if (!ask && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_CALLTHRU, Settings.DEFAULT_CALLTHRU) &&
 	    						(callthru_prefix = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_CALLTHRU2, Settings.DEFAULT_CALLTHRU2)).length() > 0) {
+	    					// Call failed - PSTN fall back
 	    					callthru_number = (callthru_prefix+","+callthru_number+"#").replaceAll(",", ",p");
 	    					setResultData(callthru_number);
 	    				} else if (ask || force) {
+	    					// Try the call another way?
 	    					setResultData(null);
 	    					final String n = number;
 	    			        (new Thread() {
