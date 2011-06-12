@@ -309,4 +309,17 @@
 <string name="toast_progress">ENUM lookup in progress</string>
 <string name="toast_notfound">No ENUM results found</string>
 
+<string name="reg_instructions">Please provide these essential details to enable the ENUM capability of your phone and a world of convenient, free calling</string>
+
+<string name="reg_phone_num">Phone number (including country code, e.g. +447771234567)</string>
+<string name="reg_first_name">First name</string>
+<string name="reg_last_name">Last name</string>
+<string name="reg_email">Email address</string>
+
+<string name="reg_privacy">Your personal data will be used for essential communications about your account.  Full privacy policy available at our web site.</string>
+
+<string name="reg_proceed">Proceed</string>
+
+<string name="reg_please_wait">One moment...</string>
+
 </resources>
