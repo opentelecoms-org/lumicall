@@ -43,6 +43,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.util.Base64;
 import org.sipdroid.sipua.R;
 import org.sipdroid.sipua.SipdroidEngine;
+import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.accounts.Account;
@@ -51,6 +52,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -74,7 +76,20 @@ public class RegisterAccount extends Activity {
 
 	protected final static int PASSWORD_LEN = 12;
 	
+	public static final String PREFS_FILE = "org.opentelecoms.prefs.reg";
+	public static final String PREF_PHONE_NUMBER = "phoneNumber";
+	public static final String PREF_SECRET = "secret";
+	public static final String PREF_FIRST_NAME = "firstName";
+	public static final String PREF_LAST_NAME = "lastName";
+	public static final String PREF_EMAIL = "emailAddr";
+	
+	// TODO: should get this from Settings.sharedPrefsFile somehow
+	public static final String SIPDROID_PREFS = "org.sipdroid.sipua_preferences";
+	
 	private static final String TAG = "RegAcct";
+	
+	SharedPreferences settings;
+	String password;
 	
 /* 	public static Boolean isPossible(Context context) {
 		Boolean found = true; // disabled temporarily
@@ -136,6 +151,12 @@ public class RegisterAccount extends Activity {
     protected String getRegNum() {
     	return etNum.getText().toString();
     }
+    
+    protected String getPassword() {
+    	if(password == null)
+    		password = generatePassword(PASSWORD_LEN);
+    	return password;
+    }
 	
 	protected String getRegFirstName() {
 		return etFirst.getText().toString();
@@ -149,7 +170,17 @@ public class RegisterAccount extends Activity {
 		return etEmail.getText().toString();
 	}
     
-
+    protected void storeSettings() {
+    	settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
+    	
+    	Editor ed = settings.edit();
+    	ed.putString(PREF_PHONE_NUMBER, getRegNum());
+    	ed.putString(PREF_SECRET, getPassword());
+    	ed.putString(PREF_FIRST_NAME, getRegFirstName());
+    	ed.putString(PREF_LAST_NAME, getRegLastName());
+    	ed.putString(PREF_EMAIL, getRegEmail());
+    	ed.commit();
+    }
 	
 	protected String getBodyXml() {
 
@@ -161,7 +192,7 @@ public class RegisterAccount extends Activity {
 			serializer.startTag("", "registration");
 		
 			RegistrationUtil.serializeProperty(serializer, "phoneNumber", getRegNum());
-			RegistrationUtil.serializeProperty(serializer, "secret", generatePassword(PASSWORD_LEN));
+			RegistrationUtil.serializeProperty(serializer, "secret", getPassword());
 			RegistrationUtil.serializeProperty(serializer, "firstName", getRegFirstName());
 			RegistrationUtil.serializeProperty(serializer, "lastName", getRegLastName());
 			RegistrationUtil.serializeProperty(serializer, "emailAddress", getRegEmail());
@@ -199,6 +230,7 @@ public class RegisterAccount extends Activity {
 	void RegisterAccountNow() {
 		buttonOK.setEnabled(false);
 		//setCancelable(false);
+		storeSettings();
 		Toast.makeText(this, R.string.reg_please_wait, Toast.LENGTH_LONG).show();
         (new Thread() {
 			public void run() {
@@ -321,5 +353,6 @@ public class RegisterAccount extends Activity {
 		
 		
 	}
+
 
 }
