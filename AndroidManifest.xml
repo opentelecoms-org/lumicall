@@ -142,6 +142,11 @@
                     <action android:name="android.provider.Telephony.SMS_RECEIVED" />
                 </intent-filter>
             </receiver>
+        <receiver android:name="org.opentelecoms.android.reg.RegistrationPhaseTwo" android:enabled="true">
+                <intent-filter android:priority="100">
+                    <action android:name="org.opentelecoms.intent.HANDLE_AUTH_CODE" />
+                </intent-filter>
+            </receiver>    
         <provider android:name="org.opentelecoms.android.sip.ENUMProviderForSIP" android:authorities="enum"
                 android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
