@@ -68,11 +68,13 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 			serializer.startTag("", "encryptedActivation");
 			//serializer.attribute("", "regNum", getRegNum());
 
+			String encryptedText = RegistrationUtil.getEncryptedStringAsBase64(context, s);
 			serializer.text(RegistrationUtil.getEncryptedStringAsBase64(context, s));
 
 			serializer.endTag("", "encryptedActivation");
 			serializer.endDocument();
-			return writer.toString();
+			//return writer.toString();
+			return encryptedText;
 		} catch (Exception e) {
 			Log.e(LOG_TAG, e.toString());
 			return null;
