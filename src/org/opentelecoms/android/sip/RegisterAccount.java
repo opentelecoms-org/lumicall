@@ -216,11 +216,13 @@ public class RegisterAccount extends Activity {
 
 			String fullBody = getBodyXml();
 
-			serializer.text(RegistrationUtil.getEncryptedStringAsBase64(this, fullBody));
+			String encryptedBody = RegistrationUtil.getEncryptedStringAsBase64(this, fullBody); 
+			serializer.text(encryptedBody);
 
 			serializer.endTag("", "encryptedRegistration");
 			serializer.endDocument();
-			return writer.toString();
+			//return writer.toString();
+			return encryptedBody;
 		} catch (Exception e) {
 			Log.e(TAG, e.toString());
 			return null;
