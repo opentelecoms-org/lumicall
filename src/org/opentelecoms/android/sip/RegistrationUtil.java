@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
@@ -34,7 +35,7 @@ import android.util.Xml;
 
 public class RegistrationUtil {
 
-	protected final static String REG_URL = "http://192.168.1.2:8086/test2";
+	protected final static String REG_URL = "http://192.168.1.3:8086/test2";
 	
 	public static void serializeProperty(XmlSerializer serializer, String propertyName, String value) throws IllegalArgumentException, IllegalStateException, IOException {
 		serializer.startTag("", propertyName);
@@ -55,7 +56,10 @@ public class RegistrationUtil {
 		return sb.toString();
 	}
 	
-	public static String getEncryptedStringAsBase64(Context context, String s) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+	public static String getEncryptedStringAsBase64(Context context, String s) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException {
+
+		
+		//Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		X509EncodedKeySpec pubSpec = new X509EncodedKeySpec(Base64.decode(RegistrationUtil.getPublicKey(context)));
