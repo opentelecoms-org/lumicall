@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import org.opentelecoms.android.sip.RegisterAccount;
 import org.opentelecoms.android.sip.RegistrationFailedException;
 import org.opentelecoms.android.sip.RegistrationUtil;
+import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -121,6 +122,12 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 		Log.v(LOG_TAG, "Configured prefs for number " + num + ", email " + email);
 		
 		ed.commit();
+		
+		Receiver.engine(context).updateDNS();
+   		Receiver.engine(context).halt();
+		Receiver.engine(context).StartEngine();
+			
+			
 	}
 	
 }
