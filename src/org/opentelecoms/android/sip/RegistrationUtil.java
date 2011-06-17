@@ -77,9 +77,9 @@ public class RegistrationUtil {
 
 	}
 	
-	public static void submitMessage(String message) throws RegistrationFailedException {
+	public static void submitMessage(String route, String message) throws RegistrationFailedException {
 		HttpClient httpclient = new DefaultHttpClient();  
-		HttpPost httppost = new HttpPost(REG_URL);  
+		HttpPost httppost = new HttpPost(REG_URL + "/" + route);  
 
 		try {  
 			  

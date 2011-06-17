@@ -241,7 +241,7 @@ public class RegisterAccount extends Activity {
 					
 					// TODO: tidy up error handling, etc
 					
-					RegistrationUtil.submitMessage(getEncryptedXml());  
+					RegistrationUtil.submitMessage("register", getEncryptedXml());  
 
 					/*
 							Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
