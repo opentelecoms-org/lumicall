@@ -91,7 +91,7 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 					
 				
 					String s = getBodyXml(regCode);
-					RegistrationUtil.submitMessage(getEncryptedXml(context, s));  
+					RegistrationUtil.submitMessage("activate", getEncryptedXml(context, s));  
 
 				    
 				
