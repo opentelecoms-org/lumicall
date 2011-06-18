@@ -48,11 +48,12 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 		try {
 			serializer.setOutput(writer);
 			serializer.startDocument("UTF-8", true);
-			serializer.startTag("", "activation");
+			String ns = RegistrationUtil.NS;
+			serializer.startTag(ns, "activation");
 		
-			RegistrationUtil.serializeProperty(serializer, "regCode", regCode);
+			RegistrationUtil.serializeProperty(serializer, ns, "regCode", regCode);
 			
-			serializer.endTag("", "activation");
+			serializer.endTag(ns, "activation");
 			serializer.endDocument();
 			return writer.toString();
 		} catch (Exception e) {
