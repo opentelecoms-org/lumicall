@@ -189,15 +189,16 @@ public class RegisterAccount extends Activity {
 		try {
 			serializer.setOutput(writer);
 			serializer.startDocument("UTF-8", true);
-			serializer.startTag("", "registration");
+			String ns = RegistrationUtil.NS;
+			serializer.startTag(ns, "registration");
 		
-			RegistrationUtil.serializeProperty(serializer, "phoneNumber", getRegNum());
-			RegistrationUtil.serializeProperty(serializer, "secret", getPassword());
-			RegistrationUtil.serializeProperty(serializer, "firstName", getRegFirstName());
-			RegistrationUtil.serializeProperty(serializer, "lastName", getRegLastName());
-			RegistrationUtil.serializeProperty(serializer, "emailAddress", getRegEmail());
+			RegistrationUtil.serializeProperty(serializer, ns, "phoneNumber", getRegNum());
+			RegistrationUtil.serializeProperty(serializer, ns, "secret", getPassword());
+			RegistrationUtil.serializeProperty(serializer, ns, "firstName", getRegFirstName());
+			RegistrationUtil.serializeProperty(serializer, ns, "lastName", getRegLastName());
+			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", getRegEmail());
 			
-			serializer.endTag("", "registration");
+			serializer.endTag(ns, "registration");
 			serializer.endDocument();
 			return writer.toString();
 		} catch (Exception e) {
@@ -306,8 +307,8 @@ public class RegisterAccount extends Activity {
 	    TelephonyManager mTelephonyMgr;
 	    mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); 
 	    String num = mTelephonyMgr.getLine1Number();
-	     
-	    if(num.length() == 0) 
+	    
+	    if(num == null || num.length() == 0) 
 	    	num = getCountryCode(mTelephonyMgr.getSimCountryIso());
 	    
 	    return "+" + num;
