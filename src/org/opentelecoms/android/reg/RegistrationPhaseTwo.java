@@ -21,7 +21,11 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 
 	public static final String ACTION = "org.opentelecoms.intent.HANDLE_AUTH_CODE";
 	
-	private static final String DEFAULT_SIP_SERVER = "sip.readytechnology.co.uk";
+	private static final String DEFAULT_SIP_SERVER = "sip.lvdx.com";
+	private static final String DEFAULT_SIP_DOMAIN = "lvdx.com";
+	
+	private static final String DEFAULT_STUN_SERVER = "stun.ekiga.net";
+	private static final String DEFAULT_STUN_SERVER_PORT = "3478";
 	
 	public static final String REG_CODE = "regCode";
 	
@@ -119,6 +123,13 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 		ed.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
 		ed.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
 		ed.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
+		ed.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
+		ed.putBoolean(Settings.PREF_STUN, true);
+		ed.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
+		ed.putString(Settings.PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);
+		ed.putBoolean(Settings.PREF_EDGE, true);
+		ed.putBoolean(Settings.PREF_3G, true);
+		ed.putBoolean(Settings.PREF_ON, true);
 		
 		Log.v(LOG_TAG, "Configured prefs for number " + num + ", email " + email);
 		
