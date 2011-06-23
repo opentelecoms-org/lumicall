@@ -51,6 +51,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.opentelecoms.android.sip.ActivateAccount"
+            android:label="@string/app_name" android:launchMode="singleInstance"
+        	android:configChanges="orientation|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name="org.sipdroid.sipua.ui.PSTN" android:label="@string/pstn_name"
         	android:icon="@drawable/ic_launcher_phone">
             <intent-filter>
@@ -121,7 +130,7 @@
 	    <receiver android:name="org.sipdroid.sipua.ui.OneShotLocation"/>
 	    <receiver android:name="org.sipdroid.sipua.ui.LoopLocation"/>
 	    <receiver android:name="org.sipdroid.sipua.ui.Caller">
-	        <intent-filter android:priority="-1">
+	        <intent-filter android:priority="1000">
 	        	<action android:name="android.intent.action.NEW_OUTGOING_CALL" />
 	        </intent-filter>
 	    </receiver>
