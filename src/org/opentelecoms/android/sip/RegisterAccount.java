@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 import java.util.Random;
@@ -129,23 +130,23 @@ public class RegisterAccount extends Activity {
 
     String generatePassword(int length)	{
 	    String availableCharacters = "";
-	    String password = "";
+	    StringBuilder password = new StringBuilder("");
 	    
 	    // Generate the appropriate character set
 	    availableCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	    availableCharacters = availableCharacters + "0123456789";
 	    
 	    // Generate the random number generator
-	    Random selector = new Random();
+	    SecureRandom selector = new SecureRandom();
 	    
 	    // Generate the password
 	    int i;
 	    for(i = 0; i < length; i++)
 	    {
-	            password = password + availableCharacters.charAt(selector.nextInt(availableCharacters.length() - 1));
+	            password.append(availableCharacters.charAt(selector.nextInt(availableCharacters.length())));
 	    }
 	    
-	    return password;
+	    return password.toString();
     }
     
     protected String getRegNum() {
@@ -230,7 +231,7 @@ public class RegisterAccount extends Activity {
 		}
 	}
 		
-	void RegisterAccountNow() {
+	void registerAccountNow() {
 		buttonOK.setEnabled(false);
 		//setCancelable(false);
 		storeSettings();
@@ -263,6 +264,13 @@ public class RegisterAccount extends Activity {
 			        
 				//} catch (IOException e) {
 				//	e.printStackTrace();
+					
+					
+					final Intent intent = new Intent(RegisterAccount.this, ActivateAccount.class);
+		            Log.v(TAG, "registration sent, going to activation window");
+		            startActivity(intent);
+		            finish();
+		            
 				} catch (RegistrationFailedException e) {
 					Log.e(TAG, e.toString());
 				}
@@ -282,7 +290,7 @@ public class RegisterAccount extends Activity {
         buttonOK = (Button) findViewById(R.id.Button01);
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				RegisterAccountNow();
+				registerAccountNow();
 			}
 		});
         etNum = (EditText) findViewById(R.id.EditText01);
