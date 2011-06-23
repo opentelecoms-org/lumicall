@@ -61,12 +61,12 @@ public class SMSReceiver extends BroadcastReceiver {
             	handleRegistrationCode(context, regCode);
             }
 			
-			NotificationManager nm = (NotificationManager) context.getSystemService(
+			/* NotificationManager nm = (NotificationManager) context.getSystemService(
 					Context.NOTIFICATION_SERVICE);
 
 			int icon = R.drawable.icon22;
 			Notification n = new Notification(icon, info, System.currentTimeMillis());
-			nm.notify(123, n);
+			nm.notify(123, n); */
 					
 
 		}
