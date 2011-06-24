@@ -30,6 +30,7 @@ import java.security.KeyFactory;
 import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Pattern;
 
@@ -170,6 +171,18 @@ public class RegisterAccount extends Activity {
 	protected String getRegEmail() {
 		return etEmail.getText().toString();
 	}
+	
+	/*
+	 * @returns a two letter lowercase ISO language code
+	 *          as defined by ISO 639-1, followed by
+	 *          country code, then variant, separated
+	 *          by underscores, as described in
+	 *          java.util.Locale.toString() 
+	 *          e.g. "en_US"
+	 */
+	protected String getLanguage() {
+		return Locale.getDefault().toString();
+	}
     
     protected void storeSettings() {
     	settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
@@ -198,6 +211,7 @@ public class RegisterAccount extends Activity {
 			RegistrationUtil.serializeProperty(serializer, ns, "firstName", getRegFirstName());
 			RegistrationUtil.serializeProperty(serializer, ns, "lastName", getRegLastName());
 			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", getRegEmail());
+			RegistrationUtil.serializeProperty(serializer, ns, "language", getLanguage());
 			
 			serializer.endTag(ns, "registration");
 			serializer.endDocument();
