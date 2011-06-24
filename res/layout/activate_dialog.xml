@@ -62,6 +62,9 @@
 		    <Button android:id="@+id/Button01" android:layout_width="wrap_content"
 		        android:layout_height="wrap_content" android:text="@string/activate_proceed">
 		        </Button>
+		    <Button android:id="@+id/Button02" android:layout_width="wrap_content"
+		        android:layout_height="wrap_content" android:text="@string/activate_re_reg">
+		        </Button>
 		</LinearLayout>
 	</LinearLayout>
 
