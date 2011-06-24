@@ -57,14 +57,21 @@ public class Caller extends BroadcastReceiver {
 	        String number = getResultData();
 	        Boolean force = false;
 	        
+	        // This is quite an interesting area to log as a lot of
+	        // decisions are made about call routing, so let's start with
+	        // something to draw attention to it:
+	        Log.d("SipUA:", "Caller.onReceive *****************************************************************************************************");
+	        
 	        if (intentAction.equals(Intent.ACTION_NEW_OUTGOING_CALL) && number != null)
 	        {
         		if (!Sipdroid.release)
         			Log.i("SipUA:","outgoing call");
         		
         		// is sipdroid enabled?
-        		if (!Sipdroid.on(context))
+        		if (!Sipdroid.on(context)) {
+        			Log.d("SipUA:", "sipdroid not on");
         			return;
+        		}
         		
     			boolean sip_type = !PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_PSTN);
     	        boolean ask = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_ASK);
@@ -89,6 +96,7 @@ public class Caller extends BroadcastReceiver {
       	        // Don't redial without required interval between attempts
     	        if (last_number != null && last_number.equals(number) && (SystemClock.elapsedRealtime()-last_time) < REDIAL_MINIMUM_INTERVAL) {
     	        	setResultData(null);
+    	        	Log.w("SipUA:", "redial was too soon, aborted");
     	        	return;
     	        }
       	        last_time = SystemClock.elapsedRealtime();
