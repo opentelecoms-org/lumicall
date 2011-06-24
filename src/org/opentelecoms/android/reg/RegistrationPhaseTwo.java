@@ -45,7 +45,7 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 	}
 	
 	
-	protected String getBodyXml(String regCode) {
+	protected String getBodyXml(String phoneNumber, String regCode) {
 
 		XmlSerializer serializer = Xml.newSerializer();
 		StringWriter writer = new StringWriter();
@@ -55,6 +55,7 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 			String ns = RegistrationUtil.NS;
 			serializer.startTag(ns, "activation");
 		
+			RegistrationUtil.serializeProperty(serializer, ns, "phoneNumber", phoneNumber);
 			RegistrationUtil.serializeProperty(serializer, ns, "regCode", regCode);
 			
 			serializer.endTag(ns, "activation");
@@ -95,8 +96,9 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 				
 				try {
 					
-				
-					String s = getBodyXml(regCode);
+					SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
+					String phoneNumber = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
+					String s = getBodyXml(phoneNumber, regCode);
 					RegistrationUtil.submitMessage("activate", getEncryptedXml(context, s));  
 
 				    
