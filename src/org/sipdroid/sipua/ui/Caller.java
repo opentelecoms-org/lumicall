@@ -219,11 +219,15 @@ public class Caller extends BroadcastReceiver {
 			
 			boolean online = ENUMUtil.updateNotification(context);
 			
-			if(!online)
+			if(!online) {
+				Log.i("SipUA:", "ENUM not online");
 				return false;
+			}
 			
-			if(!number.startsWith("+"))
+			if(!number.startsWith("+")) {
+				Log.w("SipUA:", "can't handle non-E.164 numbers yet");
 				return false;  // FIXME: translate numbers to E.164 format
+			}
 			
 			Toast toast = Toast.makeText(context, R.string.toast_progress, Toast.LENGTH_SHORT);
 			toast.show();
@@ -239,6 +243,7 @@ public class Caller extends BroadcastReceiver {
 					mCursor.close();
 				toast.setText(R.string.toast_notfound);
 				toast.show();
+				Log.i("SipUA:", "no ENUM result found, falling through to next routing choice");
 				return false;
 			}
 
