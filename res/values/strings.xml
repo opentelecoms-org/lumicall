@@ -325,6 +325,7 @@
 <string name="activate_instructions">You should receive an SMS text containing an activation code.  Please wait for it to arrive.</string>
 <string name="activate_code">Enter the activation code here (e.g. **ABC123**)</string>
 <string name="activate_proceed">Activate</string>
+<string name="activate_re_reg">Request code again</string>
 <string name="activate_invalid_code">Invalid activation code</string>
 
 </resources>
