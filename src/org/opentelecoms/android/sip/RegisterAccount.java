@@ -29,6 +29,7 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.SecureRandom;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -84,6 +85,8 @@ public class RegisterAccount extends Activity {
 	public static final String PREF_FIRST_NAME = "firstName";
 	public static final String PREF_LAST_NAME = "lastName";
 	public static final String PREF_EMAIL = "emailAddr";
+	public static final String PREF_LAST_REGISTRATION_ATTEMPT = "lastRegistrationAttempt";
+	public static final String PREF_LAST_ACTIVATION_ATTEMPT = "lastActivationAttempt";
 	
 	// TODO: should get this from Settings.sharedPrefsFile somehow
 	public static final String SIPDROID_PREFS = "org.sipdroid.sipua_preferences";
@@ -193,6 +196,11 @@ public class RegisterAccount extends Activity {
     	ed.putString(PREF_FIRST_NAME, getRegFirstName());
     	ed.putString(PREF_LAST_NAME, getRegLastName());
     	ed.putString(PREF_EMAIL, getRegEmail());
+    	ed.putLong(PREF_LAST_REGISTRATION_ATTEMPT,
+    			new Date().getTime() / 1000);
+    	// Reset last activation attempt every time registration is
+    	// attempted
+    	ed.putLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
     	ed.commit();
     }
 	
