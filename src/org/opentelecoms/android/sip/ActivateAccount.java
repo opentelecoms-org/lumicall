@@ -24,13 +24,14 @@ public class ActivateAccount extends Activity {
 	
 	private static final String TAG = "ActAcct";
 	
-	protected void activateAccountNow() {
+	protected boolean activateAccountNow() {
 		String regCode = etCode.getText().toString();
 		if(validateRegCode(regCode)) {
 			Toast.makeText(this, R.string.reg_please_wait, Toast.LENGTH_LONG).show();
-			handleRegistrationCode(regCode);
+			return handleRegistrationCode(regCode);
 		} else {
 			Toast.makeText(this, R.string.activate_invalid_code, Toast.LENGTH_LONG).show();
+			return false;
 		}
 	}
 		
@@ -42,11 +43,12 @@ public class ActivateAccount extends Activity {
 		return true;
 	}
 
-	protected void handleRegistrationCode(String regCode) {
+	protected boolean handleRegistrationCode(String regCode) {
 		final Intent intent = new Intent(RegistrationPhaseTwo.ACTION);
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
 		intent.putExtra(RegistrationPhaseTwo.REG_CODE, regCode);
 		sendBroadcast(intent);
+		return true;
 	}
 
 	@Override
@@ -57,7 +59,14 @@ public class ActivateAccount extends Activity {
         buttonOK = (Button) findViewById(R.id.Button01);
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				activateAccountNow();
+				if(activateAccountNow()) {
+					// Now we give user the main screen
+					final Intent intent = new Intent(ActivateAccount.this,
+							org.sipdroid.sipua.ui.Sipdroid.class);
+					Log.v(TAG, "activation done");
+					startActivity(intent);
+					finish();
+				}
 			}
 		});
 		
