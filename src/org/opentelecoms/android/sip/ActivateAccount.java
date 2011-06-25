@@ -65,7 +65,7 @@ public class ActivateAccount extends Activity {
 		buttonRegAgain.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
 				final Intent intent = new Intent(ActivateAccount.this, RegisterAccount.class);
-		        Log.v(TAG, "registration sent, going to activation window");
+		        Log.v(TAG, "user wants to try registration form again");
 		        startActivity(intent);
 		        finish();
 			}
