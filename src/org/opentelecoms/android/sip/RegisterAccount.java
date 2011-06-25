@@ -252,6 +252,22 @@ public class RegisterAccount extends Activity {
 			return null;
 		}
 	}
+	
+	private void doActivationActivity() {
+		final Intent intent = new Intent(RegisterAccount.this,
+				ActivateAccount.class);
+        Log.v(TAG, "registration sent, going to activation window");
+        startActivity(intent);
+        finish();
+	}
+	
+	private void doMainActivity() {
+		final Intent intent = new Intent(RegisterAccount.this,
+				org.sipdroid.sipua.ui.Sipdroid.class);
+		Log.v(TAG, "activation done already");
+		startActivity(intent);
+		finish();
+	}
 		
 	void registerAccountNow() {
 		buttonOK.setEnabled(false);
@@ -288,10 +304,7 @@ public class RegisterAccount extends Activity {
 				//	e.printStackTrace();
 					
 					
-					final Intent intent = new Intent(RegisterAccount.this, ActivateAccount.class);
-		            Log.v(TAG, "registration sent, going to activation window");
-		            startActivity(intent);
-		            finish();
+					doActivationActivity();
 		            
 				} catch (RegistrationFailedException e) {
 					Log.e(TAG, e.toString());
@@ -307,6 +320,22 @@ public class RegisterAccount extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Has user already done registration or activation?
+        SharedPreferences settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
+        
+        Long ts = settings.getLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
+        if(ts != 0) {
+        	doMainActivity();
+        	return;
+        }
+        
+        ts = settings.getLong(PREF_LAST_REGISTRATION_ATTEMPT, 0);
+        if(ts != 0) {
+        	doActivationActivity();
+        	return;
+        }
+        
         setContentView(R.layout.register_dialog);
         setTitle("Complete service activation");
         buttonOK = (Button) findViewById(R.id.Button01);
