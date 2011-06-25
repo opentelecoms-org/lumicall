@@ -1,6 +1,7 @@
 package org.opentelecoms.android.reg;
 
 import java.io.StringWriter;
+import java.util.Date;
 
 import org.opentelecoms.android.sip.RegisterAccount;
 import org.opentelecoms.android.sip.RegistrationFailedException;
@@ -100,7 +101,12 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 					String phoneNumber = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
 					String s = getBodyXml(phoneNumber, regCode);
 					RegistrationUtil.submitMessage("activate", getEncryptedXml(context, s));  
-
+					
+					// This only gets updated if no exception occurred
+					Editor ed = settings.edit();
+					ed.putLong(RegisterAccount.PREF_LAST_ACTIVATION_ATTEMPT,
+			    			new Date().getTime() / 1000);
+			    	ed.commit();
 				    
 				
 				} catch (RegistrationFailedException e) {
@@ -117,25 +123,25 @@ public class RegistrationPhaseTwo extends BroadcastReceiver {
 		SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
 		
 		SharedPreferences sipSettings = context.getSharedPreferences(RegisterAccount.SIPDROID_PREFS, Context.MODE_PRIVATE);
-		Editor ed = sipSettings.edit();
+		Editor edSIP = sipSettings.edit();
 		
 		String num = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
 		String email = settings.getString(RegisterAccount.PREF_EMAIL, null);
 		
-		ed.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
-		ed.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
-		ed.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
-		ed.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
-		ed.putBoolean(Settings.PREF_STUN, true);
-		ed.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
-		ed.putString(Settings.PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);
-		ed.putBoolean(Settings.PREF_EDGE, true);
-		ed.putBoolean(Settings.PREF_3G, true);
-		ed.putBoolean(Settings.PREF_ON, true);
+		edSIP.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
+		edSIP.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
+		edSIP.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
+		edSIP.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
+		edSIP.putBoolean(Settings.PREF_STUN, true);
+		edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
+		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);
+		edSIP.putBoolean(Settings.PREF_EDGE, true);
+		edSIP.putBoolean(Settings.PREF_3G, true);
+		edSIP.putBoolean(Settings.PREF_ON, true);
 		
 		Log.v(LOG_TAG, "Configured prefs for number " + num + ", email " + email);
 		
-		ed.commit();
+		edSIP.commit();
 		
 		Receiver.engine(context).updateDNS();
    		Receiver.engine(context).halt();
