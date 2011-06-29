@@ -124,11 +124,11 @@ public class RegisterAccount extends Activity {
         return false;
 	} */
 	
-	String line;
+	int statusLine;
 	
     Handler mHandler = new Handler() {
     	public void handleMessage(Message msg) {
-			Toast.makeText(RegisterAccount.this, line, Toast.LENGTH_LONG).show();
+			Toast.makeText(RegisterAccount.this, statusLine, Toast.LENGTH_LONG).show();
 			buttonOK.setEnabled(true);
 			//setCancelable(true);
     	}
@@ -198,11 +198,25 @@ public class RegisterAccount extends Activity {
     	ed.putString(PREF_FIRST_NAME, getRegFirstName());
     	ed.putString(PREF_LAST_NAME, getRegLastName());
     	ed.putString(PREF_EMAIL, getRegEmail());
+    	// Only change the times on a successful submission
+    	//ed.putLong(PREF_LAST_REGISTRATION_ATTEMPT,
+    	//		new Date().getTime() / 1000);
+    	// Reset last activation attempt every time registration is
+    	// attempted
+    	ed.putLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
+    	ed.commit();
+    }
+    
+    protected void updateSubmissionTimes() {
+    	settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
+    	
+    	Editor ed = settings.edit();
     	ed.putLong(PREF_LAST_REGISTRATION_ATTEMPT,
     			new Date().getTime() / 1000);
     	// Reset last activation attempt every time registration is
     	// attempted
     	ed.putLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
+    	
     	ed.commit();
     }
 	
@@ -278,13 +292,16 @@ public class RegisterAccount extends Activity {
 		Toast.makeText(this, R.string.reg_please_wait, Toast.LENGTH_LONG).show();
         (new Thread() {
 			public void run() {
-				line = "Can't connect to webserver";
+				statusLine = R.string.reg_submit_failed;
 				try {
 					
 					// TODO: tidy up error handling, etc
 					
 					RegistrationUtil.submitMessage("register", getEncryptedXml());  
 
+					// If we got here, it was successful
+					updateSubmissionTimes();
+					statusLine = R.string.reg_submitted;
 					/*
 							Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
 							edit.putString(Settings.PREF_SERVER, Settings.DEFAULT_SERVER);
