@@ -49,6 +49,8 @@ import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;
 
+import com.uecommerce.util.csv.CSVReader;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -375,19 +377,25 @@ public class RegisterAccount extends Activity {
 	
 	// TODO: all ISO country codes
 	private String getCountryCode(String countrySymbol) {
-		if(countrySymbol.toUpperCase().equals("AU"))
-			return "61";
-		else if(countrySymbol.toUpperCase().equals("CH"))
-			return "41";
-		else if(countrySymbol.toUpperCase().equals("CL"))
-			return "56";
-		else if(countrySymbol.toUpperCase().equals("IE"))
-			return "353";
-		else if(countrySymbol.toUpperCase().equals("UK"))
-			return "44";
-		else if(countrySymbol.toUpperCase().equals("US"))
-			return "1";
 		
+		try {
+			CSVReader csv = new CSVReader(CountryData.class,
+					new Class[] {String.class, String.class, String.class});
+			
+			Resources res = getResources();
+			InputStream i = res.openRawResource(R.raw.country_codes);
+			BufferedReader in = new BufferedReader(new InputStreamReader(i));
+			CountryData cd = (CountryData)csv.read(in);
+			while(cd != null) {
+				if(countrySymbol.toUpperCase().equals(cd.getIsoCountryCode().toUpperCase()))
+					return cd.getItuCountryCode();
+				cd = (CountryData)csv.read(in);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// TODO: log not found		
 		return "";
 	}
 	
