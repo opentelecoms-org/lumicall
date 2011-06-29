@@ -321,6 +321,8 @@
 <string name="reg_proceed">Proceed</string>
 
 <string name="reg_please_wait">One moment...</string>
+<string name="reg_submit_failed">Failed to submit registration details</string>
+<string name="reg_submitted">Registration requested</string>
 
 <string name="activate_instructions">You should receive an SMS text containing an activation code.  Please wait for it to arrive.</string>
 <string name="activate_code">Enter the activation code here (e.g. **ABC123**)</string>
