@@ -156,14 +156,15 @@
                     <action android:name="android.provider.Telephony.SMS_RECEIVED" />
                 </intent-filter>
             </receiver>
-        <receiver android:name="org.opentelecoms.android.reg.RegistrationPhaseTwo" android:enabled="true">
+        <!--  <receiver android:name="org.opentelecoms.android.reg.RegistrationPhaseTwo" android:enabled="true">
                 <intent-filter android:priority="100">
                     <action android:name="org.opentelecoms.intent.HANDLE_AUTH_CODE" />
                 </intent-filter>
-            </receiver>    
+            </receiver> -->    
         <provider android:name="org.opentelecoms.android.sip.ENUMProviderForSIP" android:authorities="enum"
                 android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
+    	<service android:name="org.opentelecoms.android.reg.EnrolmentService"/>
     </application>
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"></uses-permission>

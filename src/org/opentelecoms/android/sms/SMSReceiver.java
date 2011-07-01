@@ -4,7 +4,7 @@ import java.io.StringWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.opentelecoms.android.reg.RegistrationPhaseTwo;
+import org.opentelecoms.android.reg.EnrolmentService;
 import org.opentelecoms.android.sip.RegistrationFailedException;
 import org.opentelecoms.android.sip.RegistrationUtil;
 import org.sipdroid.sipua.R;
@@ -56,8 +56,7 @@ public class SMSReceiver extends BroadcastReceiver {
 
             Matcher m = pattern.matcher(info);
             if(m.find()) {
-            	String regCode = m.group(1); 
-            	Toast.makeText(context, "SMS with reg code " + regCode, Toast.LENGTH_SHORT).show();
+            	String regCode = m.group(1);
             	handleRegistrationCode(context, regCode);
             }
 			
@@ -78,10 +77,11 @@ public class SMSReceiver extends BroadcastReceiver {
 	protected void handleRegistrationCode(Context context, String regCode) {
 		// Send a new intent
 		
-		final Intent intent = new Intent(RegistrationPhaseTwo.ACTION);
+		final Intent intent = new Intent(context, EnrolmentService.class);
+		intent.setAction(EnrolmentService.ACTION_VALIDATE);
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
-		intent.putExtra(RegistrationPhaseTwo.REG_CODE, regCode);
-		context.sendBroadcast(intent);
+		intent.putExtra(EnrolmentService.VALIDATION_CODE, regCode);
+		context.startService(intent);
 	}
 
 
