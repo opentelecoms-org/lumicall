@@ -2,7 +2,7 @@ package org.opentelecoms.android.sip;
 
 import java.util.Date;
 
-import org.opentelecoms.android.reg.RegistrationPhaseTwo;
+import org.opentelecoms.android.reg.EnrolmentService;
 import org.sipdroid.sipua.R;
 
 import android.app.Activity;
@@ -48,9 +48,9 @@ public class ActivateAccount extends Activity {
 	}
 
 	protected boolean handleRegistrationCode(String regCode) {
-		final Intent intent = new Intent(RegistrationPhaseTwo.ACTION);
+		final Intent intent = new Intent(EnrolmentService.ACTION_VALIDATE);
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
-		intent.putExtra(RegistrationPhaseTwo.REG_CODE, regCode);
+		intent.putExtra(EnrolmentService.VALIDATION_CODE, regCode);
 		sendBroadcast(intent);
 		return true;
 	}
@@ -79,8 +79,8 @@ public class ActivateAccount extends Activity {
 			public void onClick(View v) {
 				SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, MODE_PRIVATE);
 		    	Editor ed = settings.edit();
-		    	ed.putLong(RegisterAccount.PREF_LAST_REGISTRATION_ATTEMPT, 0);
-		    	ed.putLong(RegisterAccount.PREF_LAST_ACTIVATION_ATTEMPT, 0);
+		    	ed.putLong(RegisterAccount.PREF_LAST_ENROLMENT_ATTEMPT, 0);
+		    	ed.putLong(RegisterAccount.PREF_LAST_VALIDATION_ATTEMPT, 0);
 		    	ed.commit();
 				final Intent intent = new Intent(ActivateAccount.this, RegisterAccount.class);
 		        Log.v(TAG, "user wants to try registration form again");

@@ -43,6 +43,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.opentelecoms.android.reg.EnrolmentService;
 import org.opentelecoms.util.Base64;
 import org.sipdroid.sipua.R;
 import org.sipdroid.sipua.SipdroidEngine;
@@ -81,19 +82,19 @@ public class RegisterAccount extends Activity {
 
 	protected final static int PASSWORD_LEN = 12;
 	
-	public static final String PREFS_FILE = "org.opentelecoms.prefs.reg";
+	public static final String PREFS_FILE = "org.opentelecoms.prefs.enrol";
 	public static final String PREF_PHONE_NUMBER = "phoneNumber";
 	public static final String PREF_SECRET = "secret";
 	public static final String PREF_FIRST_NAME = "firstName";
 	public static final String PREF_LAST_NAME = "lastName";
 	public static final String PREF_EMAIL = "emailAddr";
-	public static final String PREF_LAST_REGISTRATION_ATTEMPT = "lastRegistrationAttempt";
-	public static final String PREF_LAST_ACTIVATION_ATTEMPT = "lastActivationAttempt";
+	public static final String PREF_LAST_ENROLMENT_ATTEMPT = "lastEnrolmentAttempt";
+	public static final String PREF_LAST_VALIDATION_ATTEMPT = "lastValidationAttempt";
 	
 	// TODO: should get this from Settings.sharedPrefsFile somehow
 	public static final String SIPDROID_PREFS = "org.sipdroid.sipua_preferences";
 	
-	private static final String TAG = "RegAcct";
+	private static final String TAG = "EnrolAcct";
 	
 	SharedPreferences settings;
 	String password;
@@ -176,18 +177,6 @@ public class RegisterAccount extends Activity {
 	protected String getRegEmail() {
 		return etEmail.getText().toString();
 	}
-	
-	/*
-	 * @returns a two letter lowercase ISO language code
-	 *          as defined by ISO 639-1, followed by
-	 *          country code, then variant, separated
-	 *          by underscores, as described in
-	 *          java.util.Locale.toString() 
-	 *          e.g. "en_US"
-	 */
-	protected String getLanguage() {
-		return Locale.getDefault().toString();
-	}
     
     protected void storeSettings() {
     	settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
@@ -203,76 +192,17 @@ public class RegisterAccount extends Activity {
     	//		new Date().getTime() / 1000);
     	// Reset last activation attempt every time registration is
     	// attempted
-    	ed.putLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
+    	ed.putLong(PREF_LAST_VALIDATION_ATTEMPT, 0);
     	ed.commit();
     }
     
-    protected void updateSubmissionTimes() {
-    	settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
-    	
-    	Editor ed = settings.edit();
-    	ed.putLong(PREF_LAST_REGISTRATION_ATTEMPT,
-    			new Date().getTime() / 1000);
-    	// Reset last activation attempt every time registration is
-    	// attempted
-    	ed.putLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
-    	
-    	ed.commit();
-    }
+
+
 	
-	protected String getBodyXml() {
-
-		XmlSerializer serializer = Xml.newSerializer();
-		StringWriter writer = new StringWriter();
-		try {
-			serializer.setOutput(writer);
-			serializer.startDocument("UTF-8", true);
-			String ns = RegistrationUtil.NS;
-			serializer.startTag(ns, "registration");
-		
-			RegistrationUtil.serializeProperty(serializer, ns, "phoneNumber", getRegNum());
-			RegistrationUtil.serializeProperty(serializer, ns, "secret", getPassword());
-			RegistrationUtil.serializeProperty(serializer, ns, "firstName", getRegFirstName());
-			RegistrationUtil.serializeProperty(serializer, ns, "lastName", getRegLastName());
-			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", getRegEmail());
-			RegistrationUtil.serializeProperty(serializer, ns, "language", getLanguage());
-			
-			serializer.endTag(ns, "registration");
-			serializer.endDocument();
-			return writer.toString();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} 
-	}
-	
-	protected String getEncryptedXml() {
-		XmlSerializer serializer = Xml.newSerializer();
-		StringWriter writer = new StringWriter();
-		try {
-			serializer.setOutput(writer);
-			serializer.startDocument("UTF-8", true);
-			serializer.startTag("", "encryptedRegistration");
-			serializer.attribute("", "regNum", getRegNum());
-
-			String fullBody = getBodyXml();
-
-			String encryptedBody = RegistrationUtil.getEncryptedStringAsBase64(this, fullBody); 
-			serializer.text(encryptedBody);
-
-			serializer.endTag("", "encryptedRegistration");
-			serializer.endDocument();
-			//return writer.toString();
-			return encryptedBody;
-		} catch (Exception e) {
-			Log.e(TAG, e.toString());
-			return null;
-		}
-	}
-	
-	private void doActivationActivity() {
+	private void doValidationActivity() {
 		final Intent intent = new Intent(RegisterAccount.this,
 				ActivateAccount.class);
-        Log.v(TAG, "registration sent, going to activation window");
+        Log.v(TAG, "enrolment sent, going to validation window");
         startActivity(intent);
         finish();
 	}
@@ -280,57 +210,23 @@ public class RegisterAccount extends Activity {
 	private void doMainActivity() {
 		final Intent intent = new Intent(RegisterAccount.this,
 				org.sipdroid.sipua.ui.Sipdroid.class);
-		Log.v(TAG, "activation done already");
+		Log.v(TAG, "validation done already");
 		startActivity(intent);
 		finish();
 	}
 		
-	void registerAccountNow() {
+	void enrolAccountNow() {
 		buttonOK.setEnabled(false);
 		//setCancelable(false);
 		storeSettings();
-		Toast.makeText(this, R.string.reg_please_wait, Toast.LENGTH_LONG).show();
-        (new Thread() {
-			public void run() {
-				statusLine = R.string.reg_submit_failed;
-				try {
-					
-					// TODO: tidy up error handling, etc
-					
-					RegistrationUtil.submitMessage("register", getEncryptedXml());  
-
-					// If we got here, it was successful
-					updateSubmissionTimes();
-					statusLine = R.string.reg_submitted;
-					/*
-							Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-							edit.putString(Settings.PREF_SERVER, Settings.DEFAULT_SERVER);
-							edit.putString(Settings.PREF_USERNAME, etName.getText()+"-200");
-							edit.putString(Settings.PREF_DOMAIN, Settings.DEFAULT_DOMAIN);
-							edit.putString(Settings.PREF_FROMUSER, Settings.DEFAULT_FROMUSER);
-							edit.putString(Settings.PREF_PORT, Settings.DEFAULT_PORT);
-							edit.putString(Settings.PREF_PROTOCOL, "tcp");
-							edit.putString(Settings.PREF_PASSWORD, password);
-							edit.commit();
-				        	Receiver.engine(mContext).updateDNS();
-				       		Receiver.engine(mContext).halt();
-				   			Receiver.engine(mContext).StartEngine();
-							dismiss();
-						}
-					} */
-			        
-				//} catch (IOException e) {
-				//	e.printStackTrace();
-					
-					
-					doActivationActivity();
+		
+		final Intent intent = new Intent(this, EnrolmentService.class);
+		intent.setAction(EnrolmentService.ACTION_ENROL);
+		//intent.setAction(RegistrationPhaseTwo.ACTION);
+		startService(intent);
+		
+		doValidationActivity();
 		            
-				} catch (RegistrationFailedException e) {
-					Log.e(TAG, e.toString());
-				}
-				mHandler.sendEmptyMessage(0);
-			}
-		}).start();   
 	}
 
 	EditText etNum, etFirst, etLast, etEmail;
@@ -343,15 +239,15 @@ public class RegisterAccount extends Activity {
         // Has user already done registration or activation?
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
         
-        Long ts = settings.getLong(PREF_LAST_ACTIVATION_ATTEMPT, 0);
+        Long ts = settings.getLong(PREF_LAST_VALIDATION_ATTEMPT, 0);
         if(ts != 0) {
         	doMainActivity();
         	return;
         }
         
-        ts = settings.getLong(PREF_LAST_REGISTRATION_ATTEMPT, 0);
+        ts = settings.getLong(PREF_LAST_ENROLMENT_ATTEMPT, 0);
         if(ts != 0) {
-        	doActivationActivity();
+        	doValidationActivity();
         	return;
         }
         
@@ -360,7 +256,7 @@ public class RegisterAccount extends Activity {
         buttonOK = (Button) findViewById(R.id.Button01);
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				registerAccountNow();
+				enrolAccountNow();
 			}
 		});
         etNum = (EditText) findViewById(R.id.EditText01);
