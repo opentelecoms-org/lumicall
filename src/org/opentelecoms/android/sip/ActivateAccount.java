@@ -48,10 +48,11 @@ public class ActivateAccount extends Activity {
 	}
 
 	protected boolean handleRegistrationCode(String regCode) {
-		final Intent intent = new Intent(EnrolmentService.ACTION_VALIDATE);
+		final Intent intent = new Intent(this, EnrolmentService.class);
+		intent.setAction(EnrolmentService.ACTION_VALIDATE);
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
 		intent.putExtra(EnrolmentService.VALIDATION_CODE, regCode);
-		sendBroadcast(intent);
+		startService(intent);
 		return true;
 	}
 
@@ -65,10 +66,10 @@ public class ActivateAccount extends Activity {
 			public void onClick(View v) {
 				if(activateAccountNow()) {
 					// Now we give user the main screen
-					final Intent intent = new Intent(ActivateAccount.this,
-							org.sipdroid.sipua.ui.Sipdroid.class);
-					Log.v(TAG, "activation done");
-					startActivity(intent);
+					//final Intent intent = new Intent(ActivateAccount.this,
+					//		org.sipdroid.sipua.ui.Sipdroid.class);
+					Log.v(TAG, "validation intent sent");
+					//startActivity(intent);
 					finish();
 				}
 			}
