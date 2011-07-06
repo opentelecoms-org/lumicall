@@ -189,7 +189,7 @@ public class EnrolmentService extends IntentService {
 			serializer.setOutput(writer);
 			serializer.startDocument("UTF-8", true);
 			String ns = RegistrationUtil.NS;
-			serializer.startTag(ns, "registration");
+			serializer.startTag(ns, "enrolment");
 		
 			RegistrationUtil.serializeProperty(serializer, ns, "phoneNumber", enrolmentNum);
 			RegistrationUtil.serializeProperty(serializer, ns, "secret", password);
@@ -198,7 +198,7 @@ public class EnrolmentService extends IntentService {
 			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", emailAddr);
 			RegistrationUtil.serializeProperty(serializer, ns, "language", getLanguage());
 			
-			serializer.endTag(ns, "registration");
+			serializer.endTag(ns, "enrolment");
 			serializer.endDocument();
 			return writer.toString();
 		} catch (Exception e) {
