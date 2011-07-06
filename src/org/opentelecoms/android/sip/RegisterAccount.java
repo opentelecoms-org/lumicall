@@ -260,7 +260,6 @@ public class RegisterAccount extends Activity {
 			}
 		});
         etNum = (EditText) findViewById(R.id.EditText01);
-        etNum.setText("+");
         etFirst = (EditText) findViewById(R.id.EditText02);
         etLast = (EditText) findViewById(R.id.EditText03);
         etEmail = (EditText) findViewById(R.id.EditText04);
@@ -272,8 +271,9 @@ public class RegisterAccount extends Activity {
         // TODO: should ignore exceptions in these methods, and just
         // fall back to the form
         
-        etNum.setText(getMyPhoneNumber());
-        setAccountDetails();
+        String myPhoneNumber = getMyPhoneNumber();
+        etNum.setText(settings.getString(PREF_PHONE_NUMBER, myPhoneNumber));
+        setAccountDetails(settings);
     }
 	
 	// Requires android.permission.READ_PHONE_STATE
@@ -313,10 +313,10 @@ public class RegisterAccount extends Activity {
 	}
 	
 	// Requires android.permission.GET_ACCOUNTS
-	private void setAccountDetails() {
-		String firstName = null;
-		String lastName = null;
-		String email = null;
+	private void setAccountDetails(SharedPreferences settings) {
+		String firstName = "";
+		String lastName = "";
+		String email = "";
 		
 		AccountManager am = AccountManager.get(this);
 		// Get all accounts
@@ -326,14 +326,14 @@ public class RegisterAccount extends Activity {
 		//Pattern p = Pattern.compile("");
 		
 		for(Account acct : accounts) {
-			if(!(acct.name.indexOf('@') < 0)) {
+			if(email.equals("") && !(acct.name.indexOf('@') < 0)) {
 				email = acct.name;
-				etEmail.setText(email);
-				return;
 			}
 		}
 		
-		
+		etFirst.setText(settings.getString(PREF_FIRST_NAME, firstName));
+        etLast.setText(settings.getString(PREF_LAST_NAME, lastName));
+        etEmail.setText(settings.getString(PREF_EMAIL, email));
 		
 	}
 
