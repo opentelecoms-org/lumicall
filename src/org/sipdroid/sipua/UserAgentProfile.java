@@ -139,7 +139,7 @@ public class UserAgentProfile extends Configure {
 	/** Whether using audio */
 	public boolean audio = true; // modified
 	/** Whether using video */
-	public boolean video = true; // modified
+	public boolean video = false; // modified
 
 	/** Whether playing in receive only mode */
 	public boolean recv_only = false;
@@ -331,7 +331,8 @@ public class UserAgentProfile extends Configure {
 			return;
 		}
 		if (attribute.equals("video")) {
-			video = (par.getString().toLowerCase().startsWith("y"));
+			//video = (par.getString().toLowerCase().startsWith("y"));
+			video = false;
 			return;
 		}
 		if (attribute.equals("recv_only")) {
