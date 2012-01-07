@@ -37,7 +37,7 @@ public class RegistrationUtil {
 
 	public final static String NS = "http://opentelecoms.org/sipdroid/reg";
 	
-	protected final static String REG_URL = "http://192.168.1.3:8086/test2";
+	protected final static String REG_URL = "http://192.168.1.4:8086/test2";
 	
 	public static void serializeProperty(XmlSerializer serializer, String ns, String propertyName, String value) throws IllegalArgumentException, IllegalStateException, IOException {
 		serializer.startTag(ns, propertyName);
