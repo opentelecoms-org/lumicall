@@ -144,7 +144,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 					SipStack.default_transport_protocols[0] = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_PROTOCOL+(i!=0?i:""),
 							user_profile.realm.equals(Settings.DEFAULT_SERVER)?"tcp":"udp");
 					
-					String version = "Sipdroid/" + Sipdroid.getVersion() + "/" + Build.MODEL;
+					//String version = "Sipdroid/" + Sipdroid.getVersion() + "/" + Build.MODEL;
+					String version = "DP";
 					SipStack.ua_info = version;
 					SipStack.server_info = version;
 						
