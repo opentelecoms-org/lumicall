@@ -179,6 +179,11 @@ public class Call implements InviteDialogListener {
 		if (dialog != null)
 			dialog.respond(resp);
 	}
+	
+	public void respondProvisional(String sdp) {
+		if (dialog != null)
+			dialog.respond(183, SipResponses.reasonOf(183), null, sdp);
+	}
 
 	/** Accepts the incoming call */
 	/*
