@@ -25,6 +25,8 @@ Portions of this file are derived from the following ITU standard:
    AT&T, France Telecom, NTT, Universite de Sherbrooke
 ****************************************************************************************/
 
+#include <string.h>
+
 #include "typedef.h"
 #include "basic_op.h"
 #include "ld8a.h"
