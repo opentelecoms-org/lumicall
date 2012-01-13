@@ -29,6 +29,8 @@ Portions of this file are derived from the following ITU standard:
  *   Functions Init_Decod_ld8a  and Decod_ld8a                     *
  *-----------------------------------------------------------------*/
 
+#include <string.h>
+
 #include "typedef.h"
 #include "basic_op.h"
 #include "ld8a.h"
