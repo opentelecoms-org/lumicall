@@ -245,6 +245,46 @@ LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+G729	:= g729/siphon-g729
+LOCAL_MODULE	:= g729_jni
+LOCAL_SRC_FILES	:= g729_jni.cpp \
+	$(G729)/Sources/qua_gain.c \
+	$(G729)/Sources/util.c \
+	$(G729)/Sources/g729a_decoder.c \
+	$(G729)/Sources/tab_ld8a.c \
+	$(G729)/Sources/filter.c \
+	$(G729)/Sources/lpc.c \
+	$(G729)/Sources/dspfunc.c \
+	$(G729)/Sources/post_pro.c \
+	$(G729)/Sources/dec_lag3.c \
+	$(G729)/Sources/cod_ld8a.c \
+	$(G729)/Sources/lspgetq.c \
+	$(G729)/Sources/lpcfunc.c \
+	$(G729)/Sources/lspdec.c \
+	$(G729)/Sources/dec_gain.c \
+	$(G729)/Sources/oper_32b.c \
+	$(G729)/Sources/p_parity.c \
+	$(G729)/Sources/gainpred.c \
+	$(G729)/Sources/bits.c \
+	$(G729)/Sources/dec_ld8a.c \
+	$(G729)/Sources/de_acelp.c \
+	$(G729)/Sources/cor_func.c \
+	$(G729)/Sources/postfilt.c \
+	$(G729)/Sources/taming.c \
+	$(G729)/Sources/basic_op.c \
+	$(G729)/Sources/g729a_encoder.c \
+	$(G729)/Sources/pitch_a.c \
+	$(G729)/Sources/pre_proc.c \
+	$(G729)/Sources/pred_lt3.c \
+	$(G729)/Sources/acelp_ca.c \
+	$(G729)/Sources/qua_lsp.c
+LOCAL_C_INCLUDES	+= $(LOCAL_PATH)/$(G729)/Headers
+LOCAL_CFLAGS = -g -Wall -Wextra
+LOCAL_ARM_MODE	:= arm
+LOCAL_LDLIBS	:= -L$(SYSROOT)/usr/lib
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 SPANDSP     := spandsp
 LOCAL_MODULE    := g722_jni
 LOCAL_SRC_FILES := g722_jni.cpp \
