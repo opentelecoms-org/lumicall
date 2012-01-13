@@ -159,6 +159,8 @@ public class RtpStreamSender extends Thread {
 			case 9:
 				this.frame_size = 960;
 				break;
+			case 18:
+                                this.frame_size = 80;
 			default:
 				this.frame_size = frame_size;
 				break;
