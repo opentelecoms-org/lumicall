@@ -36,6 +36,7 @@ class CodecBase implements Preference.OnPreferenceChangeListener {
 	protected int CODEC_FRAME_SIZE=160;		// default for most narrow band codecs
 	protected String CODEC_DESCRIPTION;
 	protected String CODEC_DEFAULT_SETTING = "never";
+	protected int CODEC_FRAMES_PER_PACKET = 1;
 
 	private boolean loaded = false,failed = false;
 	private boolean enabled = false;
@@ -65,6 +66,10 @@ class CodecBase implements Preference.OnPreferenceChangeListener {
 	
 	public int frame_size() {
 		return CODEC_FRAME_SIZE;
+	}
+	
+	public int framesPerPacket() {
+		return CODEC_FRAMES_PER_PACKET;
 	}
 
 	public boolean isLoaded() {
