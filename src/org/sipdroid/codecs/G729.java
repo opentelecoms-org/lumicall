@@ -28,7 +28,8 @@ class G729 extends CodecBase implements Codec {
 		CODEC_USER_NAME = "G729";
 		CODEC_DESCRIPTION = "8kbit";
 		CODEC_NUMBER = 18;
-		CODEC_DEFAULT_SETTING = "never";
+		CODEC_DEFAULT_SETTING = "always";
+		CODEC_FRAME_SIZE = 80;
 		super.update();
 	}
 
@@ -49,7 +50,8 @@ class G729 extends CodecBase implements Codec {
 	public native void close();
 
 	public void init() {
-		load();
+		if(!isLoaded())
+			load();
 		if (isLoaded())
 			open();
 	}

@@ -28,11 +28,11 @@
 #include <android/log.h>
 
 extern "C" {
-#include "g729/typedef.h"
-#include "g729/basic_op.h"
-#include "g729/ld8a.h"
+#include "typedef.h"
+#include "basic_op.h"
+#include "ld8a.h"
 
-#include "g729/g729a.h"
+#include "g729a.h"
 }
 
 /*encoder variable for open*/
@@ -108,8 +108,8 @@ extern "C"
 JNIEXPORT jint JNICALL Java_org_sipdroid_codecs_G729_encode
     (JNIEnv *env, jobject obj, jshortArray lin, jint offset, jbyteArray encoded, jint size) {
 
-Word16  speech[BLOCK_LEN];
-UWord8  serial[BLOCK_LEN];
+Word16  speech[L_FRAME];
+UWord8  serial[BITSTREAM_SIZE];
 
 int i;
 
@@ -119,8 +119,11 @@ unsigned int lin_pos = 0;
 
 		if (!codec_open)
 			return 0;
+			
+		if(hEncoder == NULL)
+			return 0;
 
-for (i = 0; i < size; i+=frsz)
+for (i = 0; (i + L_FRAME) <= size; i+=frsz)
 	 {
 		env->GetShortArrayRegion(lin, offset + i,frsz, speech);
 		g729a_enc_process(hEncoder, speech, (unsigned char*)serial);
@@ -148,8 +151,11 @@ JNIEXPORT jint JNICALL Java_org_sipdroid_codecs_G729_decode
 
 		  if (!codec_open)
 			return 0;
+			
+		if(hDecoder == NULL)
+			return 0;
 
-		  for (i=0; i<size; i=i+BITSTREAM_SIZE)
+		  for (i=0; i + BITSTREAM_SIZE <= size; i=i+BITSTREAM_SIZE)
 			  {
 				  //env->GetByteArrayRegion(encoded, RTP_HDR_SIZE, size, serial);
 			      env->GetByteArrayRegion(encoded, i+RTP_HDR_SIZE, BITSTREAM_SIZE,serial);
@@ -175,8 +181,10 @@ JNIEXPORT void JNICALL Java_org_sipdroid_codecs_G729_close
 	/*encoder closed*/
 	g729a_enc_deinit(hEncoder);
 	free(hEncoder);
+	hEncoder = NULL;
 	/*decoder closed*/
 	g729a_dec_deinit(hDecoder);
 	free(hDecoder);
+	hDecoder = NULL;
 
 }
