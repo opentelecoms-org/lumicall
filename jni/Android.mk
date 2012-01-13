@@ -4,11 +4,13 @@ SILK     := silk
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := OSNetworkSystem
+LOCAL_MODULE_FILENAME	:= libOSNetworkSystem
 LOCAL_SRC_FILES := OSNetworkSystem.cpp
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE    := speex_jni
+LOCAL_MODULE_FILENAME	:= libspeex_jni
 LOCAL_SRC_FILES := speex_jni.cpp \
 		$(SPEEX)/libspeex/speex.c \
 		$(SPEEX)/libspeex/speex_callbacks.c \
@@ -42,6 +44,7 @@ include $(BUILD_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 BV16     := bx16_fixedp
 LOCAL_MODULE    := bv16_jni
+LOCAL_MODULE_FILENAME	:= libbv16_jni
 LOCAL_SRC_FILES := bv16_jni.cpp \
 	$(BV16)/bvcommon/a2lsp.c \
 	$(BV16)/bvcommon/allpole.c \
@@ -88,6 +91,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 SILK     := silk
 LOCAL_MODULE    := silkcommon
+LOCAL_MODULE_FILENAME	:= libsilkcommon
 LOCAL_SRC_FILES :=  $(SILK)/src/SKP_Silk_A2NLSF.c \
 	$(SILK)/src/SKP_Silk_CNG.c \
 	$(SILK)/src/SKP_Silk_HP_variable_cutoff_FIX.c \
