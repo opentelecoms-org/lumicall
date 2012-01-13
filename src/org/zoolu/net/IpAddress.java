@@ -37,8 +37,6 @@ import org.sipdroid.sipua.ui.Sipdroid;
 import android.preference.PreferenceManager;
 import android.content.Context;
 
-import com.jstun.demo.DiscoveryTest;
-
 /**
  * IpAddress is an IP address.
  */
@@ -144,29 +142,7 @@ public class IpAddress {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 
 					if (!inetAddress.isLoopbackAddress()) { 
-						if (!PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_STUN, Settings.DEFAULT_STUN)) {
-							localIpAddress = inetAddress.getHostAddress().toString();
-						} else {
-							try {
-								String StunServer = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_STUN_SERVER, Settings.DEFAULT_STUN_SERVER);
-								int StunServerPort = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_STUN_SERVER_PORT, Settings.DEFAULT_STUN_SERVER_PORT));
-
-								DiscoveryTest StunDiscover = new DiscoveryTest(inetAddress, StunServer, StunServerPort);
-
-								// call out to stun server 
-								StunDiscover.test();
-								//System.out.println("Public ip is:" + StunDiscover.di.getPublicIP().getHostAddress());
-								localIpAddress = StunDiscover.di.getPublicIP().getHostAddress();
-							} catch (BindException be) {
-								if (!Sipdroid.release)
-									System.out.println(inetAddress.toString() + ": " + be.getMessage());
-							} catch (Exception e) {
-								if (!Sipdroid.release) {
-									System.out.println(e.getMessage());
-									e.printStackTrace();
-								}
-							} 
-						}
+						localIpAddress = inetAddress.getHostAddress().toString();
 					}					
 				}
 			}
