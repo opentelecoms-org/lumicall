@@ -295,7 +295,7 @@ static inline Word16 norm_l(register Word32 ra)
   if (ra)
   {
     ra ^= (ra << 1);
-    __asm__("clz %0, %1  \n\t"
+    __asm__ volatile("clz %0, %1  \n\t"
             : "=r"(out)
             : "r"(ra));
   }
@@ -337,7 +337,7 @@ static inline Word32 L_sub(register Word32 ra, register Word32 rb)
 {
   Word32 out;
 
-  __asm__("qsub %0, %1, %2"
+  __asm__ volatile("qsub %0, %1, %2"
           : "=r"(out)
           : "r"(ra), "r"(rb));
 
@@ -379,7 +379,7 @@ static inline Word32 L_add(register Word32 ra, register Word32 rb)
 {
   Word32 out;
 
-  __asm__("qadd %0, %1, %2"
+  __asm__ volatile("qadd %0, %1, %2"
           : "=r"(out)
           : "r"(ra), "r"(rb));
 
@@ -427,7 +427,7 @@ static inline Word16 mult(/*register Word32 ra */Word16 var1,
   register Word32 ra = var1;
   register Word32 rb = var2;
 
-  __asm__("smulbb %0, %1, %2   \n\t"
+  __asm__ volatile("smulbb %0, %1, %2   \n\t"
           "mov %0, %0, ASR #15 \n\t"
           "cmp %0, %3          \n\t"
           "movge %0, %3        \n\t"
@@ -478,7 +478,7 @@ static inline Word32 L_mult(/*register Word32 ra /*/Word16 var1,
   register Word32 rb = var2;
   Word32 out;
 
-  __asm__("smulbb %0, %1, %2 \n\t"
+  __asm__ volatile("smulbb %0, %1, %2 \n\t"
           "qadd %0, %0, %0   \n\t"
           : "=r"(out)
           : "r"(ra), "r"(rb));
@@ -529,7 +529,7 @@ static inline Word32 L_msu(register Word32 ra,
     Word32 tmp = 0;
     Word32 out;
 
-    __asm__("smulbb %0, %2, %3 \n\t"
+    __asm__ volatile("smulbb %0, %2, %3 \n\t"
             "qdsub %1, %4, %5  \n\t"
             : "=r"(tmp), "=r"(out)
             : "r"(rb), "r"(rc), "r"(ra), "0"(tmp));
@@ -580,7 +580,7 @@ static inline Word32 L_mac(register Word32 ra,
   Word32 out;
   Word32 tmp = 0;
 
-  __asm__("smulbb %0, %3, %4   \n\t"
+  __asm__ volatile("smulbb %0, %3, %4   \n\t"
           "qdadd %1, %2, %5    \n\t"
           : "=r"(tmp), "=r"(out)
           : "r"(ra), "r"(rb), "r"(rc), "0"(tmp));
@@ -627,7 +627,7 @@ static inline Word16 add(Word16 var1, Word16 var2)
   register Word32 ra = var1;
   register Word32 rb = var2;
 
-  __asm__("qadd16 %0, %1, %2"
+  __asm__ volatile("qadd16 %0, %1, %2"
           : "=r"(out)
           : "r"(ra), "r"(rb));
 
@@ -673,7 +673,7 @@ static inline Word16 sub(Word16 var1, Word16 var2)
   register Word32 rb = var2;
   Word32 out;
 
-  __asm__("qsub16 %0, %1, %2"
+  __asm__ volatile("qsub16 %0, %1, %2"
           : "=r"(out)
           : "r"(ra), "r"(rb));
 
@@ -786,7 +786,7 @@ static inline Word16 g_round(register Word32 ra)
    Word32 out;
    register Word32 rb = 0x00008000;
 
-   __asm__ ("qadd %0, %1, %2  \n\t"
+   __asm__  volatile("qadd %0, %1, %2  \n\t"
             "mov %0, %0, ASR #16 \n\t"
             : "=r"(out)
             : "r"(ra), "r"(rb));
