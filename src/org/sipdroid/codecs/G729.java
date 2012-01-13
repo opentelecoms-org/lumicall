@@ -29,7 +29,8 @@ class G729 extends CodecBase implements Codec {
 		CODEC_DESCRIPTION = "8kbit";
 		CODEC_NUMBER = 18;
 		CODEC_DEFAULT_SETTING = "always";
-		CODEC_FRAME_SIZE = 80;
+		CODEC_FRAME_SIZE = 80 * 2;          // FIXME - hack - send two frames in each packet
+		CODEC_FRAMES_PER_PACKET = 2;
 		super.update();
 	}
 
