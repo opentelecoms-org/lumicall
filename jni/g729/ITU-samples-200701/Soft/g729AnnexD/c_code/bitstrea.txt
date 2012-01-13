@@ -1,0 +1,146 @@
+/* ITU-T G.729 Software Package Release 2 (November 2006) */
+/* G.729 with ANNEX D version 1.3    Last modified: 17 Oct 2000 */
+
+TITLE
+-----
+G.729 annex D bitstream format of the lower rate (6.4 kbit/s).
+
+
+
+BITSTREAM FORMAT
+ 
+For rate 6.4 kbit/s, 
+
+the bitstreamfile contains for each 10 ms speech 
+frame, 66 16-bit words.
+
+The first word is the syncword SYNC_WORD
+
+The second word is the framesize contains the value 64.
+
+
+The next 64 words contain the following parameters:
+      
+
+001      LPC1-   MA predictor switch
+
+002      LPC1-   1st codebook                     7 bit
+
+003      LPC1-
+
+004      LPC1-
+
+005      LPC1-
+
+006      LPC1-
+
+007      LPC1-
+
+008      LPC1-
+
+009      LPC2-	2nd codebook  low                5 bit
+
+010      LPC2-
+
+011      LPC2-
+
+012      LPC2-
+
+013      LPC2-
+
+014      LPC2-	2nd codebook  high               5 bit
+
+015      LPC2-
+
+016      LPC2-
+
+017      LPC2-
+
+018      LPC2-
+
+019      M_1     pitch period                     8 bit
+
+020      M_1
+
+021      M_1
+
+022      M_1
+
+023      M_1
+
+024      M_1
+
+025      M_1
+
+026      M_1
+
+027      CB1_0   codebook: one pulse in track 1   4 bits
+
+028      CB1_0
+
+029      CB1_0
+
+030      CB1_0
+
+031      CB1_1   codebook: two pulses in track 2  5 bit
+
+032      CB1_1
+
+033      CB1_1
+
+034      CB1_1
+
+035      CB1_1
+036      CB1_S   codebook: sign                   2 bits
+
+037      CB1_S
+038      G_1     pitch and codebook gains         6 bits  
+
+039      G_1
+
+040      G_1
+
+041      G_1
+
+042      G_1
+
+043      G_1
+
+044      M_2     pitch period (relative)          5 bit
+
+045      M_2
+
+046      M_2
+
+047      M_2
+
+048      CB2_0   codebook: one pulse in track 1   4 bits
+
+049      CB2_0
+
+050      CB2_0
+
+051      CB2_0
+
+052      CB2_1   codebook: two pulses in track 2  5 bit
+
+053      CB2_1
+
+054      CB2_1
+
+055      CB2_1
+
+056      CB2_1
+057      CB2_S   codebook: sign                   2 bits
+
+058      CB2_S
+059      G_2     pitch and codebook gains         6 bits
+060      G_2
+
+061      G_2
+
+062      G_2
+
+063      G_2
+
+064      G_2

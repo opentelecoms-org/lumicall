@@ -1,0 +1,289 @@
+ITU-T G.729 Software Package Release 2 (November 2006)
+/*
+   ITU-T G.729 Annex G - Reference C code for fixed point
+                         implementation of G.729 Annex G
+						 Version 1.2 of October 2006
+*/
+
+TITLE
+-----
+
+This file describes the G.729 Annex G bitstream format.
+
+BITSTREAM FORMAT
+----------------
+
+
+For the rate 11.8 kbit/s, the bitstreamfile contains one-hundred and twenty 16-bit words for each 10 ms speech frame.
+
+The first word is the syncword SYNC_WORD and the second word is the
+framesize contains the value 118 (120 less 2).
+
+The next 118 words contain the following parameters:
+001      mode -   Backward /forward switch,
+                        = BIT_0 for forward mode
+                        = BIT_1 for backward mode
+002      parity bit for mode
+
+In forward mode, the next 116 words are:
+003      LPC1-   MA predictor switch
+004      LPC1-   1st codebook           7 bit
+005      LPC1-
+006      LPC1-
+007      LPC1-
+008      LPC1-
+009      LPC1-
+010      LPC1-
+011      LPC2-   2nd codebook  low         5 bit
+012      LPC2-
+013      LPC2-
+014      LPC2-
+015      LPC2-
+016      LPC2-   2nd codebook  high         5 bit
+017      LPC2-
+018      LPC2-
+019      LPC2-
+020      LPC2-
+021      M_1     pitch period                8 bit
+022      M_1
+023      M_1
+024      M_1
+025      M_1
+026      M_1
+027      M_1
+028      M_1
+029              parity check on 1st period  1 bit
+030      CB1_1_0  codebook: two pulses in track 0  7 bits
+031      CB1_1_0
+032      CB1_1_0
+033      CB1_1_0
+034      CB1_1_0
+035      CB1_1_0
+036      CB1_1_0
+037      CB1_1_1 codebook: two pulses in track 1   7 bit
+038      CB1_1_1
+039      CB1_1_1
+040      CB1_1_1
+041      CB1_1_1
+042      CB1_1_1
+043      CB1_1_1
+044      CB1_1_2 codebook: two pulses in track 2   7 bit
+045      CB1_1_2
+046      CB1_1_2
+047      CB1_1_2
+048      CB1_1_2
+049      CB1_1_2
+050      CB1_1_2
+051      CB1_1_3  codebook: two pulses in track 3   7 bits
+052      CB1_1_3
+053      CB1_1_3
+054      CB1_1_3
+055      CB1_1_3
+056      CB1_1_3
+057      CB1_1_3
+058      CB1_1_4  codebook: two pulses in track 4   7 bits
+059      CB1_1_4
+060      CB1_1_4
+061      CB1_1_4
+062      CB1_1_4
+063      CB1_1_4
+064      CB1_1_4
+065      G_1     pitch and codebook gains  3 bit stage 1
+066      G_1
+067      G_1
+068      G_1     pitch and codebook gains  4 bit stage 2
+069      G_1
+070      G_1
+071      G_1
+072      M_2     pitch period (relative)     5 bit
+073      M_2
+074      M_2
+075      M_2
+076      M_2
+077      CB1_2_0 codebook: two pulses in track 0   7 bits
+078      CB1_2_0
+079      CB1_2_0
+080      CB1_2_0
+081      CB1_2_0
+082      CB1_2_0
+083      CB1_2_0
+084      CB1_2_1 codebook: two pulses in track 1   7 bit
+085      CB1_2_1
+086      CB1_2_1
+087      CB1_2_1
+088      CB1_2_1
+089      CB1_2_1
+090      CB1_2_1
+091      CB1_2_2  codebook: two pulses in track 2   7 bit
+092      CB1_2_2
+093      CB1_2_2
+094      CB1_2_2
+095      CB1_2_2
+096      CB1_2_2
+097      CB1_2_2
+098      CB1_2_3  codebook: two pulses in track 3   7 bits
+099      CB1_2_3
+100      CB1_2_3
+101      CB1_2_3
+102      CB1_2_3
+103      CB1_2_3
+104      CB1_2_3
+105      CB1_2_4  codebook: two pulses in track 4   7 bits
+106      CB1_2_4
+107      CB1_2_4
+108      CB1_2_4
+109      CB1_2_4
+110      CB1_2_4
+111      CB1_2_4
+112      G_2     pitch and codebook gains  3 bit stage 1
+113      G_2
+114      G_2
+115      G_2     pitch and codebook gains  4 bit stage 2
+116      G_2
+117      G_2
+118      G_2
+
+Alternatively, when in backward mode, the next 116 words are:
+003      M_1     pitch period                8 bit
+004      M_1
+005      M_1
+006      M_1
+007      M_1
+008      M_1
+009      M_1
+010      M_1
+011                              parity check on 1st period  1 bit
+012      CB2_1_0  codebook: track index + pulses 1, 6, and 11   13 bits
+013      CB2_1_0
+014      CB2_1_0
+015      CB2_1_0
+016      CB2_1_0
+017      CB2_1_0
+018      CB2_1_0
+019      CB2_1_0
+020      CB2_1_0
+021      CB2_1_0
+022      CB2_1_0
+023      CB2_1_0
+024      CB2_1_0
+025      CB2_1_1 codebook: pulses 2, 7, and 12   10 bit
+026      CB2_1_1
+027      CB2_1_1
+028      CB2_1_1
+029      CB2_1_1
+030      CB2_1_1
+031      CB2_1_1
+032      CB2_1_1
+033      CB2_1_1
+034      CB2_1_1
+035      CB2_1_2 codebook: pulses 3 and 8   7 bit
+036      CB2_1_2
+037      CB2_1_2
+038      CB2_1_2
+039      CB2_1_2
+040      CB2_1_2
+041      CB2_1_2
+042      CB2_1_3  codebook: pulses 4 and 9   7 bits
+043      CB2_1_3
+044      CB2_1_3
+045      CB2_1_3
+046      CB2_1_3
+047      CB2_1_3
+048      CB2_1_3
+049      CB2_1_4  codebook: pulses 5 and 10   7 bits
+050      CB2_1_4
+051      CB2_1_4
+052      CB2_1_4
+053      CB2_1_4
+054      CB2_1_4
+055      CB2_1_4
+056      G_1     pitch and codebook gains  3 bit stage 1
+057      G_1
+058      G_1
+059      G_1     pitch and codebook gains  4 bit stage 2
+060      G_1
+061      G_1
+062      G_1
+063      M_2     pitch period (relative)     5 bit
+064      M_2
+065      M_2
+066      M_2
+067      M_2
+068      CB2_2_0  codebook: track index + pulses 1, 6, and 11   13 bits
+069      CB2_2_0
+070      CB2_2_0
+071      CB2_2_0
+072      CB2_2_0
+073      CB2_2_0
+074      CB2_2_0
+075      CB2_2_0
+076      CB2_2_0
+077      CB2_2_0
+078      CB2_2_0
+079      CB2_2_0
+080      CB2_2_0
+081      CB2_2_1 codebook: pulses 2, 7, and 12   10 bit
+082      CB2_2_1
+083      CB2_2_1
+084      CB2_2_1
+085      CB2_2_1
+086      CB2_2_1
+087      CB2_2_1
+088      CB2_2_1
+089      CB2_2_1
+090      CB2_2_1
+091      CB2_2_2 codebook: pulses 3 and 8   7 bit
+092      CB2_2_2
+093      CB2_2_2
+094      CB2_2_2
+095      CB2_2_2
+096      CB2_2_2
+097      CB2_2_2
+098      CB2_2_3  codebook: pulses 4 and 9   7 bits
+099      CB2_2_3
+100      CB2_2_3
+101      CB2_2_3
+102      CB2_2_3
+103      CB2_2_3
+104      CB2_2_3
+105      CB2_2_4  codebook: pulses 5 and 10   7 bits
+106      CB2_2_4
+107      CB2_2_4
+108      CB2_2_4
+109      CB2_2_4
+110      CB2_2_4
+111      CB2_2_4
+112      G_2     pitch and codebook gains  3 bit stage 1
+113      G_2
+114      G_2
+115      G_2     pitch and codebook gains  4 bit stage 2
+116      G_2
+117      G_2
+118      G_2
+
+For SID frame, the bitstreamfile contains 17 (or 18) 16-bit words for
+each 10 ms speech frame.
+
+The first word is the syncword SYNC_WORD and the second word is the
+framesize which will contain either the value 15 or the value 16 
+[15=17-2;16=18-2].
+
+The next 15 (or 16) words contain the following parameters:
+001      LPC1-   SID MA predictor switch
+002      LPC1-   SID Lsp : 1st stage 5 bit
+003      LPC1-
+004      LPC1-
+005      LPC1-
+006      LPC1-
+007      LPC2-   SID Lsp : 2nd stage 4 bit
+008      LPC2-
+009      LPC2-
+010      LPC2-
+011      GAIN-  SID gain : 5 bit
+012      GAIN-
+013      GAIN-
+014      GAIN-
+015      GAIN-
+(016     BIT_0)
+
+-- [END] --
