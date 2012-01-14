@@ -24,6 +24,7 @@ package org.sipdroid.media;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.logging.Logger;
 
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
@@ -54,6 +55,9 @@ import android.widget.Toast;
  * and writes them into an OutputStream.
  */
 public class RtpStreamReceiver extends Thread {
+	
+	private static final Logger logger =
+	        Logger.getLogger(RtpStreamReceiver.class.getName());
 
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
@@ -68,6 +72,9 @@ public class RtpStreamReceiver extends Thread {
 
 	/** Maximum blocking time, spent waiting for reading new bytes [milliseconds] */
 	public static final int SO_TIMEOUT = 1000;
+	
+	/** Max time to block when emptying the receive queue **/
+	private static final int SO_TIMEOUT_SHORT = 1;
 
 	/** The RtpSocket */
 	RtpSocket rtp_socket = null;
@@ -427,8 +434,10 @@ public class RtpStreamReceiver extends Thread {
 	int seq;
 	
 	void empty() {
+		logger.info("emptying RX buffer");
 		try {
-			rtp_socket.getDatagramSocket().setSoTimeout(1);
+			logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT_SHORT);
+			rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT_SHORT);
 			for (;;)
 				rtp_socket.receive(rtp_packet);
 		} catch (SocketException e2) {
@@ -436,10 +445,12 @@ public class RtpStreamReceiver extends Thread {
 		} catch (IOException e) {
 		}
 		try {
+			logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT);
 			rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
 		} catch (SocketException e2) {
 			if (!Sipdroid.release) e2.printStackTrace();
 		}
+		logger.info("finished clearing RX buffer");
 		seq = 0;
 	}
 	
@@ -535,16 +546,14 @@ public class RtpStreamReceiver extends Thread {
 		keepon = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_KEEPON, org.sipdroid.sipua.ui.Settings.DEFAULT_KEEPON);
 
 		if (rtp_socket == null) {
-			if (DEBUG)
-				println("ERROR: RTP socket is null");
+			logger.severe("ERROR: RTP socket is null");
 			return;
 		}
 
 		byte[] buffer = new byte[BUFFER_SIZE+12];
 		rtp_packet = new RtpPacket(buffer, 0);
 
-		if (DEBUG)
-			println("Reading blocks of max " + buffer.length + " bytes");
+		logger.info("Reading blocks of max " + buffer.length + " bytes");
 
 		running = true;
 		enableBluetooth(PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_BLUETOOTH,
@@ -565,11 +574,14 @@ public class RtpStreamReceiver extends Thread {
 		short lin2[] = new short[BUFFER_SIZE];
 		int server, headroom, todo, len = 0, m = 1, expseq, getseq, vm = 1, gap, gseq;
 		ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL,(int)(ToneGenerator.MAX_VOLUME*2*org.sipdroid.sipua.ui.Settings.getEarGain()));
+		logger.info("starting track player");
 		track.play();
+		logger.info("suggesting garbage collection should run");
 		System.gc();
 		empty();
 		lockFirst = true;
 		while (running) {
+			logger.fine("doing RX loop");
 			lock(true);
 			if (Receiver.call_state == UserAgent.UA_STATE_HOLD) {
 				lock(false);
@@ -599,6 +611,7 @@ public class RtpStreamReceiver extends Thread {
 				}
 				timeout = 0;
 			} catch (IOException e) {
+				logger.warning("Exception in receive/play block: " + e.getClass().getCanonicalName() + ", " + e.getMessage());
 				if (timeout == 0 && nodata) {
 					tg.startTone(ToneGenerator.TONE_SUP_RINGTONE);
 				}
@@ -742,15 +755,9 @@ public class RtpStreamReceiver extends Thread {
 			call_recorder = null;
 		}
 
-		if (DEBUG)
-			println("rtp receiver terminated");
+		logger.info("rtp receiver terminated");
 
 		cleanupBluetooth();
-	}
-
-	/** Debug output */
-	private static void println(String str) {
-		if (!Sipdroid.release) System.out.println("RtpStreamReceiver: " + str);
 	}
 
 	public static int byte2int(byte b) { // return (b>=0)? b : -((b^0xFF)+1);
