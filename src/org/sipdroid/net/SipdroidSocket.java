@@ -24,58 +24,104 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketOptions;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
 
 import org.sipdroid.net.impl.OSNetworkSystem;
 import org.sipdroid.net.impl.PlainDatagramSocketImpl;
 
 public class SipdroidSocket extends DatagramSocket {
+	
+	private static final Logger logger
+    	= Logger.getLogger(SipdroidSocket.class.getName());
 
-	PlainDatagramSocketImpl impl;
+	PlainDatagramSocketImpl impl = null;
 	public static boolean loaded = false;
 	
+	private static boolean useJNIImpl = false;
+	
+	public static void enableJNIImpl(boolean enable) {
+		if(loaded)
+			useJNIImpl = enable;
+	}
+	
 	public SipdroidSocket(int port) throws SocketException, UnknownHostException {
-		super(!loaded?port:0);
-		if (loaded) {
+		super(!useJNIImpl?port:0);
+		if (useJNIImpl) {
 			impl = new PlainDatagramSocketImpl();
 			impl.create();
 			impl.bind(port,InetAddress.getByName("0"));
 		}
 	}
 	
+	public SipdroidSocket(int port, InetAddress laddr) throws SocketException {
+		super(!useJNIImpl?port:0, !useJNIImpl?laddr:null);
+		if (useJNIImpl) {
+			impl = new PlainDatagramSocketImpl();
+			impl.create();
+			impl.bind(port, laddr);
+		}
+	}
+
+	public SipdroidSocket(SocketAddress bindaddr) throws SocketException {
+		super(!useJNIImpl?bindaddr:null);
+		InetSocketAddress _bindaddr = (InetSocketAddress)bindaddr;
+		if (useJNIImpl) {
+			impl = new PlainDatagramSocketImpl();
+			impl.create();
+			impl.bind(_bindaddr.getPort(),_bindaddr.getAddress());
+		}
+	}
+
+	public SipdroidSocket() throws SocketException {
+		super(0);
+		if (useJNIImpl) {
+			impl = new PlainDatagramSocketImpl();
+			impl.create();
+		}
+	}
+	
 	public void close() {
 		super.close();
-		if (loaded) impl.close();
+		if (impl != null) impl.close();
 	}
 	
 	public void setSoTimeout(int val) throws SocketException {
-		if (loaded) impl.setOption(SocketOptions.SO_TIMEOUT, val);
+		if (impl != null) impl.setOption(SocketOptions.SO_TIMEOUT, val);
 		else super.setSoTimeout(val);
 	}
 	
 	public void receive(DatagramPacket pack) throws IOException {
-		if (loaded) impl.receive(pack);
+		if (impl != null) impl.receive(pack);
 		else super.receive(pack);
 	}
 	
 	public void send(DatagramPacket pack) throws IOException {
-		if (loaded) impl.send(pack);
+		if (impl != null) impl.send(pack);
 		else super.send(pack);
 	}
 	
 	public boolean isConnected() {
-		if (loaded) return true;
+		if (impl != null) return true;
 		else return super.isConnected();
 	}
 	
 	public void disconnect() {
-		if (!loaded) super.disconnect();
+		if (impl == null) super.disconnect();
 	}
 	
 	public void connect(InetAddress addr,int port) {
-		if (!loaded) super.connect(addr,port);
+		if (impl == null) super.connect(addr,port);
+	}
+	
+	public boolean isBound() {
+		if(impl != null)
+			throw new RuntimeException("Method not implemented");
+		return super.isBound();
 	}
 
 	static {
@@ -83,7 +129,11 @@ public class SipdroidSocket extends DatagramSocket {
 		        System.loadLibrary("OSNetworkSystem");
 		        OSNetworkSystem.getOSNetworkSystem().oneTimeInitialization(true);
 		        SipdroidSocket.loaded = true;
+		        SipdroidSocket.useJNIImpl = true;
 			} catch (Throwable e) {
+				logger.severe("JNI/Exception loading/initializing OSNetworkSystem: " + 
+						e.getClass().getCanonicalName()	+
+						": " + e.getMessage());
 			}
 	}
 }
