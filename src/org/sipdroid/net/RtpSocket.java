@@ -73,8 +73,8 @@ public class RtpSocket {
 		datagram.setData(rtpp.packet);
 		datagram.setLength(rtpp.packet.length);
 		socket.receive(datagram);
-		if (!socket.isConnected())
-			socket.connect(datagram.getAddress(),datagram.getPort());
+		//if (!socket.isConnected())
+		//	socket.connect(datagram.getAddress(),datagram.getPort());
 		rtpp.packet_len = datagram.getLength();
 	}
 

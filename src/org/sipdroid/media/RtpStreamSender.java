@@ -337,7 +337,7 @@ public class RtpStreamSender extends Thread {
 			if (!Sipdroid.release) e2.printStackTrace();
 		}
 		
-		long maximumIntervalBetweenTransmissions = 500;
+		long maximumIntervalBetweenTransmissions = frame_period;
 		
 		p_type.codec.init();
 		while (running) {
@@ -490,7 +490,8 @@ public class RtpStreamSender extends Thread {
  			 rtp_packet.setTimestamp(time);
  			 rtp_packet.setPayloadLength(num);
  			 now = SystemClock.elapsedRealtime();
- 			 if (RtpStreamReceiver.timeout == 0 || now-lastsent > maximumIntervalBetweenTransmissions)
+ 			 //if (RtpStreamReceiver.timeout == 0 || now-lastsent > maximumIntervalBetweenTransmissions)
+ 			 if(true)
 	 			 try {
 	 				 lastsent = now;
 	 				 rtp_socket.send(rtp_packet);

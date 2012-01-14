@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
+import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.R;
 import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.InCallScreen;
@@ -434,23 +435,27 @@ public class RtpStreamReceiver extends Thread {
 	int seq;
 	
 	void empty() {
-		logger.info("emptying RX buffer");
-		try {
-			logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT_SHORT);
-			rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT_SHORT);
-			for (;;)
-				rtp_socket.receive(rtp_packet);
-		} catch (SocketException e2) {
-			if (!Sipdroid.release) e2.printStackTrace();
-		} catch (IOException e) {
+		if(SipdroidSocket.class.isInstance(rtp_socket.getDatagramSocket())) {
+			logger.info("emptying RX buffer");
+			try {
+				logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT_SHORT);
+				rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT_SHORT);
+				for (;;)
+					rtp_socket.receive(rtp_packet);
+			} catch (SocketException e2) {
+				if (!Sipdroid.release)
+					e2.printStackTrace();
+			} catch (IOException e) {
+			}
+			try {
+				logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT);
+				rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
+			} catch (SocketException e2) {
+				if (!Sipdroid.release)
+					e2.printStackTrace();
+			}
+			logger.info("finished clearing RX buffer");
 		}
-		try {
-			logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT);
-			rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
-		} catch (SocketException e2) {
-			if (!Sipdroid.release) e2.printStackTrace();
-		}
-		logger.info("finished clearing RX buffer");
 		seq = 0;
 	}
 	
@@ -615,7 +620,7 @@ public class RtpStreamReceiver extends Thread {
 				if (timeout == 0 && nodata) {
 					tg.startTone(ToneGenerator.TONE_SUP_RINGTONE);
 				}
-				rtp_socket.getDatagramSocket().disconnect();
+				//rtp_socket.getDatagramSocket().disconnect();
 				if (++timeout > 60) {
 					Receiver.engine(Receiver.mContext).rejectcall();
 					break;
