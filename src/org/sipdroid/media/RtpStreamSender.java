@@ -55,7 +55,7 @@ import android.preference.PreferenceManager;
 public class RtpStreamSender extends Thread {
 	
 	private static final Logger logger =
-	        Logger.getLogger(RtpStreamReceiver.class.getName());
+	        Logger.getLogger(RtpStreamSender.class.getName());
 	
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
