@@ -21,8 +21,10 @@
 
 package org.sipdroid.net;
 
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.DatagramPacket;
+import java.net.SocketTimeoutException;
 import java.io.IOException;
 
 
@@ -35,7 +37,7 @@ import java.io.IOException;
  */
 public class RtpSocket {
 	/** UDP socket */
-	SipdroidSocket socket;
+	DatagramSocket socket;
 	DatagramPacket datagram;
 	
 	/** Remote address */
@@ -45,7 +47,7 @@ public class RtpSocket {
 	int r_port;
 
 	/** Creates a new RTP socket (only receiver) */
-	public RtpSocket(SipdroidSocket datagram_socket) {
+	public RtpSocket(DatagramSocket datagram_socket) {
 		socket = datagram_socket;
 		r_addr = null;
 		r_port = 0;
@@ -53,7 +55,7 @@ public class RtpSocket {
 	}
 
 	/** Creates a new RTP socket (sender and receiver) */
-	public RtpSocket(SipdroidSocket datagram_socket,
+	public RtpSocket(DatagramSocket datagram_socket,
 			InetAddress remote_address, int remote_port) {
 		socket = datagram_socket;
 		r_addr = remote_address;
@@ -62,7 +64,7 @@ public class RtpSocket {
 	}
 
 	/** Returns the RTP SipdroidSocket */
-	public SipdroidSocket getDatagramSocket() {
+	public DatagramSocket getDatagramSocket() {
 		return socket;
 	}
 
