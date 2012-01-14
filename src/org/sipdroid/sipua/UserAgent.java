@@ -133,6 +133,16 @@ public class UserAgent extends CallListenerAdapter {
 	protected synchronized void changeStatus(int state,String caller) {
 		call_state = state;
 		Receiver.onState(state, caller);
+		if(state == UA_STATE_IDLE) {
+			setSocketAllocator(null);
+			if(iceAgent != null) {
+				iceAgent.free();
+				iceAgent = null;
+			}
+			if(mediaStreams != null) {
+				mediaStreams.clear();
+			}
+		}
 	}
 	
 	protected void changeStatus(int state) {
@@ -214,6 +224,13 @@ public class UserAgent extends CallListenerAdapter {
 				user_profile.from_url,
 				sip_provider.getViaAddress());
 		
+		if(iceAgent != null) {
+			sdp.addAttribute(new AttributeField(ATTR_ICE_UFRAG, iceAgent.getLocalUfrag()));
+			sdp.addAttribute(new AttributeField(ATTR_ICE_PWD, iceAgent.getLocalPassword()));
+		} else {
+			printLog("not adding ICE data to SDP (iceAgent == null)");
+		}
+		
 		local_session = sdp.toString();
 		
 		//We will have at least one media line, and it will be 
@@ -246,6 +263,9 @@ public class UserAgent extends CallListenerAdapter {
 		Vector<AttributeField> afvec = new Vector<AttributeField>();
 		
 		afvec.add(new AttributeField("rtpmap", attr_param));
+		
+		if(iceAgent != null)
+			addICECandidates(afvec, port, media);
 		
 		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", 
 				String.valueOf(avp)), afvec);
@@ -286,6 +306,9 @@ public class UserAgent extends CallListenerAdapter {
 		}
 				
 		//String attr_param = String.valueOf(avp);
+		
+		if(iceAgent != null)
+			addICECandidates(afvec, port, media);
 		
 		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", avpvec), afvec);		
 		local_session = sdp.toString();
@@ -455,6 +478,12 @@ public class UserAgent extends CallListenerAdapter {
 		{
 			from_url = "sip:anonymous@anonymous.com";
 		}
+		
+		printLog("begin ICE setup (outbound)");
+		setupICE(null);
+		//iceAgent.setControlling(true);
+		//iceAgent.startConnectivityEstablishment();
+		printLog("done ICE setup (outbound)");
 
 		//change start multi codecs
 		createOffer();
@@ -546,6 +575,7 @@ public class UserAgent extends CallListenerAdapter {
 		changeStatus(UA_STATE_INCALL); // modified
 
 		call.accept(local_session);
+		launchMediaApplication();
 		
 		return true;
 	}
@@ -588,7 +618,10 @@ public class UserAgent extends CallListenerAdapter {
 			local_video_port = m.getMedia().getPort();
 		m = local_sdp.getMediaDescriptor("audio");
 		if (m != null) {
-			local_audio_port = m.getMedia().getPort();
+			if(mediaStreams != null && mediaStreams.get("audio") != null)
+				local_audio_port = mediaStreams.get("audio").getRtpPort();
+			else
+				local_audio_port = m.getMedia().getPort();
 			if (m.getMedia().getFormatList().contains(String.valueOf(user_profile.dtmf_avp)))
 				dtmf_pt = user_profile.dtmf_avp;
 		}
@@ -609,14 +642,20 @@ public class UserAgent extends CallListenerAdapter {
 		}
 		
 		DatagramSocket socket = null;
-		try {
-			socket = getSocketAllocator().allocateSocket(local_audio_port);
-		} catch (SocketException e) {
-			printException(e, LogLevel.HIGH);
-			return;
-		} catch (UnknownHostException e) {
-			printException(e, LogLevel.HIGH);
-			return;
+		if(mediaStreams != null && mediaStreams.get("audio") != null) {
+			remote_audio_port = mediaStreams.get("audio").getRemoteRtpPort();
+			remote_media_address = mediaStreams.get("audio").getRemoteRtpAddress();
+			socket = mediaStreams.get("audio").getRTPSocket();
+		} else {
+			try {
+				socket = getSocketAllocator().allocateSocket(local_audio_port);
+			} catch (SocketException e) {
+				printException(e, LogLevel.HIGH);
+				return;
+			} catch (UnknownHostException e) {
+				printException(e, LogLevel.HIGH);
+				return;
+			}
 		}
 
 		// select the media direction (send_only, recv_ony, fullduplex)
@@ -696,12 +735,18 @@ public class UserAgent extends CallListenerAdapter {
 
 	private void sessionProduct(SessionDescriptor remote_sdp) {
 		SessionDescriptor local_sdp = new SessionDescriptor(local_session);
+		AttributeField iceUFrag = local_sdp.getAttribute(ATTR_ICE_UFRAG);
+		AttributeField icePwd = local_sdp.getAttribute(ATTR_ICE_PWD);
 		SessionDescriptor new_sdp = new SessionDescriptor(local_sdp
 				.getOrigin(), local_sdp.getSessionName(), local_sdp
 				.getConnection(), local_sdp.getTime());
 		new_sdp.addMediaDescriptors(local_sdp.getMediaDescriptors());
 		new_sdp = SdpTools.sdpMediaProduct(new_sdp, remote_sdp
 				.getMediaDescriptors());
+		if(iceUFrag != null) {
+			new_sdp.addAttribute(iceUFrag);
+			new_sdp.addAttribute(icePwd);
+		}
 		//new_sdp = SdpTools.sdpAttirbuteSelection(new_sdp, "rtpmap"); ////change multi codecs
 		local_session = new_sdp.toString();
 		if (call!=null) call.setLocalSessionDescriptor(local_session);
@@ -839,28 +884,47 @@ public class UserAgent extends CallListenerAdapter {
 			return;
 		}
 		
-		if (Receiver.mSipdroidEngine != null)
+		/* if (Receiver.mSipdroidEngine != null)  // FIXME - moved for ICE, must review
 			Receiver.mSipdroidEngine.ua = this;
-		changeStatus(UA_STATE_INCOMING_CALL,caller.toString());
+		changeStatus(UA_STATE_INCOMING_CALL,caller.toString()); */
 
 		if (sdp == null) {
 			createOffer();
 		}
 		else { 
 			SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
+			if(remote_sdp.getAttribute(ATTR_ICE_UFRAG) != null) {
+				printLog("begin ICE setup (incoming)");
+				setupICE(caller);
+				iceAgent.setControlling(false);
+				//cacheCaller = caller;
+			}
 			int failure_reason = R.string.card_title_ended_no_codec;
 			try {
+				// FIXME We should do it like this:
+				// 1) create local streams
+				// 2) match streams to remotes
+				// 3) create answer
 				createAnswer(remote_sdp);
+				failure_reason = R.string.card_title_ended_ICE_failure;
+				if(iceAgent != null) {
+					handleRemoteSDPforICE(remote_sdp);
+					call.respondProvisional(local_session);
+					iceAgent.startConnectivityEstablishment();
+				}
 			} catch (Exception e) {
 				// only known exception is no codec
+				// FIXME - could also be ICE trouble
 				Receiver.call_end_reason = failure_reason;
 				printException(e, LogLevel.HIGH);
 				changeStatus(UA_STATE_IDLE);
 				return;
 			}
 		}
-		call.ring(local_session);		
-		launchMediaApplication();
+		
+		if(iceAgent == null) {
+			proceedToRing(caller);
+		}
 	}
 	
 	protected void proceedToRing(NameAddress caller) {
@@ -958,12 +1022,32 @@ public class UserAgent extends CallListenerAdapter {
 		else {
 			printLog("RING/PROVISIONAL (with SDP)", LogLevel.HIGH);
 			SessionDescriptor remote_sdp = new SessionDescriptor(_remote_sdp);
-			if (! user_profile.no_offer) { 
+			// Maybe ICE?
+			if(remote_sdp.getAttribute(ATTR_ICE_UFRAG) != null && iceAgent != null) {
+				if(iceAgent.getState() == IceProcessingState.WAITING) {
+					handleRemoteSDPforICE(remote_sdp);
+					iceAgent.setControlling(true);
+					iceAgent.startConnectivityEstablishment();
+				}
+			} else {
+				// No ICE... local ICE agent not needed
+				printLog("peer has not indicated support for ICE, destroying local ICE agent");
+				if(iceAgent != null) {
+					iceAgent.free();
+					iceAgent = null;
+				}
+			}
+			
+			if (! user_profile.no_offer && 
+					(iceAgent == null || iceAgent.getState()==IceProcessingState.COMPLETED)) {
+				
 				printLog("Provisional SDP/must receive media");
 				RtpStreamReceiver.ringback(false);
 				// Update the local SDP along with offer/answer 
-				sessionProduct(new SessionDescriptor(remote_sdp));
-				launchMediaApplication();
+				sessionProduct(remote_sdp);
+				
+				// FIXME: should launch early media?  one direction or both?
+				//launchMediaApplication();
 			}
 		}
 	}
