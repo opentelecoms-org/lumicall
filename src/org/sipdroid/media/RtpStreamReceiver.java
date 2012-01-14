@@ -74,7 +74,7 @@ public class RtpStreamReceiver extends Thread {
 	public static final int SO_TIMEOUT = 1000;
 	
 	/** Max time to block when emptying the receive queue **/
-	private static final int SO_TIMEOUT_SHORT = 1;
+	private static final int SO_TIMEOUT_SHORT = 3;
 
 	/** The RtpSocket */
 	RtpSocket rtp_socket = null;
