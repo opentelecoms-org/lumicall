@@ -430,7 +430,7 @@ public class RtpStreamReceiver extends Thread {
 
 	public static float good, late, lost, loss, loss2;
 	double avgheadroom;
-	public static int timeout;
+	public static volatile int timeout;
 	int seq;
 	
 	void empty() {
