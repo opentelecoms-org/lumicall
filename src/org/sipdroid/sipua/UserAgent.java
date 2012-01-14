@@ -680,6 +680,8 @@ public class UserAgent extends CallListenerAdapter {
 				if (user_profile.recv_file != null) {
 					audio_out = user_profile.recv_file;
 				}
+				
+				printLog("AUDIO PARAMS: Local port: " + local_audio_port + ", Remote: " + remote_media_address + ", " + remote_audio_port);
 
 				audio_app = new JAudioLauncher(socket, local_audio_port,
 						remote_media_address, remote_audio_port, dir, audio_in,
