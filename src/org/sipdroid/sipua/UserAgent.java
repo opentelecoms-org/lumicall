@@ -21,6 +21,9 @@
 
 package org.sipdroid.sipua;
 
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -29,6 +32,8 @@ import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.JAudioLauncher;
 import org.sipdroid.media.MediaLauncher;
 import org.sipdroid.media.RtpStreamReceiver;
+import org.sipdroid.net.SipdroidSocketAllocator;
+import org.sipdroid.net.SocketAllocator;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
@@ -61,6 +66,9 @@ import org.zoolu.tools.Parser;
 public class UserAgent extends CallListenerAdapter {
 	/** Event logger. */
 	Log log;
+	
+	/** Factory/caching system for UDP sockets */
+	SocketAllocator socketAllocator = null;
 
 	/** UserAgentProfile */
 	public UserAgentProfile user_profile;
@@ -440,6 +448,17 @@ public class UserAgent extends CallListenerAdapter {
 			if (media.getMedia().equals("video"))
 				remote_video_port = media.getPort();
 		}
+		
+		DatagramSocket socket = null;
+		try {
+			socket = getSocketAllocator().allocateSocket(local_audio_port);
+		} catch (SocketException e) {
+			printException(e, LogLevel.HIGH);
+			return;
+		} catch (UnknownHostException e) {
+			printException(e, LogLevel.HIGH);
+			return;
+		}
 
 		// select the media direction (send_only, recv_ony, fullduplex)
 		int dir = 0;
@@ -464,7 +483,7 @@ public class UserAgent extends CallListenerAdapter {
 					audio_out = user_profile.recv_file;
 				}
 
-				audio_app = new JAudioLauncher(local_audio_port,
+				audio_app = new JAudioLauncher(socket, local_audio_port,
 						remote_media_address, remote_audio_port, dir, audio_in,
 						audio_out, c.codec.samp_rate(),
 						user_profile.audio_sample_size,
@@ -528,6 +547,25 @@ public class UserAgent extends CallListenerAdapter {
 		local_session = new_sdp.toString();
 		if (call!=null) call.setLocalSessionDescriptor(local_session);
 	}
+	
+	public void setSocketAllocator(SocketAllocator sa) {
+		if(socketAllocator != null) {
+			printLog("Destroying old SocketAllocator: " + socketAllocator.getClass().getCanonicalName());
+			socketAllocator.free();
+			socketAllocator = null;
+		}
+		printLog("setting SocketAllocator: " + (sa == null ? "<null>" : sa.getClass().getCanonicalName()));
+		socketAllocator = sa;
+	}
+
+
+	public SocketAllocator getSocketAllocator() {
+		if(socketAllocator == null) {
+			setSocketAllocator(new SipdroidSocketAllocator());
+		}
+		return socketAllocator;
+	}
+
 
 	// ********************** Call callback functions **********************
 

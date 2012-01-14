@@ -22,11 +22,11 @@
 package org.sipdroid.media;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.SocketException;
 
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
-import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.R;
 import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.InCallScreen;
@@ -86,16 +86,16 @@ public class RtpStreamReceiver extends Thread {
 	 * @param output_stream
 	 *            the stream sink
 	 * @param socket
-	 *            the local receiver SipdroidSocket
+	 *            the local receiver UDP datagram socket
 	 */
-	public RtpStreamReceiver(SipdroidSocket socket, Codecs.Map payload_type, CallRecorder rec) {
+	public RtpStreamReceiver(DatagramSocket socket, Codecs.Map payload_type, CallRecorder rec) {
 		init(socket);
 		p_type = payload_type;
 		call_recorder = rec;
 	}
 
 	/** Inits the RtpStreamReceiver */
-	private void init(SipdroidSocket socket) {
+	private void init(DatagramSocket socket) {
 		if (socket != null)
 			rtp_socket = new RtpSocket(socket);
 	}

@@ -1,6 +1,7 @@
 package org.sipdroid.sipua.ui;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import org.sipdroid.media.RtpStreamReceiver;
@@ -209,7 +210,7 @@ public class CallScreen extends Activity implements DialogInterface.OnClickListe
 		}
 	}
 
-	SipdroidSocket socket;
+	DatagramSocket socket;
 	RtpSocket rtp_socket;
 	Context mContext = this;
 	Intent intent;

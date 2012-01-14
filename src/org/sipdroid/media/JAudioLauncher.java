@@ -19,6 +19,8 @@
  */
 package org.sipdroid.media;
 
+import java.net.DatagramSocket;
+
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.ui.Receiver;
@@ -61,7 +63,7 @@ public class JAudioLauncher implements MediaLauncher
    
    int dir; // duplex= 0, recv-only= -1, send-only= +1; 
 
-   SipdroidSocket socket=null;
+   DatagramSocket socket=null;
    RtpStreamSender sender=null;
    RtpStreamReceiver receiver=null;
    
@@ -76,7 +78,7 @@ public class JAudioLauncher implements MediaLauncher
    }
 
    /** Costructs the audio launcher */
-   public JAudioLauncher(int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt)
+   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt)
    {  log=logger;
       frame_rate=sample_rate/frame_size;
       useDTMF = (dtmf_pt != 0);
@@ -86,7 +88,6 @@ public class JAudioLauncher implements MediaLauncher
     	 if (PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_CALLRECORD,
 					org.sipdroid.sipua.ui.Settings.DEFAULT_CALLRECORD))
     		 call_recorder = new CallRecorder(null,payload_type.codec.samp_rate()); // Autogenerate filename from date. 
-    	 socket=new SipdroidSocket(local_port);
          dir=direction;
          // sender
          if (dir>=0)

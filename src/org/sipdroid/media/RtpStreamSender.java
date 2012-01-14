@@ -23,13 +23,13 @@ package org.sipdroid.media;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Random;
 
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
-import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
@@ -136,7 +136,7 @@ public class RtpStreamSender extends Thread {
 	 */
 	public RtpStreamSender(boolean do_sync, Codecs.Map payload_type,
 			       long frame_rate, int frame_size,
-			       SipdroidSocket src_socket, String dest_addr,
+			       DatagramSocket src_socket, String dest_addr,
 			       int dest_port, CallRecorder rec) {
 		init(do_sync, payload_type, frame_rate, frame_size,
 				src_socket, dest_addr, dest_port);
@@ -146,7 +146,7 @@ public class RtpStreamSender extends Thread {
 	/** Inits the RtpStreamSender */
 	private void init(boolean do_sync, Codecs.Map payload_type,
 			  long frame_rate, int frame_size,
-			  SipdroidSocket src_socket, String dest_addr,
+			  DatagramSocket src_socket, String dest_addr,
 			  int dest_port) {
 		this.p_type = payload_type;
 		this.frame_rate = (int)frame_rate;
