@@ -97,6 +97,10 @@ public class SdpTools {
 								}
 							}
 						}
+						
+						// Copy the ICE candidates as-is
+						new_attributes.addAll(prev_md.getAttributes("candidate"));
+						
 						MediaField new_mf = new MediaField(prev_mf.getMedia(), prev_mf.getPort(), 0,
 								prev_mf.getTransport(), new_formats);
 						if (new_attributes.size() > 0)

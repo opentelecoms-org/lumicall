@@ -5,6 +5,7 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="libs/dnsjava-1.6.6.jar"/>
 	<classpathentry kind="lib" path="libs/uecommerce-util.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ice4j"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
