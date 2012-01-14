@@ -1025,8 +1025,10 @@ public class UserAgent extends CallListenerAdapter {
 			printLog("RING/PROVISIONAL (with SDP)", LogLevel.HIGH);
 			SessionDescriptor remote_sdp = new SessionDescriptor(_remote_sdp);
 			// Maybe ICE?
+			IceProcessingState iceProcessingState = null;
 			if(remote_sdp.getAttribute(ATTR_ICE_UFRAG) != null && iceAgent != null) {
-				if(iceAgent.getState() == IceProcessingState.WAITING) {
+				iceProcessingState = iceAgent.getState();
+				if(iceProcessingState == IceProcessingState.WAITING) {
 					handleRemoteSDPforICE(remote_sdp);
 					iceAgent.setControlling(true);
 					iceAgent.startConnectivityEstablishment();
@@ -1041,7 +1043,7 @@ public class UserAgent extends CallListenerAdapter {
 			}
 			
 			if (! user_profile.no_offer && 
-					(iceAgent == null || iceAgent.getState()==IceProcessingState.COMPLETED)) {
+					(iceAgent == null || iceProcessingState == IceProcessingState.COMPLETED)) {
 				
 				printLog("Provisional SDP/must receive media");
 				RtpStreamReceiver.ringback(false);
