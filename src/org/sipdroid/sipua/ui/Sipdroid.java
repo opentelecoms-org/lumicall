@@ -69,7 +69,7 @@ import android.widget.AdapterView.OnItemClickListener;
 /////////////////////////////////////////////////////////////////////
 public class Sipdroid extends Activity implements OnDismissListener {
 
-	public static final boolean release = true;
+	public static final boolean release = false;
 	public static final boolean market = false;
 
 	/* Following the menu item constants which will be used for menu creation */
