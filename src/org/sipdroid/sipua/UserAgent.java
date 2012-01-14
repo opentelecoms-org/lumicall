@@ -21,17 +21,38 @@
 
 package org.sipdroid.sipua;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.ice4j.StackProperties;
+import org.ice4j.Transport;
+import org.ice4j.TransportAddress;
+import org.ice4j.ice.CandidateType;
+import org.ice4j.ice.Component;
+import org.ice4j.ice.IceMediaStream;
+import org.ice4j.ice.IceProcessingState;
+import org.ice4j.ice.LocalCandidate;
+import org.ice4j.ice.NominationStrategy;
+import org.ice4j.ice.RemoteCandidate;
+import org.ice4j.ice.harvest.TurnCandidateHarvester;
+import org.ice4j.security.LongTermCredential;
+import org.ice4j.socket.DelegatingDatagramSocket;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.JAudioLauncher;
 import org.sipdroid.media.MediaLauncher;
 import org.sipdroid.media.RtpStreamReceiver;
+import org.sipdroid.net.ICESocketAllocator;
+import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.net.SipdroidSocketAllocator;
 import org.sipdroid.net.SocketAllocator;
 import org.sipdroid.sipua.ui.Receiver;
@@ -66,6 +87,13 @@ import org.zoolu.tools.Parser;
 public class UserAgent extends CallListenerAdapter {
 	/** Event logger. */
 	Log log;
+	
+	/** Factory/caching system for UDP sockets */
+	final static int DEFAULT_RECEIVE_BUFFER_SIZE = 2048;
+
+	// FIXME - to go in ICE module
+	final static String ATTR_ICE_UFRAG = "ice-ufrag";
+	final static String ATTR_ICE_PWD = "ice-pwd";
 	
 	/** Factory/caching system for UDP sockets */
 	SocketAllocator socketAllocator = null;
@@ -262,6 +290,62 @@ public class UserAgent extends CallListenerAdapter {
 		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", avpvec), afvec);		
 		local_session = sdp.toString();
 	}
+	
+	Map<String, MediaStream> mediaStreams = null;
+	
+	protected void addICECandidates(Vector<AttributeField> afvec, int port, String media) {
+		IceMediaStream ims = null;
+		try {
+			MediaStream ms = new MediaStream(iceAgent, media, port);
+			if(mediaStreams == null)
+				mediaStreams = new HashMap<String, MediaStream>();
+			mediaStreams.put(media, ms);
+			ims = ms.getIceMediaStream();
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			printLog("FAILED TO CREATE STREAM FOR ICE: " + media + ": " + e.getMessage());
+			e.printStackTrace();
+			return;
+		}
+		// Now add the candidates for ICE for this media descriptor
+		/*
+		 *  candidate-attribute   = "candidate" ":" foundation SP component-id SP
+                       transport SP
+                       priority SP
+                       connection-address SP     ;from RFC 4566
+                       port         ;port from RFC 4566
+                       SP cand-type
+                       [SP rel-addr]
+                       [SP rel-port]
+		 *(SP extension-att-name SP
+                            extension-att-value)
+
+			foundation            = 1*32ice-char
+			component-id          = 1*5DIGIT
+			transport             = "UDP" / transport-extension
+			transport-extension   = token              ; from RFC 3261
+			priority              = 1*10DIGIT
+			cand-type             = "typ" SP candidate-types
+			candidate-types       = "host" / "srflx" / "prflx" / "relay" / token
+			rel-addr              = "raddr" SP connection-address
+			rel-port              = "rport" SP port
+			extension-att-name    = byte-string    ;from RFC 4566
+			extension-att-value   = byte-string
+			ice-char              = ALPHA / DIGIT / "+" / "/"
+		 */
+
+		// Sample from the RFC:
+		// a=candidate:1 1 UDP 2130706431 10.0.1.1 8998 typ host
+		// a=candidate:2 1 UDP 1694498815 192.0.2.3 45664 typ srflx raddr 10.0.1.1 rport 8998
+
+		for(Component c1 : ims.getComponents()) {
+			for(LocalCandidate lc : c1.getLocalCandidates()) {
+				String candidate = lc.toString();  // returns the candidate in SDP form
+				afvec.add(new AttributeField(candidate));
+			}
+		}
+	}
+
 
 	// *************************** Public Methods **************************
 
@@ -275,6 +359,76 @@ public class UserAgent extends CallListenerAdapter {
 		// if no contact_url and/or from_url has been set, create it now
 		user_profile.initContactAddress(sip_provider);
 	}
+	
+	org.ice4j.ice.Agent iceAgent = null;
+	
+	protected void setupICE(NameAddress caller) {
+		
+		//DelegatingDatagramSocket.setDefaultDelegateFactory(new SipdroidSocketFactory());
+		SipdroidSocket.enableJNIImpl(false);
+		DelegatingDatagramSocket.setDefaultReceiveBufferSize(DEFAULT_RECEIVE_BUFFER_SIZE);
+		
+        System.setProperty(StackProperties.MAX_CTRAN_RETRANS_TIMER, "400");
+        System.setProperty(StackProperties.MAX_CTRAN_RETRANSMISSIONS, "5");
+
+		
+		iceAgent = new org.ice4j.ice.Agent();
+		
+		int port = 3478;
+        LongTermCredential longTermCredential
+             //= new LongTermCredential("test", "1234"); // FIXME credentials
+        	= new LongTermCredential(user_profile.username, "1234");
+        
+        	/* iceAgent.addCandidateHarvester(
+                new StunCandidateHarvester(
+                        new TransportAddress("stun.lvdx.com", port, Transport.UDP))); */
+        
+            iceAgent.addCandidateHarvester(
+                    new TurnCandidateHarvester(
+                            new TransportAddress("stun.lvdx.com", port, Transport.UDP),  // FIXME stun server name
+                            longTermCredential));
+
+        //STREAMS
+        // should this be done elsewhere, in the SDP creation function?
+        //createStream(rtpPort, "audio", agent);
+        //createStream(rtpPort + 2, "video", agent);
+		
+		iceAgent.setNominationStrategy(
+                NominationStrategy.NOMINATE_HIGHEST_PRIO);
+		
+		iceAgent.addStateChangeListener(new IceProcessingListener(caller));
+		
+		// this should be done after we receive/send SIP 1xx status
+		// (depends on whether we are caller/callee)
+		//localAgent.setControlling(true);
+	}
+	
+    /**
+     * Creates an <tt>IceMediaStream</tt> and adds to it an RTP and and RTCP
+     * component.
+     *
+     * @param rtpPort the port that we should try to bind the RTP component on
+     * (the RTCP one would automatically go to rtpPort + 1)
+     * @param streamName the name of the stream to create
+     * @param agent the <tt>Agent</tt> that should create the stream.
+     *
+     * @return the newly created <tt>IceMediaStream</tt>.
+     * @throws Throwable if anything goes wrong.
+     */
+    private IceMediaStream createICEStream(int rtpPort,  String streamName)
+        throws Throwable
+    {
+        IceMediaStream stream = iceAgent.createMediaStream(streamName);
+        //rtp
+        Component rtpComponent = iceAgent.createComponent(
+                stream, Transport.UDP, rtpPort, rtpPort, rtpPort + 100);
+        int boundRtpPort = rtpComponent.getLocalCandidates().get(0).getTransportAddress().getPort();
+        //rtcpComp
+        Component rtcpComponent = iceAgent.createComponent(
+                stream, Transport.UDP, rtpPort + 1, rtpPort + 1, rtpPort + 101);
+        int boundRtcpPort = rtcpComponent.getLocalCandidates().get(0).getTransportAddress().getPort();
+        return stream;
+    }
 
 	String realm;
 	
@@ -553,6 +707,93 @@ public class UserAgent extends CallListenerAdapter {
 		if (call!=null) call.setLocalSessionDescriptor(local_session);
 	}
 	
+	void handleRemoteSDPforICE(SessionDescriptor remote_sdp) {
+		
+		printLog("scanning for ICE candidates in remote SDP");
+		printLog("local stream count = " + iceAgent.getStreamCount());
+		
+		String rUfrag = remote_sdp.getAttribute(ATTR_ICE_UFRAG).getAttributeValue();
+		String rPassword = remote_sdp.getAttribute(ATTR_ICE_PWD).getAttributeValue();
+		
+		// Now map the remote candidates into the local ICE agent
+		for(IceMediaStream stream : iceAgent.getStreams())
+		{
+			String streamName = stream.getName();
+			printLog("scanning SDP for ICE candidates for stream: " + streamName);
+			
+			// seems that we need to do this before adding remote candidates or we
+			// get an exception
+			stream.setRemoteUfrag(rUfrag);
+			stream.setRemotePassword(rPassword);
+			
+			MediaDescriptor md = remote_sdp.getMediaDescriptor(streamName);
+			if(md != null) {
+				
+				Vector<AttributeField> afvec = md.getAttributes("candidate");
+				printLog("handling ICE SDP for stream: " + streamName + ", candidate count = " + afvec.size());
+				
+				for(AttributeField af : afvec) {
+					String candidate = af.getAttributeValue();
+					StringTokenizer st = new StringTokenizer(candidate);
+					int nTokens = st.countTokens();
+					if (! ((nTokens == 8) || (nTokens == 12)) ) {
+						printLog("BAD CANDIDATE (" + nTokens + " tokens) [" + candidate + "]");
+						return;
+					}
+				    String foundation = st.nextToken();
+				    String componentId = st.nextToken();
+				    String protocol = st.nextToken().toLowerCase();  // FIXME bug in ice4j - expects lowercase udp
+				    String priority = st.nextToken();
+				    String addr = st.nextToken();
+				    String port = st.nextToken();
+				    st.nextToken(); // typ
+				    String type = st.nextToken();
+				    String rAddr = null;
+				    String rPort = null;
+				    if(st.countTokens() == 12) {
+				    	st.nextToken();
+				    	rAddr = st.nextToken();
+				    	st.nextToken();
+				    	rPort = st.nextToken();
+				    }
+				    
+				    Component lc = stream.getComponent(Integer.parseInt(componentId));
+				    
+				    RemoteCandidate rc = null;
+					try {
+						rc = new RemoteCandidate(
+								new TransportAddress(InetAddress.getByName(addr),
+										Integer.parseInt(port),
+										Transport.parse(protocol)),
+								lc,
+								CandidateType.parse(type),
+								foundation,
+								Long.parseLong(priority)
+								);
+						if(rAddr != null) {
+							rc.setRelatedAddress(
+									new TransportAddress(InetAddress.getByName(rAddr),
+											Integer.parseInt(rPort),
+											Transport.parse(protocol)));
+						}
+						lc.addRemoteCandidate(rc);
+					} catch (Exception e) {
+						// FIXME TODO Auto-generated catch block
+						printLog("EXCEPTION: " + e.getMessage());
+						e.printStackTrace();
+						return;
+					} 
+				    
+				}
+				
+			} else {
+				iceAgent.removeStream(stream);
+			}
+		}
+		
+		printLog("done ICE setup (incoming)");
+	}
+	
 	public void setSocketAllocator(SocketAllocator sa) {
 		if(socketAllocator != null) {
 			printLog("Destroying old SocketAllocator: " + socketAllocator.getClass().getCanonicalName());
@@ -621,6 +862,61 @@ public class UserAgent extends CallListenerAdapter {
 		call.ring(local_session);		
 		launchMediaApplication();
 	}
+	
+	protected void proceedToRing(NameAddress caller) {
+		if (Receiver.mSipdroidEngine != null)
+			Receiver.mSipdroidEngine.ua = this;
+		changeStatus(UA_STATE_INCOMING_CALL, caller.toString());
+		//call.ring(local_session);
+		call.ring(null);  // just send 180, no SDP
+		//launchMediaApplication();
+	}	
+	
+	public class IceProcessingListener implements PropertyChangeListener {
+		
+		ICESocketAllocator tmp = null;
+		NameAddress caller = null;
+
+		public IceProcessingListener(NameAddress caller) {
+			this.caller = caller;
+		}
+		
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			IceProcessingState iceProcessingState = (IceProcessingState)event.getNewValue();
+			
+			printLog("IceProcessingListener: received event: " + iceProcessingState);
+			
+			switch (iceProcessingState) {
+			case COMPLETED:
+				tmp = new ICESocketAllocator(iceAgent);
+				setSocketAllocator(tmp);
+				mediaStreams.get("audio").handleCompletion();
+				if(Receiver.call_state == UA_STATE_IDLE) {
+					// We are the callee - alert the local user, send back 180
+					proceedToRing(caller);
+				} else {
+					// We are the caller - maybe show an ICE completed message?
+				}
+				break;
+			case FAILED:
+				Receiver.call_end_reason = R.string.card_title_ended_ICE_failure;
+				if(Receiver.call_state == UA_STATE_OUTGOING_CALL)
+					call.hangup();
+				changeStatus(UA_STATE_IDLE);
+				if (call != null) {
+					call.listen();
+				}
+				break;
+			default:
+				printLog("IceProcessingListener: unhandled event: " + iceProcessingState);
+				return;
+			}
+			
+		}
+		
+	}
+	
 
 	/**
 	 * Callback function called when arriving a new Re-INVITE method
@@ -654,14 +950,16 @@ public class UserAgent extends CallListenerAdapter {
 			return;
 		}
 		
-		String remote_sdp = call.getRemoteSessionDescriptor();
-		if (remote_sdp==null || remote_sdp.length()==0) {
+		String _remote_sdp = call.getRemoteSessionDescriptor();
+		if (_remote_sdp==null || _remote_sdp.length()==0) {
 			printLog("RINGING", LogLevel.HIGH);
 			RtpStreamReceiver.ringback(true);
 		}
 		else {
 			printLog("RING/PROVISIONAL (with SDP)", LogLevel.HIGH);
+			SessionDescriptor remote_sdp = new SessionDescriptor(_remote_sdp);
 			if (! user_profile.no_offer) { 
+				printLog("Provisional SDP/must receive media");
 				RtpStreamReceiver.ringback(false);
 				// Update the local SDP along with offer/answer 
 				sessionProduct(new SessionDescriptor(remote_sdp));

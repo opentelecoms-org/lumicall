@@ -286,6 +286,7 @@
 <string name="card_title_in_progress">Call in progress</string>
 <string name="card_title_incoming_call">Incoming call</string>
 <string name="card_title_call_ended">Call ended</string>
+<string name="card_title_ended_ICE_failure">ERROR: ICE failed to find media path</string>
 <string name="card_title_ended_no_codec">ERROR: Codecs Incompatible</string>
 <string name="card_title_on_hold">On hold</string>
 
