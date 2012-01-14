@@ -27,6 +27,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
@@ -52,6 +53,10 @@ import android.preference.PreferenceManager;
  * it through RTP.
  */
 public class RtpStreamSender extends Thread {
+	
+	private static final Logger logger =
+	        Logger.getLogger(RtpStreamReceiver.class.getName());
+	
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
 
@@ -272,8 +277,10 @@ public class RtpStreamSender extends Thread {
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
 		long lastscan = 0,lastsent = 0;
 
-		if (rtp_socket == null)
+		if (rtp_socket == null) {
+			logger.warning("rtp_socket == null, RtpStreamSender.run aborting");
 			return;
+		}
 		int seqn = 0;
 		long time = 0;
 		double p = 0;
@@ -329,6 +336,9 @@ public class RtpStreamSender extends Thread {
 		} catch (IOException e2) {
 			if (!Sipdroid.release) e2.printStackTrace();
 		}
+		
+		long maximumIntervalBetweenTransmissions = 500;
+		
 		p_type.codec.init();
 		while (running) {
 			 if (changed || record == null) {
@@ -358,6 +368,7 @@ public class RtpStreamSender extends Thread {
 				record.stop();
 				while (running && (muted || Receiver.call_state == UserAgent.UA_STATE_HOLD)) {
 					try {
+						logger.finer("RtpStreamSender: sleeping 1s while on-hold/muted");
 						sleep(1000);
 					} catch (InterruptedException e1) {
 					}
@@ -421,8 +432,16 @@ public class RtpStreamSender extends Thread {
 			 }
 			 pos = (ring+delay*frame_rate*frame_size)%(frame_size*(frame_rate+1));
 			 num = record.read(lin,pos,frame_size);
-			 if (num <= 0)
-				 continue;
+			 if (num <= 0) {
+				if (num < 0)
+					logger.warning("AndroidRecord.record.read returned error code: "
+							+ num);
+				else
+					logger.warning("AndroidRecord.record.read returned nothing");
+				continue;
+			 }
+			 if(num < frame_size)
+				 logger.warning("AndroidRecord.record.read returned " + num + " samples but framesize = " + frame_size);
 			 if (!p_type.codec.isValid())
 				 continue;
 			 
@@ -461,7 +480,8 @@ public class RtpStreamSender extends Thread {
 					 num = p_type.codec.encode(lin, 0, buffer, num);
 				 }
 			 } else {
-				 num = p_type.codec.encode(lin, ring%(frame_size*(frame_rate+1)), buffer, num);
+				 int offset = ring%(frame_size*(frame_rate+1));
+				 num = p_type.codec.encode(lin, offset, buffer, num);
 			 }
 			 
  
@@ -470,14 +490,19 @@ public class RtpStreamSender extends Thread {
  			 rtp_packet.setTimestamp(time);
  			 rtp_packet.setPayloadLength(num);
  			 now = SystemClock.elapsedRealtime();
- 			 if (RtpStreamReceiver.timeout == 0 || now-lastsent > 500)
+ 			 if (RtpStreamReceiver.timeout == 0 || now-lastsent > maximumIntervalBetweenTransmissions)
 	 			 try {
 	 				 lastsent = now;
 	 				 rtp_socket.send(rtp_packet);
 	 				 if (m == 2 && RtpStreamReceiver.timeout == 0)
 	 					 rtp_socket.send(rtp_packet);
 	 			 } catch (Exception e) {
+	 				 logger.warning("Exception from rtp_socket.send(): " + e.getClass().getCanonicalName() +
+	 						 ": " + e.getMessage());
 	 			 }
+ 			 else
+ 				 logger.info("not sending a packet now, RtpStreamReceiver.timeout = " +
+ 						 RtpStreamReceiver.timeout + " != 0");
  			 if (p_type.codec.number() == 9)
  				 time += frame_size/2;
  			 else
@@ -485,7 +510,7 @@ public class RtpStreamSender extends Thread {
  			 if (RtpStreamReceiver.good != 0 &&
  					 RtpStreamReceiver.loss2/RtpStreamReceiver.good > 0.01) {
  				 if (selectWifi && Receiver.on_wlan && now-lastscan > 10000) {
- 					 wm.startScan();
+ 					 wm.startScan(); // FIXME - should not do this from RTP thread
  					 lastscan = now;
  				 }
  				 if (improve && delay == 0 &&
@@ -495,10 +520,11 @@ public class RtpStreamSender extends Thread {
  					 m = 1;
  			 } else
  				 m = 1;
-		}
-		if (Integer.parseInt(Build.VERSION.SDK) < 5)
+		} // while running
+		if (Build.VERSION.SDK_INT < 5)
 			while (RtpStreamReceiver.getMode() == AudioManager.MODE_IN_CALL)
 				try {
+					logger.info("finished sending RTP, sleeping for 1000ms...");
 					sleep(1000);
 				} catch (InterruptedException e) {
 				}

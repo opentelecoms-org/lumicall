@@ -215,9 +215,12 @@ public class UserAgent extends CallListenerAdapter {
 		{
 			attr_param += " " + codec + "/" + rate;
 		}
+		Vector<AttributeField> afvec = new Vector<AttributeField>();
+		
+		afvec.add(new AttributeField("rtpmap", attr_param));
+		
 		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", 
-				String.valueOf(avp)), 
-				new AttributeField("rtpmap", attr_param));
+				String.valueOf(avp)), afvec);
 		
 		local_session = sdp.toString();
 	}
@@ -256,8 +259,7 @@ public class UserAgent extends CallListenerAdapter {
 				
 		//String attr_param = String.valueOf(avp);
 		
-		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", avpvec), afvec);
-		
+		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", avpvec), afvec);		
 		local_session = sdp.toString();
 	}
 
@@ -407,11 +409,14 @@ public class UserAgent extends CallListenerAdapter {
 	protected void launchMediaApplication() {
 		// exit if the Media Application is already running
 		if (audio_app != null) {
+			// This can happen if it was launched to handle early media SIP 183
 			printLog("DEBUG: media application is already running",
 					LogLevel.HIGH);
 			return;
 		}
 		Codecs.Map c;
+		printLog("AUDIO:  **** LAUNCHING AUDIO APP ****");
+		
 		// parse local sdp
 		SessionDescriptor local_sdp = new SessionDescriptor(call
 				.getLocalSessionDescriptor());
@@ -602,11 +607,13 @@ public class UserAgent extends CallListenerAdapter {
 		}
 		else { 
 			SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
+			int failure_reason = R.string.card_title_ended_no_codec;
 			try {
 				createAnswer(remote_sdp);
 			} catch (Exception e) {
 				// only known exception is no codec
-				Receiver.call_end_reason = R.string.card_title_ended_no_codec;
+				Receiver.call_end_reason = failure_reason;
+				printException(e, LogLevel.HIGH);
 				changeStatus(UA_STATE_IDLE);
 				return;
 			}
@@ -640,7 +647,7 @@ public class UserAgent extends CallListenerAdapter {
 	 * a 180 Ringing or a 183 Session progress with SDP 
 	 */
 	public void onCallRinging(Call call, Message resp) {
-		printLog("onCallRinging()", LogLevel.LOW);
+		printLog("onCallRinging(), Status-Line = " + resp.getStatusLine(), LogLevel.LOW);
 		if (call != this.call && call != call_transfer) 
 		{
 			printLog("NOT the current call", LogLevel.LOW);
@@ -653,7 +660,7 @@ public class UserAgent extends CallListenerAdapter {
 			RtpStreamReceiver.ringback(true);
 		}
 		else {
-			printLog("RINGING(with SDP)", LogLevel.HIGH);
+			printLog("RING/PROVISIONAL (with SDP)", LogLevel.HIGH);
 			if (! user_profile.no_offer) { 
 				RtpStreamReceiver.ringback(false);
 				// Update the local SDP along with offer/answer 
