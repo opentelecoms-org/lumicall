@@ -312,10 +312,12 @@ public class EnrolmentService extends IntentService {
 		edSIP.putBoolean(Settings.PREF_3G, true);
 		edSIP.putBoolean(Settings.PREF_ON, true);
 		
-		Log.v(LOG_TAG, "Configured prefs for number " + num + ", email " + email);
-		
-		edSIP.commit();
-		
+		if(edSIP.commit())
+			Log.v(LOG_TAG, "Configured prefs for number " + num + ", email " + email);
+		else {
+			Log.e(LOG_TAG, "error while committing preferences");
+		}
+
 		Receiver.engine(context).updateDNS();
    		Receiver.engine(context).halt();
 		Receiver.engine(context).StartEngine();
