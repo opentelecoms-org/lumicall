@@ -308,6 +308,7 @@ public class EnrolmentService extends IntentService {
 		edSIP.putBoolean(Settings.PREF_STUN, true);
 		edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
 		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);
+		edSIP.putBoolean(Settings.PREF_WLAN, true);
 		edSIP.putBoolean(Settings.PREF_EDGE, true);
 		edSIP.putBoolean(Settings.PREF_3G, true);
 		edSIP.putBoolean(Settings.PREF_ON, true);
