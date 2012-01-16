@@ -304,6 +304,7 @@ public class EnrolmentService extends IntentService {
 		edSIP.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
 		edSIP.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
 		edSIP.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
+		edSIP.putString(Settings.PREF_PROTOCOL, "tcp");  // FIXME - change to TLS
 		edSIP.putBoolean(Settings.PREF_STUN, true);
 		edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
 		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);
