@@ -78,6 +78,9 @@ import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 import org.zoolu.tools.Parser;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 /**
  * Simple SIP user agent (UA). It includes audio/video applications.
  * <p>
@@ -397,10 +400,14 @@ public class UserAgent extends CallListenerAdapter {
 		
 		iceAgent = new org.ice4j.ice.Agent();
 		
-		int port = 3478;
-        LongTermCredential longTermCredential
-             //= new LongTermCredential("test", "1234"); // FIXME credentials
-        	= new LongTermCredential(user_profile.username, "1234");
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
+		if (sp.getBoolean(Settings.PREF_STUN, Settings.DEFAULT_STUN)) {
+			String stunServer = sp.getString(Settings.PREF_STUN_SERVER, Settings.DEFAULT_STUN_SERVER);
+			int port = Integer.valueOf(sp.getString(Settings.PREF_STUN_SERVER_PORT, Settings.DEFAULT_STUN_SERVER_PORT));
+		
+			LongTermCredential longTermCredential
+				//= new LongTermCredential("test", "1234"); // FIXME credentials
+        			= new LongTermCredential(user_profile.username, "1234");
         
         	/* iceAgent.addCandidateHarvester(
                 new StunCandidateHarvester(
@@ -408,8 +415,9 @@ public class UserAgent extends CallListenerAdapter {
         
             iceAgent.addCandidateHarvester(
                     new TurnCandidateHarvester(
-                            new TransportAddress("stun.lvdx.com", port, Transport.UDP),  // FIXME stun server name
+                            new TransportAddress(stunServer, port, Transport.UDP),  // FIXME stun server name
                             longTermCredential));
+		}
 
         //STREAMS
         // should this be done elsewhere, in the SDP creation function?
