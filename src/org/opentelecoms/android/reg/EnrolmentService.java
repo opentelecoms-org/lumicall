@@ -41,7 +41,7 @@ public class EnrolmentService extends IntentService {
 	private static final String DEFAULT_SIP_SERVER = "sip.lvdx.com";
 	private static final String DEFAULT_SIP_DOMAIN = "lvdx.com";
 	
-	private static final String DEFAULT_STUN_SERVER = "stun.ekiga.net";
+	private static final String DEFAULT_STUN_SERVER = "stun.lvdx.com";
 	private static final String DEFAULT_STUN_SERVER_PORT = "3478";
 	
 	private static final String LOG_TAG = "EnrolSvc";
