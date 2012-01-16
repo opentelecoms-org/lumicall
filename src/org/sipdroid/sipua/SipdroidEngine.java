@@ -24,6 +24,7 @@ package org.sipdroid.sipua;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import org.ice4j.StackProperties;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
 import org.sipdroid.sipua.ui.LoopAlarm;
@@ -96,7 +97,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 	}
 
 	public boolean StartEngine() {
-			PowerManager pm = (PowerManager) getUIContext().getSystemService(Context.POWER_SERVICE);
+		Context context = getUIContext();
+			PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 			if (wl == null) {
 				if (!PreferenceManager.getDefaultSharedPreferences(getUIContext()).contains(org.sipdroid.sipua.ui.Settings.PREF_KEEPON)) {
 					Editor edit = PreferenceManager.getDefaultSharedPreferences(getUIContext()).edit();
@@ -144,10 +146,12 @@ public class SipdroidEngine implements RegisterAgentListener {
 					SipStack.default_transport_protocols[0] = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_PROTOCOL+(i!=0?i:""),
 							user_profile.realm.equals(Settings.DEFAULT_SERVER)?"tcp":"udp");
 					
-					//String version = "Sipdroid/" + Sipdroid.getVersion() + "/" + Build.MODEL;
-					String version = "DP";
+					String version = context.getString(R.string.app_name) +
+							"/" + Sipdroid.getVersion() + "/" + Build.MODEL;
 					SipStack.ua_info = version;
 					SipStack.server_info = version;
+					// for ice4j:
+					System.setProperty(StackProperties.SOFTWARE, context.getString(R.string.app_name));
 						
 					IpAddress.setLocalIpAddress();
 					sip_providers[i] = new SipProvider(IpAddress.localIpAddress, 0);
