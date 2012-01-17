@@ -244,45 +244,55 @@ LOCAL_ARM_MODE := arm
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 include $(BUILD_SHARED_LIBRARY)
 
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 include $(CLEAR_VARS)
+#ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 G729	:= g729/siphon-g729
+G729SRC	:= $(G729)/Sources
+G729HDR	:= $(G729)/Headers
+#else
+#G729	:= g729/itu-g729
+#G729SRC	:= $(G729SRC)
+#G729HDR	:= $(G729SRC)
+#fi
 LOCAL_MODULE	:= g729_jni
 LOCAL_SRC_FILES	:= g729_jni.cpp \
-	$(G729)/Sources/qua_gain.c \
-	$(G729)/Sources/util.c \
-	$(G729)/Sources/g729a_decoder.c \
-	$(G729)/Sources/tab_ld8a.c \
-	$(G729)/Sources/filter.c \
-	$(G729)/Sources/lpc.c \
-	$(G729)/Sources/dspfunc.c \
-	$(G729)/Sources/post_pro.c \
-	$(G729)/Sources/dec_lag3.c \
-	$(G729)/Sources/cod_ld8a.c \
-	$(G729)/Sources/lspgetq.c \
-	$(G729)/Sources/lpcfunc.c \
-	$(G729)/Sources/lspdec.c \
-	$(G729)/Sources/dec_gain.c \
-	$(G729)/Sources/oper_32b.c \
-	$(G729)/Sources/p_parity.c \
-	$(G729)/Sources/gainpred.c \
-	$(G729)/Sources/bits.c \
-	$(G729)/Sources/dec_ld8a.c \
-	$(G729)/Sources/de_acelp.c \
-	$(G729)/Sources/cor_func.c \
-	$(G729)/Sources/postfilt.c \
-	$(G729)/Sources/taming.c \
-	$(G729)/Sources/basic_op.c \
-	$(G729)/Sources/g729a_encoder.c \
-	$(G729)/Sources/pitch_a.c \
-	$(G729)/Sources/pre_proc.c \
-	$(G729)/Sources/pred_lt3.c \
-	$(G729)/Sources/acelp_ca.c \
-	$(G729)/Sources/qua_lsp.c
-LOCAL_C_INCLUDES	+= $(LOCAL_PATH)/$(G729)/Headers
+	$(G729SRC)/qua_gain.c \
+	$(G729SRC)/util.c \
+	$(G729SRC)/g729a_decoder.c \
+	$(G729SRC)/tab_ld8a.c \
+	$(G729SRC)/filter.c \
+	$(G729SRC)/lpc.c \
+	$(G729SRC)/dspfunc.c \
+	$(G729SRC)/post_pro.c \
+	$(G729SRC)/dec_lag3.c \
+	$(G729SRC)/cod_ld8a.c \
+	$(G729SRC)/lspgetq.c \
+	$(G729SRC)/lpcfunc.c \
+	$(G729SRC)/lspdec.c \
+	$(G729SRC)/dec_gain.c \
+	$(G729SRC)/oper_32b.c \
+	$(G729SRC)/p_parity.c \
+	$(G729SRC)/gainpred.c \
+	$(G729SRC)/bits.c \
+	$(G729SRC)/dec_ld8a.c \
+	$(G729SRC)/de_acelp.c \
+	$(G729SRC)/cor_func.c \
+	$(G729SRC)/postfilt.c \
+	$(G729SRC)/taming.c \
+	$(G729SRC)/basic_op.c \
+	$(G729SRC)/g729a_encoder.c \
+	$(G729SRC)/pitch_a.c \
+	$(G729SRC)/pre_proc.c \
+	$(G729SRC)/pred_lt3.c \
+	$(G729SRC)/acelp_ca.c \
+	$(G729SRC)/qua_lsp.c
+LOCAL_C_INCLUDES	+= $(LOCAL_PATH)/$(G729HDR)
 LOCAL_CFLAGS = -g -Wall -Wextra
 LOCAL_ARM_MODE	:= arm
 LOCAL_LDLIBS	:= -L$(SYSROOT)/usr/lib
 include $(BUILD_SHARED_LIBRARY)
+endif
 
 include $(CLEAR_VARS)
 SPANDSP     := spandsp
