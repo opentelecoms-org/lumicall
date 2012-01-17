@@ -36,6 +36,7 @@ import java.util.Vector;
 import org.ice4j.StackProperties;
 import org.ice4j.Transport;
 import org.ice4j.TransportAddress;
+import org.ice4j.ice.Candidate;
 import org.ice4j.ice.CandidateType;
 import org.ice4j.ice.Component;
 import org.ice4j.ice.IceMediaStream;
@@ -63,6 +64,7 @@ import org.zoolu.sdp.AttributeField;
 import org.zoolu.sdp.ConnectionField;
 import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;
+import org.zoolu.sdp.OriginField;
 import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.sdp.TimeField;
 import org.zoolu.sip.address.NameAddress;
@@ -249,6 +251,10 @@ public class UserAgent extends CallListenerAdapter {
 			addMediaDescriptor("video", user_profile.video_port,
 					user_profile.video_avp, "h263-1998", 90000);
 		}
+		
+		if(iceAgent != null) {
+			updateLocalSDPFromICEAgent();
+		}
 	}
 	//change end
 	
@@ -370,6 +376,32 @@ public class UserAgent extends CallListenerAdapter {
 				afvec.add(new AttributeField(candidate));
 			}
 		}
+	}
+	
+	private void updateLocalSDPFromICEAgent() {
+		
+		SessionDescriptor sdp = new SessionDescriptor(local_session);
+		
+		TransportAddress defaultAddress = iceAgent.getStreams().get(0)
+	            .getComponent(Component.RTP).getDefaultCandidate()
+	                .getTransportAddress();
+
+	        String addrType = defaultAddress.isIPv6()
+	                                    ? "IP6"
+	                                    : "IP4";
+
+	        //origin (use ip from the first component of the first stream)
+	        OriginField o = new OriginField("user", "0", "0", addrType,
+	                        defaultAddress.getHostAddress());
+	        sdp.setOrigin(o);
+
+	        //connection  (again use ip from first stream's component)
+	        ConnectionField c = new ConnectionField(addrType,
+	                        defaultAddress.getHostAddress() );
+	        sdp.setConnection(c);
+	        
+	        local_session = sdp.toString();
+		
 	}
 
 
@@ -770,6 +802,11 @@ public class UserAgent extends CallListenerAdapter {
 		String rUfrag = remote_sdp.getAttribute(ATTR_ICE_UFRAG).getAttributeValue();
 		String rPassword = remote_sdp.getAttribute(ATTR_ICE_PWD).getAttributeValue();
 		
+		ConnectionField globalConnection = remote_sdp.getConnection();
+        String globalConnAddr = null;
+        if(globalConnection != null)
+            globalConnAddr = globalConnection.getAddress();
+		
 		// Now map the remote candidates into the local ICE agent
 		for(IceMediaStream stream : iceAgent.getStreams())
 		{
@@ -783,6 +820,8 @@ public class UserAgent extends CallListenerAdapter {
 			
 			MediaDescriptor md = remote_sdp.getMediaDescriptor(streamName);
 			if(md != null) {
+				
+				
 				
 				Vector<AttributeField> afvec = md.getAttributes("candidate");
 				printLog("handling ICE SDP for stream: " + streamName + ", candidate count = " + afvec.size());
@@ -839,7 +878,22 @@ public class UserAgent extends CallListenerAdapter {
 						return;
 					} 
 				    
-				}
+				} // for (all candidate attribute lines)
+				
+				// Identify the `default' candidate as per the ICE spec
+				ConnectionField streamConnection = md.getConnection();
+	            String streamConnAddr = null;
+	            if(streamConnection != null)
+	                streamConnAddr = streamConnection.getAddress();
+	            else
+	                streamConnAddr = globalConnAddr;
+	            int port = md.getMedia().getPort();
+	            TransportAddress defaultRtpAddress =
+	                    new TransportAddress(streamConnAddr, port, Transport.UDP);
+	            Component rtpComponent = stream.getComponent(Component.RTP);
+	            Candidate defaultRtpCandidate
+                	= rtpComponent.findRemoteCandidate(defaultRtpAddress);
+	            rtpComponent.setDefaultRemoteCandidate(defaultRtpCandidate);
 				
 			} else {
 				iceAgent.removeStream(stream);
