@@ -67,7 +67,7 @@ public class SIPUri extends Activity {
 		Sipdroid.on(this,true);
 		Uri uri = getIntent().getData();
 		String target;
-		if (uri.getScheme().equals("sip") || uri.getScheme().equals("sipdroid"))
+		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME))
 			target = uri.getSchemeSpecificPart();
 		else {
 			if (uri.getAuthority().equals("aim") ||
