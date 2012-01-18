@@ -24,7 +24,7 @@
 /////////////////////////////////////////////////////////////////////
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.sipdroid.sipua"
+	package="org.lumicall.android"
     android:versionName="2.4 beta"
     android:versionCode="87"
     android:installLocation="auto">
@@ -153,7 +153,7 @@
 	      	<intent-filter>
 	        	<action android:name="android.intent.action.PACKAGE_REPLACED" />
 	        	<data android:scheme="package" />
-	        	<data android:path="org.sipdroid.sipua" />
+	        	<data android:path="org.lumicall.android" />
 	      	</intent-filter>
 	    </receiver>
 	    <receiver android:name="org.opentelecoms.android.sms.SMSReceiver" android:enabled="true">

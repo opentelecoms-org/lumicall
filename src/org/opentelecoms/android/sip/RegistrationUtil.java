@@ -25,7 +25,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.util.Base64;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;

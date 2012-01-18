@@ -21,6 +21,7 @@
 
 package org.sipdroid.sipua;
 
+import org.lumicall.android.R;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.SipProvider;

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import org.opentelecoms.android.reg.EnrolmentService;
 import org.opentelecoms.android.sip.RegistrationFailedException;
 import org.opentelecoms.android.sip.RegistrationUtil;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.app.Notification;

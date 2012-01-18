@@ -23,6 +23,7 @@ package org.sipdroid.sipua;
 
 import java.util.Vector;
 
+import org.lumicall.android.R;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;

@@ -20,6 +20,8 @@
  */
 package org.sipdroid.sipua;
 
+import org.lumicall.android.R;
+
 public class Constants {
 	public class TransportConstants {
 		public final static byte UND_SOCK = 0;

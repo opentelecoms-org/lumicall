@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import org.ice4j.StackProperties;
+import org.lumicall.android.R;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
 import org.sipdroid.sipua.ui.LoopAlarm;

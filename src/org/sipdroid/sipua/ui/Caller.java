@@ -28,7 +28,7 @@ import java.util.regex.PatternSyntaxException;
 import org.opentelecoms.android.sip.ENUMProviderForSIP;
 import org.opentelecoms.android.sip.ENUMUtil;
 import org.sipdroid.media.RtpStreamReceiver;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.sipdroid.sipua.UserAgent;
 
 import android.content.BroadcastReceiver;
