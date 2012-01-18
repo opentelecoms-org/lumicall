@@ -91,9 +91,6 @@ public class RegisterAccount extends Activity {
 	public static final String PREF_LAST_ENROLMENT_ATTEMPT = "lastEnrolmentAttempt";
 	public static final String PREF_LAST_VALIDATION_ATTEMPT = "lastValidationAttempt";
 	
-	// TODO: should get this from Settings.sharedPrefsFile somehow
-	public static final String SIPDROID_PREFS = "org.sipdroid.sipua_preferences";
-	
 	private static final String TAG = "EnrolAcct";
 	
 	SharedPreferences settings;

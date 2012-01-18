@@ -294,7 +294,7 @@ public class EnrolmentService extends IntentService {
 		// Setup the SIP preferences
 		SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
 		
-		SharedPreferences sipSettings = context.getSharedPreferences(RegisterAccount.SIPDROID_PREFS, Context.MODE_PRIVATE);
+		SharedPreferences sipSettings = context.getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
 		Editor edSIP = sipSettings.edit();
 		
 		String num = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
