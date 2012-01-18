@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2012 Ready Technology (UK) Limited
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.lumicall.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /////////////////////////////////////////////////////////////////////
-// these are the main messages of Sipdroid
+// these are the main messages of Lumicall
 // for modifying them additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
@@ -27,17 +27,18 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-<string name="app_name">Sipdroid</string>
+<string name="app_name">Lumicall</string>
 <string name="pstn_name">Phone Call</string>
-<string name="sip_name">Sipdroid Call, when available</string>
+<string name="sip_name">SIP Call, when available</string>
 
-<string name="about">Sipdroid is an open-source SIP client for Android
+<string name="about">Lumicall is an open-source SIP client for Android
 \n
-\nSee http://sipdroid.org for more info
+\nSee http://lumicall.org for more info
 \n
 \nVersion ${VERSION}
 \nThe software has been released for testing.
 \n
+\nCopyright (C) 2012 Ready Technology (UK) Limited (http://www.lumicall.org)
 \nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
@@ -147,9 +148,9 @@
 <string name="settings_check">Check with your mobile operator if he allows VoIP</string>
 <string name="settings_vpn2">PBXes offers free VPN service, see PBXes >> HELP</string>
 
-<string name="dialog_default">Sipdroid is not currently set as default phone. Would you like to make it as default phone?
+<string name="dialog_default">Lumicall is not currently set as default phone. Would you like to make it as default phone?
 \n
-\nIf you answer \'No\' here, you can still dial over Sipdroid from the system by adding \'+\' behind a number in Dialer, or by selecting \'text to\' in Contacts.</string>
+\nIf you answer \'No\' here, you can still dial over Lumicall from the system by adding \'+\' behind a number in Dialer, or by selecting \'text to\' in Contacts.</string>
 <string name="dialog_message">Would you like to see a message from Pascal introducing Sipdroid 1.5?</string>
 <string name="dialog_port">Would you like to change SIP port from 5060 to 5061 for improved reliability?</string>
 <string name="yes">Yes</string>
@@ -159,8 +160,8 @@
 <string name="settings_pref">Preferred Call Type</string>
 <string name="settings_pref2">Override by adding \'+\' behind a number in Dialer, or by selecting \'text to\' in Contacts</string>
     <string-array name="pref_display_values">
-        <item>Sipdroid only</item>
-        <item>Sipdroid, when available</item>
+        <item>Lumicall only</item>
+        <item>Lumicall, when available</item>
         <item>Phone</item>
         <item>Always ask</item>
     </string-array>
@@ -243,9 +244,9 @@
 <string name="settings_callthru">Trigger Callthru</string>
 <string name="settings_callthru2">Prefix for Callthru</string>
 
-<string name="settings_title">Sipdroid settings</string>
+<string name="settings_title">Lumicall settings</string>
 
-<string name="settings_profile_title">Sipdroid Settings (<xliff:g id="profile">%s</xliff:g>)</string>
+<string name="settings_profile_title">Lumicall Settings (<xliff:g id="profile">%s</xliff:g>)</string>
 <string name="settings_profile_menu_import">Import</string>
 <string name="settings_profile_menu_export">Export</string>
 <string name="settings_profile_menu_delete">Delete</string>

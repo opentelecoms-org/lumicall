@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2012 Ready Technology (UK) Limited
  * 
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.lumicall.org)
  * 
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -25,7 +25,7 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.lumicall.android"
-    android:versionName="2.4 beta"
+    android:versionName="1.0"
     android:versionCode="87"
     android:installLocation="auto">
         <!-- Not sure of the actual minimum API level required by
