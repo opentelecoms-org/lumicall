@@ -56,8 +56,6 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 
 	// Path where to store all profiles - !!!should be replaced by some system variable!!!
 	private final static String profilePath = "/sdcard/Sipdroid/";
-	// Path where is stored the shared preference file - !!!should be replaced by some system variable!!!
-	private final String sharedPrefsPath = "/data/data/org.sipdroid.sipua/shared_prefs/";
 	// Shared preference file name - !!!should be replaced by some system variable!!!
 	public static final String sharedPrefsFile = "sipua_preferences";
 	// List of profile files available on the SD card
@@ -402,6 +400,16 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 
     	return s.getString(PREF_USERNAME, DEFAULT_USERNAME) + "@" + provider;
     }
+    
+    public String getSharedPrefsFilename() {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("/data/data/");
+    	sb.append(context.getPackageName());
+    	sb.append("/shared_prefs/");
+    	sb.append(sharedPrefsFile);
+    	sb.append(".xml");
+    	return sb.toString();
+    }
 
     private void exportSettings() {
 		if (! settings.getString(PREF_USERNAME, "").equals("") && ! settings.getString(PREF_SERVER, "").equals(""))
@@ -410,7 +418,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	        	new File(profilePath).mkdirs();
 	
 	        	// Copy shared preference file on the SD card
-	        	copyFile(new File(sharedPrefsPath + sharedPrefsFile + ".xml"), new File(profilePath + getProfileNameString()));
+	        	copyFile(new File(getSharedPrefsFilename()), new File(profilePath + getProfileNameString()));
 	        } catch (Exception e) {
 	            Toast.makeText(this, getString(R.string.settings_profile_export_error), Toast.LENGTH_SHORT).show();
 	        }
@@ -422,7 +430,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 			boolean message = settings.getBoolean(PREF_MESSAGE, DEFAULT_MESSAGE);
 
 			try {
-				copyFile(new File(profilePath + profileFiles[whichItem]), new File(sharedPrefsPath + sharedPrefsFile + ".xml"));
+				copyFile(new File(profilePath + profileFiles[whichItem]), new File(getSharedPrefsFilename()));
             } catch (Exception e) {
                 Toast.makeText(context, getString(R.string.settings_profile_import_error), Toast.LENGTH_SHORT).show();
                 return;
