@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.RtpStreamReceiver;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.zoolu.sip.provider.SipStack;
 
@@ -43,6 +43,7 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -57,7 +58,12 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	// Path where to store all profiles - !!!should be replaced by some system variable!!!
 	private final static String profilePath = "/sdcard/Sipdroid/";
 	// Shared preference file name - !!!should be replaced by some system variable!!!
-	public static final String sharedPrefsFile = "sipua_preferences";
+	// IMPORTANT: Android appears to store the CheckBoxPreference values into a file
+	// called <packageName>_preferences.xml (rather than any arbitrary file we
+	// specify here)
+	// Therefore, by making this exactly the same name as the package name, we ensure
+	// that we are writing to the same _preferences file where the checkbox values are kept
+	public static final String sharedPrefsFile = "org.lumicall.android_preferences";
 	// List of profile files available on the SD card
 	private String[] profileFiles = null;
 	// Which profile file to delete
@@ -292,7 +298,9 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 				edit.putString(PREF_SERVER+j, DEFAULT_SERVER);
 				edit.putString(PREF_PREF+j, DEFAULT_PREF);				
 				edit.putString(PREF_PROTOCOL+j, DEFAULT_PROTOCOL);
-				edit.commit();
+				if(!edit.commit()) {
+					Log.w("Settings", "Failed to commit for line: " + (i+1));
+				}
 	        	Receiver.engine(this).updateDNS();
 	        	reload();
 			}
@@ -301,8 +309,10 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 			Editor edit = settings.edit();
 
 			edit.putString(PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
-			edit.putString(PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);				
-			edit.commit();
+			edit.putString(PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);	
+			if(!edit.commit()) {
+				Log.w("Settings", "Failed to commit STUN server");
+			}
 			reload();
 		}
 

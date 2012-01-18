@@ -47,6 +47,7 @@ import org.ice4j.ice.RemoteCandidate;
 import org.ice4j.ice.harvest.TurnCandidateHarvester;
 import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
+import org.lumicall.android.R;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.JAudioLauncher;

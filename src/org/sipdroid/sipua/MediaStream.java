@@ -12,6 +12,7 @@ import org.ice4j.ice.CandidatePair;
 import org.ice4j.ice.Component;
 import org.ice4j.ice.IceMediaStream;
 import org.ice4j.ice.IceProcessingState;
+import org.lumicall.android.R;
 
 public class MediaStream {
 	

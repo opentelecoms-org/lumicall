@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.sipdroid.sipua.RegisterAgent;
 import org.sipdroid.sipua.SipdroidEngine;
 

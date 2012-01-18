@@ -3,7 +3,7 @@ package org.opentelecoms.android.sip;
 import java.util.Date;
 
 import org.opentelecoms.android.reg.EnrolmentService;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 
 import android.app.Activity;
 import android.content.Intent;

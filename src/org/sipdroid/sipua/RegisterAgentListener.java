@@ -21,6 +21,7 @@
 
 package org.sipdroid.sipua;
 
+import org.lumicall.android.R;
 import org.zoolu.sip.address.NameAddress;
 
 /** Listener of RegisterAgent */

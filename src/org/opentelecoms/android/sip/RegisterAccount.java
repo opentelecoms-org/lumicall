@@ -45,7 +45,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.android.reg.EnrolmentService;
 import org.opentelecoms.util.Base64;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;

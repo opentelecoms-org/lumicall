@@ -8,7 +8,7 @@ import org.opentelecoms.android.sip.ActivateAccount;
 import org.opentelecoms.android.sip.RegisterAccount;
 import org.opentelecoms.android.sip.RegistrationFailedException;
 import org.opentelecoms.android.sip.RegistrationUtil;
-import org.sipdroid.sipua.R;
+import org.lumicall.android.R;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;
