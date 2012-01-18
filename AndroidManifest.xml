@@ -57,7 +57,7 @@
             </intent-filter> -->
         </activity>
         <activity
-            android:name="org.opentelecoms.android.sip.RegisterAccount"
+            android:name="org.lumicall.android.sip.RegisterAccount"
             android:label="@string/app_name" android:launchMode="singleInstance"
         	android:configChanges="orientation|keyboardHidden">
             <intent-filter>
@@ -66,7 +66,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.opentelecoms.android.sip.ActivateAccount"
+            android:name="org.lumicall.android.sip.ActivateAccount"
             android:label="@string/app_name" android:launchMode="singleInstance"
         	android:configChanges="orientation|keyboardHidden">
         </activity>
@@ -156,20 +156,20 @@
 	        	<data android:path="org.lumicall.android" />
 	      	</intent-filter>
 	    </receiver>
-	    <receiver android:name="org.opentelecoms.android.sms.SMSReceiver" android:enabled="true">
+	    <receiver android:name="org.lumicall.android.sms.SMSReceiver" android:enabled="true">
                 <intent-filter android:priority="100">
                     <action android:name="android.provider.Telephony.SMS_RECEIVED" />
                 </intent-filter>
             </receiver>
-        <!--  <receiver android:name="org.opentelecoms.android.reg.RegistrationPhaseTwo" android:enabled="true">
+        <!--  <receiver android:name="org.lumicall.android.reg.RegistrationPhaseTwo" android:enabled="true">
                 <intent-filter android:priority="100">
-                    <action android:name="org.opentelecoms.intent.HANDLE_AUTH_CODE" />
+                    <action android:name="org.lumicall.android.intent.HANDLE_AUTH_CODE" />
                 </intent-filter>
             </receiver> -->    
-        <provider android:name="org.opentelecoms.android.sip.ENUMProviderForSIP" android:authorities="enum"
+        <provider android:name="org.lumicall.android.sip.ENUMProviderForSIP" android:authorities="enum"
                 android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
-    	<service android:name="org.opentelecoms.android.reg.EnrolmentService"/>
+    	<service android:name="org.lumicall.android.reg.EnrolmentService"/>
     </application>
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"></uses-permission>

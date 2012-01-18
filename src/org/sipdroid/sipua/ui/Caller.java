@@ -25,10 +25,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.opentelecoms.android.sip.ENUMProviderForSIP;
-import org.opentelecoms.android.sip.ENUMUtil;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.lumicall.android.R;
+import org.lumicall.android.sip.ENUMProviderForSIP;
+import org.lumicall.android.sip.ENUMUtil;
 import org.sipdroid.sipua.UserAgent;
 
 import android.content.BroadcastReceiver;

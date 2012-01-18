@@ -17,7 +17,7 @@
  * along with this source code; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-package org.opentelecoms.android.sip;
+package org.lumicall.android.sip;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,9 +43,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.opentelecoms.android.reg.EnrolmentService;
 import org.opentelecoms.util.Base64;
 import org.lumicall.android.R;
+import org.lumicall.android.reg.EnrolmentService;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;

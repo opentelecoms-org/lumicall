@@ -1,9 +1,9 @@
-package org.opentelecoms.android.sip;
+package org.lumicall.android.sip;
 
 import java.util.Date;
 
-import org.opentelecoms.android.reg.EnrolmentService;
 import org.lumicall.android.R;
+import org.lumicall.android.reg.EnrolmentService;
 
 import android.app.Activity;
 import android.content.Intent;

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.opentelecoms.android.sip;
+package org.lumicall.android.sip;
 
 import uk.nominet.DDDS.ENUM;
 import uk.nominet.DDDS.Rule;
