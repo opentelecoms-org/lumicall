@@ -59,7 +59,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	// Path where is stored the shared preference file - !!!should be replaced by some system variable!!!
 	private final String sharedPrefsPath = "/data/data/org.sipdroid.sipua/shared_prefs/";
 	// Shared preference file name - !!!should be replaced by some system variable!!!
-	private final String sharedPrefsFile = "org.sipdroid.sipua_preferences";
+	public static final String sharedPrefsFile = "sipua_preferences";
 	// List of profile files available on the SD card
 	private String[] profileFiles = null;
 	// Which profile file to delete
