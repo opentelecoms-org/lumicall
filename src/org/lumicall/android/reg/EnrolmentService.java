@@ -1,14 +1,14 @@
-package org.opentelecoms.android.reg;
+package org.lumicall.android.reg;
 
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Locale;
 
-import org.opentelecoms.android.sip.ActivateAccount;
-import org.opentelecoms.android.sip.RegisterAccount;
-import org.opentelecoms.android.sip.RegistrationFailedException;
-import org.opentelecoms.android.sip.RegistrationUtil;
 import org.lumicall.android.R;
+import org.lumicall.android.sip.ActivateAccount;
+import org.lumicall.android.sip.RegisterAccount;
+import org.lumicall.android.sip.RegistrationFailedException;
+import org.lumicall.android.sip.RegistrationUtil;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.xmlpull.v1.XmlSerializer;
@@ -30,13 +30,13 @@ public class EnrolmentService extends IntentService {
 	 private Notification notification;
      private NotificationManager nm;
 
-	public static final String ACTION_ENROL = "org.opentelecoms.intent.USER_ENROL";
-	public static final String ACTION_VALIDATE = "org.opentelecoms.intent.USER_VALIDATE";
-	public static final String ACTION_SCAN_SMS_INBOX = "org.opentelecoms.intent.SCAN_SMS_INBOX";
-	public static final String ACTION_RETRY_ENROLMENT = "org.opentelecoms.intent.RETRY_ENROLMENT";
+	public static final String ACTION_ENROL = "org.lumicall.android.intent.USER_ENROL";
+	public static final String ACTION_VALIDATE = "org.lumicall.android.intent.USER_VALIDATE";
+	public static final String ACTION_SCAN_SMS_INBOX = "org.lumicall.android.intent.SCAN_SMS_INBOX";
+	public static final String ACTION_RETRY_ENROLMENT = "org.lumicall.android.intent.RETRY_ENROLMENT";
 	
-	//public static final String ENROLMENT_MSG = "org.opentelecoms.extra.ENROLMENT_MSG";
-	public static final String VALIDATION_CODE = "org.opentelecoms.extra.VALIDATION_CODE";
+	//public static final String ENROLMENT_MSG = "org.lumicall.android.extra.ENROLMENT_MSG";
+	public static final String VALIDATION_CODE = "org.lumicall.android.extra.VALIDATION_CODE";
 	
 	private static final String DEFAULT_SIP_SERVER = "sip.lvdx.com";
 	private static final String DEFAULT_SIP_DOMAIN = "lvdx.com";

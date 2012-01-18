@@ -1,4 +1,4 @@
-package org.opentelecoms.android.sip;
+package org.lumicall.android.sip;
 
 public class RegistrationFailedException extends Exception {
 

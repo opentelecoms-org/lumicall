@@ -1,4 +1,4 @@
-package org.opentelecoms.android.sip;
+package org.lumicall.android.sip;
 
 import java.io.BufferedReader;
 import java.io.IOException;

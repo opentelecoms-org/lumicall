@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opentelecoms.android.sip;
+package org.lumicall.android.sip;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
