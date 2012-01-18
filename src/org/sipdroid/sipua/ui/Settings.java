@@ -62,6 +62,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	private String[] profileFiles = null;
 	// Which profile file to delete
 	private int profileToDelete;
+	
+	public final static String URI_SCHEME = "sipdroid";
 
 	// IDs of the menu items
 	private static final int MENU_IMPORT = 0;

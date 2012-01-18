@@ -200,7 +200,7 @@ public class Caller extends BroadcastReceiver {
 									} catch (InterruptedException e) {
 									}
 			    			        Intent intent = new Intent(Intent.ACTION_CALL,
-			    			                Uri.fromParts("sipdroid", Uri.decode(n), null));
+			    			                Uri.fromParts(Settings.URI_SCHEME, Uri.decode(n), null));
 			    			        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			    			        context.startActivity(intent);					
 	    						}
