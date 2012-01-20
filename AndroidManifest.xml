@@ -118,6 +118,10 @@
         	android:configChanges="orientation|keyboardHidden">
         	android:excludeFromRecents="true" android:taskAffinity="">
         </activity>
+        <activity android:name=".preferences.SIPIdentitiesSettings" android:label="@string/app_name">
+        </activity>
+        <activity android:name=".preferences.SIPIdentitySettings" android:label="@string/app_name">
+        </activity>
         <activity
 	   android:name="org.sipdroid.codecs.Codecs$CodecSettings"
 	   android:label="@string/app_name" >

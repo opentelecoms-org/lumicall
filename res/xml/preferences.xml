@@ -1,5 +1,15 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceScreen
+		android:key="sipIdentities"
+		android:title="@string/sipIdentities" >
+        	<intent
+                	android:action="android.intent.action.MAIN"
+	                android:targetPackage="org.lumicall.android"
+	                android:targetClass="org.lumicall.android.preferences.SIPIdentitiesSettings" />
+
+	</PreferenceScreen>
+    
 	<PreferenceScreen android:title="@string/settings_account"
 					android:key="account">
 			<EditTextPreference

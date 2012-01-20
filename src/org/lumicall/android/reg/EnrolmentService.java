@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.ActivateAccount;
 import org.lumicall.android.sip.RegisterAccount;
 import org.lumicall.android.sip.RegistrationFailedException;
@@ -42,7 +44,7 @@ public class EnrolmentService extends IntentService {
 	private static final String DEFAULT_SIP_DOMAIN = "lvdx.com";
 	
 	private static final String DEFAULT_STUN_SERVER = "stun.lvdx.com";
-	private static final String DEFAULT_STUN_SERVER_PORT = "3478";
+	private static final int DEFAULT_STUN_SERVER_PORT = 3478;
 	
 	private static final String LOG_TAG = "EnrolSvc";
 	
@@ -307,7 +309,7 @@ public class EnrolmentService extends IntentService {
 		edSIP.putString(Settings.PREF_PROTOCOL, "tcp");  // FIXME - change to TLS
 		edSIP.putBoolean(Settings.PREF_STUN, true);
 		edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
-		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, DEFAULT_STUN_SERVER_PORT);
+		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, "" + DEFAULT_STUN_SERVER_PORT);
 		edSIP.putBoolean(Settings.PREF_WLAN, true);
 		edSIP.putBoolean(Settings.PREF_EDGE, true);
 		edSIP.putBoolean(Settings.PREF_3G, true);
@@ -318,12 +320,36 @@ public class EnrolmentService extends IntentService {
 		else {
 			Log.e(LOG_TAG, "error while committing preferences");
 		}
+		
+		LumicallDataSource ds = new LumicallDataSource(context);
+		ds.open();
+		ds.persistSIPIdentity(createSIPIdentity(settings));
+		ds.close();
 
 		Receiver.engine(context).updateDNS();
    		Receiver.engine(context).halt();
 		Receiver.engine(context).StartEngine();
 			
 			
+	}
+	
+	private SIPIdentity createSIPIdentity(SharedPreferences settings) {
+		SIPIdentity sipIdentity = new SIPIdentity();
+		sipIdentity.setUri(settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null) +
+				"@" + DEFAULT_SIP_DOMAIN);
+		sipIdentity.setAuthUser(settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
+		sipIdentity.setAuthPassword(settings.getString(RegisterAccount.PREF_SECRET, null));
+		sipIdentity.setReg(true);
+		sipIdentity.setRegServerName(DEFAULT_SIP_SERVER);
+		sipIdentity.setRegServerPort(5060);
+		sipIdentity.setRegServerProtocol("tcp");
+		sipIdentity.setOutboundServerName(DEFAULT_SIP_SERVER);
+		sipIdentity.setOutboundServerPort(5060);
+		sipIdentity.setOutboundServerProtocol("tcp");
+		sipIdentity.setStunServerName(DEFAULT_STUN_SERVER);
+		sipIdentity.setStunServerPort(DEFAULT_STUN_SERVER_PORT);
+		sipIdentity.setStunServerProtocol("udp");
+		return sipIdentity;
 	}
 	
 }
