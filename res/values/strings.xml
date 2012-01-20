@@ -117,12 +117,14 @@
 
 <string name="settings_protocol">Protocol</string>
     <string-array name="protocol_display_values">
-        <item>UDP (less standby on 3G)</item>
+        <item>TLS (secure)</item>
         <item>TCP (longer standby on 3G)</item>
+        <item>UDP (less standby on 3G)</item>        
     </string-array>
     <string-array name="protocol_values">
-        <item>udp</item>
+        <item>tls</item>
         <item>tcp</item>
+        <item>udp</item>
     </string-array>
 <string name="settings_vquality">Video Quality</string>
     <string-array name="vquality_display_values">
@@ -138,7 +140,7 @@
 <string name="settings_stun_server_port">STUN Server port</string>
 
 <string name="settings_mmtel">Use MMTel flavor</string>
-<string name="settings_mmtel_qvalue">Q value</string>
+<string name="settings_q">Q value</string>
  
 <string name="settings_options">Call Options</string>
 <string name="settings_wlan">Use WLAN</string>
@@ -331,5 +333,27 @@
 <string name="activate_proceed">Activate</string>
 <string name="activate_re_reg">Request code again</string>
 <string name="activate_invalid_code">Invalid activation code</string>
+
+<string name="sipIdentities">SIP Identities</string>
+
+<string name="sip_address_uri">SIP address/URI</string>
+<!--  <string name="settings_username" >Au</string>
+<string name="settings_password" ></string> 
+<string name="settings_reg"></string>
+<string name="settings_reg2" ></string>
+<string name="settings_q"></string> -->
+<string name="sip_reg_server_name" >Registration server name</string>
+<string name="sip_reg_server_port" >Registration server port</string>
+<string name="sip_reg_server_protocol" >Registration server protocol</string>
+<string name="settings_outbound">Use outbound proxy</string>
+<string name="settings_outbound2" >Send calls for any SIP domain via proxy</string>
+<string name="sip_outbound_server_name" >Outbound proxy name</string>
+<string name="sip_outbound_server_port" >Outbound proxy port</string>
+<string name="sip_outbound_server_protocol">Outbound proxy protocol</string>
+<string name="sip_carrier_intl_prefix" >Intl. dialing prefix</string>
+<string name="sip_carrier_intl_prefix2" >E.g. 00 in Europe, 0011 in Australia</string>
+<string name="sip_stun_server_name" >STUN server name</string>
+<string name="sip_stun_server_port" >STUN server port</string>
+<string name="sip_stun_server_protocol">STUN server protocol</string>
 
 </resources>

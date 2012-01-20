@@ -1,0 +1,366 @@
+package org.lumicall.android.db;
+
+import java.util.List;
+import java.util.Vector;
+
+import org.lumicall.android.preferences.PreferenceField;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+public class SIPIdentity {
+	
+	private final static String DB_TABLE = "SIPIdentity";
+	private final static String COLUMN_ID = "_id";
+	private final static String COLUMN_URI = "uri";
+	private final static String COLUMN_AUTH_USER = "auth_user";
+	private final static String COLUMN_AUTH_PASSWORD = "auth_password";
+	private final static String COLUMN_REG = "reg";
+	private final static String COLUMN_Q = "q";
+	private final static String COLUMN_REG_SERVER_NAME = "reg_server_name";
+	private final static String COLUMN_REG_SERVER_PORT = "reg_server_port";
+	private final static String COLUMN_REG_SERVER_PROTOCOL = "reg_server_protocol";
+	private final static String COLUMN_OUTBOUND = "outbound";
+	private final static String COLUMN_OUTBOUND_SERVER_NAME = "outbound_server_name";
+	private final static String COLUMN_OUTBOUND_SERVER_PORT = "outbound_server_port";
+	private final static String COLUMN_OUTBOUND_SERVER_PROTOCOL = "outbound_server_protocol";
+	private final static String COLUMN_CARRIER_INTL_PREFIX = "carrier_intl_prefix";
+	private final static String COLUMN_STUN_SERVER_NAME = "stun_server_name";
+	private final static String COLUMN_STUN_SERVER_PORT = "stun_server_port";
+	private final static String COLUMN_STUN_SERVER_PROTOCOL = "stun_server_protocol";
+	
+	private final static String[] ALL_COLUMNS = new String[] {
+		COLUMN_ID,
+		COLUMN_URI,
+		COLUMN_AUTH_USER,
+		COLUMN_AUTH_PASSWORD,
+		COLUMN_REG,
+		COLUMN_Q,
+		COLUMN_REG_SERVER_NAME,
+		COLUMN_REG_SERVER_PORT,
+		COLUMN_REG_SERVER_PROTOCOL,
+		COLUMN_OUTBOUND,
+		COLUMN_OUTBOUND_SERVER_NAME,
+		COLUMN_OUTBOUND_SERVER_PORT,
+		COLUMN_OUTBOUND_SERVER_PROTOCOL,
+		COLUMN_CARRIER_INTL_PREFIX,
+		COLUMN_STUN_SERVER_NAME,
+		COLUMN_STUN_SERVER_PORT,
+		COLUMN_STUN_SERVER_PROTOCOL
+	};
+	
+	private final static String CREATE_TABLE =
+			"CREATE TABLE " + DB_TABLE + " (" +
+			COLUMN_ID + " integer primary key autoincrement, " +
+			COLUMN_URI + " text not null, " +
+			COLUMN_AUTH_USER + " text, " +
+			COLUMN_AUTH_PASSWORD + " text, " +
+			COLUMN_REG + " int not null, " +
+			COLUMN_Q + " real, " +
+			COLUMN_REG_SERVER_NAME + " text, " + 
+			COLUMN_REG_SERVER_PORT + " int, " +
+			COLUMN_REG_SERVER_PROTOCOL + " text, " +
+			COLUMN_OUTBOUND + " int not null, " +
+			COLUMN_OUTBOUND_SERVER_NAME + " text, " + 
+			COLUMN_OUTBOUND_SERVER_PORT + " int, " +
+			COLUMN_OUTBOUND_SERVER_PROTOCOL + " text, " + 
+			COLUMN_CARRIER_INTL_PREFIX + " text, " + 
+			COLUMN_STUN_SERVER_NAME + " text, " + 
+			COLUMN_STUN_SERVER_PORT + " int, " +
+			COLUMN_STUN_SERVER_PROTOCOL + " text);";
+	
+	long id = -1;
+	String uri = null;
+	String authUser = null;
+	String authPassword = null;
+	boolean reg = true;
+	float q = (float) 1.0;
+	String regServerName = null;
+	int regServerPort = 5060;
+	String regServerProtocol = "tcp";
+	boolean outbound = true;
+	String outboundServerName = null;
+	int outboundServerPort = 5060;
+	String outboundServerProtocol = "tcp";
+	String carrierIntlPrefix = null;
+	String stunServerName = null;
+	int stunServerPort = 3478;
+	String stunServerProtocol = "udp";
+	
+	public static void onCreate(SQLiteDatabase db) {	
+		db.execSQL(CREATE_TABLE);
+	}
+	
+	public SIPIdentity() {		
+	}
+	
+	public static List<SIPIdentity> loadFromDatabase(SQLiteDatabase db) {
+		Vector<SIPIdentity> v = new Vector<SIPIdentity>();
+		
+		Cursor cursor = db.query(DB_TABLE,
+				ALL_COLUMNS, null,
+				null, null, null, null);
+		cursor.moveToFirst();
+		while(!cursor.isAfterLast()) {
+			v.add(fromCursor(cursor));
+			cursor.moveToNext();
+		}
+		cursor.close();
+		return v;
+	}
+	
+	public static SIPIdentity loadFromDatabase(SQLiteDatabase db, long id) {
+		
+		Cursor cursor = db.query(DB_TABLE,
+				ALL_COLUMNS, COLUMN_ID + " = " + id,
+				null, null, null, null);
+		cursor.moveToFirst();
+		SIPIdentity sipIdentity = fromCursor(cursor);
+		cursor.close();
+		return sipIdentity;
+	}
+	
+	private static boolean fromBoolean(int b) {
+		return b == 1;
+	}
+	
+	private static int toBoolean(boolean b) {
+		return b ? 1 : 0;
+	}
+	
+	private static SIPIdentity fromCursor(Cursor cursor) {
+		
+		SIPIdentity sipIdentity = new SIPIdentity();
+		
+		int i = 0;
+		
+		sipIdentity.setId(cursor.getLong(i++));
+		sipIdentity.setUri(cursor.getString(i++));
+		sipIdentity.setAuthUser(cursor.getString(i++));
+		sipIdentity.setAuthPassword(cursor.getString(i++));
+		sipIdentity.setReg(fromBoolean(cursor.getInt(i++)));
+		sipIdentity.setQ(cursor.getFloat(i++));
+		sipIdentity.setRegServerName(cursor.getString(i++));
+		sipIdentity.setRegServerPort(cursor.getInt(i++));
+		sipIdentity.setRegServerProtocol(cursor.getString(i++));
+		sipIdentity.setOutbound(fromBoolean(cursor.getInt(i++)));
+		sipIdentity.setOutboundServerName(cursor.getString(i++));
+		sipIdentity.setOutboundServerPort(cursor.getInt(i++));
+		sipIdentity.setOutboundServerProtocol(cursor.getString(i++));
+		sipIdentity.setCarrierIntlPrefix(cursor.getString(i++));
+		sipIdentity.setStunServerName(cursor.getString(i++));
+		sipIdentity.setStunServerPort(cursor.getInt(i++));
+		sipIdentity.setStunServerProtocol(cursor.getString(i++));
+		
+		return sipIdentity;
+	}
+	
+	public void commit(SQLiteDatabase db) {
+		
+		ContentValues values = new ContentValues();
+		values.put(COLUMN_URI, getUri());
+		values.put(COLUMN_AUTH_USER, getAuthUser());
+		values.put(COLUMN_AUTH_PASSWORD, getAuthPassword());
+		values.put(COLUMN_REG, toBoolean(isReg()));
+		values.put(COLUMN_Q, getQ());
+		values.put(COLUMN_REG_SERVER_NAME, getRegServerName());
+		values.put(COLUMN_REG_SERVER_PORT, getRegServerPort());
+		values.put(COLUMN_REG_SERVER_PROTOCOL, getRegServerProtocol());
+		values.put(COLUMN_OUTBOUND, toBoolean(isOutbound()));
+		values.put(COLUMN_OUTBOUND_SERVER_NAME, getOutboundServerName());
+		values.put(COLUMN_OUTBOUND_SERVER_PORT, getOutboundServerPort());
+		values.put(COLUMN_OUTBOUND_SERVER_PROTOCOL, getOutboundServerProtocol());
+		values.put(COLUMN_CARRIER_INTL_PREFIX, getCarrierIntlPrefix());
+		values.put(COLUMN_STUN_SERVER_NAME, getStunServerName());
+		values.put(COLUMN_STUN_SERVER_PORT, getStunServerPort());
+		values.put(COLUMN_STUN_SERVER_PROTOCOL, getStunServerProtocol());
+
+		if(getId() == -1) {
+			// insert and then setId()
+			setId(db.insert(DB_TABLE, null, values));
+		} else {
+			// update
+			values.put(COLUMN_ID, getId());
+			db.replace(DB_TABLE, null, values);
+		}
+	}
+	
+	public void delete(SQLiteDatabase db) {
+		if(getId() != -1) {
+			db.execSQL("DELETE FROM " + DB_TABLE +
+				" WHERE " + COLUMN_ID + " = " + getId() +
+				";");
+		}
+		setId(-1);		
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@PreferenceField(fieldName="sip_identity_uri")
+	public String getUri() {
+		return uri;
+	}
+
+	@PreferenceField(fieldName="sip_identity_uri")
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
+	@PreferenceField(fieldName="sip_identity_auth_user")
+	public String getAuthUser() {
+		return authUser;
+	}
+
+	@PreferenceField(fieldName="sip_identity_auth_user")
+	public void setAuthUser(String authUser) {
+		this.authUser = authUser;
+	}
+
+	@PreferenceField(fieldName="sip_identity_auth_password")
+	public String getAuthPassword() {
+		return authPassword;
+	}
+
+	@PreferenceField(fieldName="sip_identity_auth_password")
+	public void setAuthPassword(String authPassword) {
+		this.authPassword = authPassword;
+	}
+
+	@PreferenceField(fieldName="sip_identity_registration")
+	public boolean isReg() {
+		return reg;
+	}
+
+	@PreferenceField(fieldName="sip_identity_registration")
+	public void setReg(boolean reg) {
+		this.reg = reg;
+	}
+
+	@PreferenceField(fieldName="sip_identity_q")
+	public float getQ() {
+		return q;
+	}
+
+	@PreferenceField(fieldName="sip_identity_q")
+	public void setQ(float q) {
+		this.q = q;
+	}
+
+	@PreferenceField(fieldName="sip_identity_reg_server_name")
+	public String getRegServerName() {
+		return regServerName;
+	}
+
+	@PreferenceField(fieldName="sip_identity_reg_server_name")
+	public void setRegServerName(String regServerName) {
+		this.regServerName = regServerName;
+	}
+
+	@PreferenceField(fieldName="sip_identity_reg_server_port")
+	public int getRegServerPort() {
+		return regServerPort;
+	}
+
+	@PreferenceField(fieldName="sip_identity_reg_server_port")
+	public void setRegServerPort(int regServerPort) {
+		this.regServerPort = regServerPort;
+	}
+
+	@PreferenceField(fieldName="sip_identity_reg_server_protocol")
+	public String getRegServerProtocol() {
+		return regServerProtocol;
+	}
+
+	@PreferenceField(fieldName="sip_identity_reg_server_protocol")
+	public void setRegServerProtocol(String regServerProtocol) {
+		this.regServerProtocol = regServerProtocol;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound")
+	public boolean isOutbound() {
+		return outbound;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound")
+	public void setOutbound(boolean outbound) {
+		this.outbound = outbound;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound_server_name")
+	public String getOutboundServerName() {
+		return outboundServerName;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound_server_name")
+	public void setOutboundServerName(String outboundServerName) {
+		this.outboundServerName = outboundServerName;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound_server_port")
+	public int getOutboundServerPort() {
+		return outboundServerPort;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound_server_port")
+	public void setOutboundServerPort(int outboundServerPort) {
+		this.outboundServerPort = outboundServerPort;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound_server_protocol")
+	public String getOutboundServerProtocol() {
+		return outboundServerProtocol;
+	}
+
+	@PreferenceField(fieldName="sip_identity_outbound_server_protocol")
+	public void setOutboundServerProtocol(String outboundServerProtocol) {
+		this.outboundServerProtocol = outboundServerProtocol;
+	}
+
+	@PreferenceField(fieldName="sip_identity_carrier_intl_prefix")
+	public String getCarrierIntlPrefix() {
+		return carrierIntlPrefix;
+	}
+
+	@PreferenceField(fieldName="sip_identity_carrier_intl_prefix")
+	public void setCarrierIntlPrefix(String carrierIntlPrefix) {
+		this.carrierIntlPrefix = carrierIntlPrefix;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun_server_name")
+	public String getStunServerName() {
+		return stunServerName;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun_server_name")
+	public void setStunServerName(String stunServerName) {
+		this.stunServerName = stunServerName;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun_server_port")
+	public int getStunServerPort() {
+		return stunServerPort;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun_server_port")
+	public void setStunServerPort(int stunServerPort) {
+		this.stunServerPort = stunServerPort;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun_server_protocol")
+	public String getStunServerProtocol() {
+		return stunServerProtocol;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun_server_protocol")
+	public void setStunServerProtocol(String stunServerProtocol) {
+		this.stunServerProtocol = stunServerProtocol;
+	}
+
+}
