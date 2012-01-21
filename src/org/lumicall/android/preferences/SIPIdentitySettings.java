@@ -18,11 +18,13 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class SIPIdentitySettings extends PreferenceActivity {
 	
@@ -69,7 +71,8 @@ public class SIPIdentitySettings extends PreferenceActivity {
 			if(p.getClass().equals(EditTextPreference.class)) {
 				EditTextPreference etp = (EditTextPreference)p;
 				etp.setText(ret.toString());
-				etp.setSummary(ret.toString());
+				if((etp.getEditText().getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) == 0)
+					etp.setSummary(ret.toString());
 			} else if(p.getClass().equals(CheckBoxPreference.class)) {
 				((CheckBoxPreference)p).setChecked((Boolean)ret);
 			} else if(p.getClass().equals(ListPreference.class)) {
