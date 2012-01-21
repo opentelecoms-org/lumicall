@@ -337,6 +337,7 @@
 <string name="sipIdentities">SIP Identities</string>
 
 <string name="sip_address_uri">SIP address/URI</string>
+<string name="sip_identity_enable">Profile enabled</string>
 <!--  <string name="settings_username" >Au</string>
 <string name="settings_password" ></string> 
 <string name="settings_reg"></string>
