@@ -14,8 +14,10 @@ public class SIPIdentity {
 	private final static String DB_TABLE = "SIPIdentity";
 	private final static String COLUMN_ID = "_id";
 	private final static String COLUMN_URI = "uri";
+	private final static String COLUMN_ENABLE = "enable";
 	private final static String COLUMN_AUTH_USER = "auth_user";
 	private final static String COLUMN_AUTH_PASSWORD = "auth_password";
+	private final static String COLUMN_MWI = "mwi";
 	private final static String COLUMN_REG = "reg";
 	private final static String COLUMN_Q = "q";
 	private final static String COLUMN_REG_SERVER_NAME = "reg_server_name";
@@ -29,12 +31,15 @@ public class SIPIdentity {
 	private final static String COLUMN_STUN_SERVER_NAME = "stun_server_name";
 	private final static String COLUMN_STUN_SERVER_PORT = "stun_server_port";
 	private final static String COLUMN_STUN_SERVER_PROTOCOL = "stun_server_protocol";
+	private final static String COLUMN_RINGTONE = "ringtone";
 	
 	private final static String[] ALL_COLUMNS = new String[] {
 		COLUMN_ID,
 		COLUMN_URI,
+		COLUMN_ENABLE,
 		COLUMN_AUTH_USER,
 		COLUMN_AUTH_PASSWORD,
+		COLUMN_MWI,
 		COLUMN_REG,
 		COLUMN_Q,
 		COLUMN_REG_SERVER_NAME,
@@ -47,15 +52,18 @@ public class SIPIdentity {
 		COLUMN_CARRIER_INTL_PREFIX,
 		COLUMN_STUN_SERVER_NAME,
 		COLUMN_STUN_SERVER_PORT,
-		COLUMN_STUN_SERVER_PROTOCOL
+		COLUMN_STUN_SERVER_PROTOCOL,
+		COLUMN_RINGTONE
 	};
 	
 	private final static String CREATE_TABLE =
 			"CREATE TABLE " + DB_TABLE + " (" +
 			COLUMN_ID + " integer primary key autoincrement, " +
 			COLUMN_URI + " text not null, " +
+			COLUMN_ENABLE + " int not null, " +
 			COLUMN_AUTH_USER + " text, " +
 			COLUMN_AUTH_PASSWORD + " text, " +
+			COLUMN_MWI + " int not null, " +
 			COLUMN_REG + " int not null, " +
 			COLUMN_Q + " real, " +
 			COLUMN_REG_SERVER_NAME + " text, " + 
@@ -68,12 +76,15 @@ public class SIPIdentity {
 			COLUMN_CARRIER_INTL_PREFIX + " text, " + 
 			COLUMN_STUN_SERVER_NAME + " text, " + 
 			COLUMN_STUN_SERVER_PORT + " int, " +
-			COLUMN_STUN_SERVER_PROTOCOL + " text);";
+			COLUMN_STUN_SERVER_PROTOCOL + " text, " +
+			COLUMN_RINGTONE + " text);";
 	
 	long id = -1;
 	String uri = null;
+	boolean enable = true;
 	String authUser = null;
 	String authPassword = null;
+	boolean mwi = false;
 	boolean reg = true;
 	float q = (float) 1.0;
 	String regServerName = null;
@@ -87,6 +98,7 @@ public class SIPIdentity {
 	String stunServerName = null;
 	int stunServerPort = 3478;
 	String stunServerProtocol = "udp";
+	String ringTone = null;
 	
 	public static void onCreate(SQLiteDatabase db) {	
 		db.execSQL(CREATE_TABLE);
@@ -137,8 +149,10 @@ public class SIPIdentity {
 		
 		sipIdentity.setId(cursor.getLong(i++));
 		sipIdentity.setUri(cursor.getString(i++));
+		sipIdentity.setEnable(fromBoolean(cursor.getInt(i++)));
 		sipIdentity.setAuthUser(cursor.getString(i++));
 		sipIdentity.setAuthPassword(cursor.getString(i++));
+		sipIdentity.setMwi(fromBoolean(cursor.getInt(i++)));
 		sipIdentity.setReg(fromBoolean(cursor.getInt(i++)));
 		sipIdentity.setQ(cursor.getFloat(i++));
 		sipIdentity.setRegServerName(cursor.getString(i++));
@@ -152,6 +166,7 @@ public class SIPIdentity {
 		sipIdentity.setStunServerName(cursor.getString(i++));
 		sipIdentity.setStunServerPort(cursor.getInt(i++));
 		sipIdentity.setStunServerProtocol(cursor.getString(i++));
+		sipIdentity.setRingTone(cursor.getString(i++));
 		
 		return sipIdentity;
 	}
@@ -160,8 +175,10 @@ public class SIPIdentity {
 		
 		ContentValues values = new ContentValues();
 		values.put(COLUMN_URI, getUri());
+		values.put(COLUMN_ENABLE, toBoolean(isEnable()));
 		values.put(COLUMN_AUTH_USER, getAuthUser());
 		values.put(COLUMN_AUTH_PASSWORD, getAuthPassword());
+		values.put(COLUMN_MWI, toBoolean(isMwi()));
 		values.put(COLUMN_REG, toBoolean(isReg()));
 		values.put(COLUMN_Q, getQ());
 		values.put(COLUMN_REG_SERVER_NAME, getRegServerName());
@@ -175,6 +192,7 @@ public class SIPIdentity {
 		values.put(COLUMN_STUN_SERVER_NAME, getStunServerName());
 		values.put(COLUMN_STUN_SERVER_PORT, getStunServerPort());
 		values.put(COLUMN_STUN_SERVER_PROTOCOL, getStunServerProtocol());
+		values.put(COLUMN_RINGTONE, getRingTone());
 
 		if(getId() == -1) {
 			// insert and then setId()
@@ -212,6 +230,16 @@ public class SIPIdentity {
 	public void setUri(String uri) {
 		this.uri = uri;
 	}
+	
+	@PreferenceField(fieldName="sip_identity_enable")
+	public boolean isEnable() {
+		return enable;
+	}
+
+	@PreferenceField(fieldName="sip_identity_enable")
+	public void setEnable(boolean enable) {
+		this.enable = enable;
+	}
 
 	@PreferenceField(fieldName="sip_identity_auth_user")
 	public String getAuthUser() {
@@ -231,6 +259,16 @@ public class SIPIdentity {
 	@PreferenceField(fieldName="sip_identity_auth_password")
 	public void setAuthPassword(String authPassword) {
 		this.authPassword = authPassword;
+	}
+	
+	@PreferenceField(fieldName="sip_identity_mwi")
+	public boolean isMwi() {
+		return mwi;
+	}
+
+	@PreferenceField(fieldName="sip_identity_mwi")
+	public void setMwi(boolean mwi) {
+		this.mwi = mwi;
 	}
 
 	@PreferenceField(fieldName="sip_identity_registration")
@@ -363,4 +401,14 @@ public class SIPIdentity {
 		this.stunServerProtocol = stunServerProtocol;
 	}
 
+	@PreferenceField(fieldName="sip_identity_ringtone")
+	public String getRingTone() {
+		return ringTone;
+	}
+
+	@PreferenceField(fieldName="sip_identity_ringtone")
+	public void setRingTone(String ringTone) {
+		this.ringTone = ringTone;
+	}
+	
 }

@@ -1,76 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_uri"
         android:singleLine="true"
         android:title="@string/sip_address_uri" />
+    <CheckBoxPreference
+        android:persistent="false"
+		android:key="sip_identity_enable"
+		android:title="@string/sip_identity_enable" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_auth_user"
         android:singleLine="true"
         android:title="@string/settings_username" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_auth_password"
         android:password="true"
         android:singleLine="true"
         android:title="@string/settings_password" />
     <CheckBoxPreference
+        android:persistent="false"
+		android:key="sip_identity_mwi"
+		android:title="@string/settings_MWI"
+		android:summary="@string/settings_MWI2" />
+    <CheckBoxPreference
+        android:persistent="false"
 		android:key="sip_identity_registration"
 		android:title="@string/settings_reg"
 		android:summary="@string/settings_reg2" />
     <EditTextPreference
+        		android:persistent="false"
 				android:key="sip_identity_q"
 				android:title="@string/settings_q"
 				android:singleLine="true" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_reg_server_name"
         android:singleLine="true"
         android:title="@string/sip_reg_server_name" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_reg_server_port"
         android:singleLine="true"
         android:title="@string/sip_reg_server_port" />
     <ListPreference
+        		android:persistent="false"
 				android:key="sip_identity_reg_server_protocol"
 				android:title="@string/sip_reg_server_protocol"
 				android:entries="@array/protocol_display_values"
 				android:entryValues="@array/protocol_values"
 				android:dialogTitle="@string/sip_reg_server_protocol" />
     <CheckBoxPreference
+        android:persistent="false"
 		android:key="sip_identity_outbound"
 		android:title="@string/settings_outbound"
 		android:summary="@string/settings_outbound2" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_outbound_server_name"
         android:singleLine="true"
         android:title="@string/sip_outbound_server_name" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_outbound_server_port"
         android:singleLine="true"
         android:title="@string/sip_outbound_server_port" />
     <ListPreference
+        		android:persistent="false"
 				android:key="sip_identity_outbound_server_protocol"
 				android:title="@string/sip_outbound_server_protocol"
 				android:entries="@array/protocol_display_values"
 				android:entryValues="@array/protocol_values"
 				android:dialogTitle="@string/sip_outbound_server_protocol" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_carrier_intl_prefix"
         android:singleLine="true"
         android:title="@string/sip_carrier_intl_prefix"
         android:summary="@string/sip_carrier_intl_prefix2"/>
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_stun_server_name"
         android:singleLine="true"
         android:title="@string/sip_stun_server_name" />
     <EditTextPreference
+        android:persistent="false"
         android:key="sip_identity_stun_server_port"
         android:singleLine="true"
         android:title="@string/sip_stun_server_port" />
     <ListPreference
+        		android:persistent="false"
 				android:key="sip_identity_stun_server_protocol"
 				android:title="@string/sip_stun_server_protocol"
 				android:entries="@array/protocol_display_values"
 				android:entryValues="@array/protocol_values"
 				android:dialogTitle="@string/sip_stun_server_protocol" />
+    
+    <org.sipdroid.sipua.ui.SipRingtonePreference
+				android:key="sip_identity_ringtone"
+				android:title="@string/settings_sipringtone"
+				android:summary="@string/settings_sipringtone2"
+				android:dialogTitle="@string/settings_sipringtone_dialog"
+				android:persistent="false"
+				android:ringtoneType="ringtone" />
     
 </PreferenceScreen>
