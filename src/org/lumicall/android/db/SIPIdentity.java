@@ -18,6 +18,7 @@ public class SIPIdentity {
 	private final static String COLUMN_AUTH_USER = "auth_user";
 	private final static String COLUMN_AUTH_PASSWORD = "auth_password";
 	private final static String COLUMN_MWI = "mwi";
+	private final static String COLUMN_MMTEL = "mmtel";
 	private final static String COLUMN_REG = "reg";
 	private final static String COLUMN_Q = "q";
 	private final static String COLUMN_REG_SERVER_NAME = "reg_server_name";
@@ -40,6 +41,7 @@ public class SIPIdentity {
 		COLUMN_AUTH_USER,
 		COLUMN_AUTH_PASSWORD,
 		COLUMN_MWI,
+		COLUMN_MMTEL,
 		COLUMN_REG,
 		COLUMN_Q,
 		COLUMN_REG_SERVER_NAME,
@@ -64,6 +66,7 @@ public class SIPIdentity {
 			COLUMN_AUTH_USER + " text, " +
 			COLUMN_AUTH_PASSWORD + " text, " +
 			COLUMN_MWI + " int not null, " +
+			COLUMN_MMTEL + " int not null, " +
 			COLUMN_REG + " int not null, " +
 			COLUMN_Q + " real, " +
 			COLUMN_REG_SERVER_NAME + " text, " + 
@@ -85,6 +88,7 @@ public class SIPIdentity {
 	String authUser = null;
 	String authPassword = null;
 	boolean mwi = false;
+	boolean mMTel = false;
 	boolean reg = true;
 	float q = (float) 1.0;
 	String regServerName = null;
@@ -153,6 +157,7 @@ public class SIPIdentity {
 		sipIdentity.setAuthUser(cursor.getString(i++));
 		sipIdentity.setAuthPassword(cursor.getString(i++));
 		sipIdentity.setMwi(fromBoolean(cursor.getInt(i++)));
+		sipIdentity.setMMTel(fromBoolean(cursor.getInt(i++)));
 		sipIdentity.setReg(fromBoolean(cursor.getInt(i++)));
 		sipIdentity.setQ(cursor.getFloat(i++));
 		sipIdentity.setRegServerName(cursor.getString(i++));
@@ -179,6 +184,7 @@ public class SIPIdentity {
 		values.put(COLUMN_AUTH_USER, getAuthUser());
 		values.put(COLUMN_AUTH_PASSWORD, getAuthPassword());
 		values.put(COLUMN_MWI, toBoolean(isMwi()));
+		values.put(COLUMN_MMTEL, toBoolean(isMMTel()));
 		values.put(COLUMN_REG, toBoolean(isReg()));
 		values.put(COLUMN_Q, getQ());
 		values.put(COLUMN_REG_SERVER_NAME, getRegServerName());
@@ -269,6 +275,16 @@ public class SIPIdentity {
 	@PreferenceField(fieldName="sip_identity_mwi")
 	public void setMwi(boolean mwi) {
 		this.mwi = mwi;
+	}
+	
+	@PreferenceField(fieldName="sip_identity_mmtel")
+	public boolean isMMTel() {
+		return mMTel;
+	}
+
+	@PreferenceField(fieldName="sip_identity_mmtel")
+	public void setMMTel(boolean mMTel) {
+		this.mMTel = mMTel;
 	}
 
 	@PreferenceField(fieldName="sip_identity_registration")
@@ -409,6 +425,144 @@ public class SIPIdentity {
 	@PreferenceField(fieldName="sip_identity_ringtone")
 	public void setRingTone(String ringTone) {
 		this.ringTone = ringTone;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((authPassword == null) ? 0 : authPassword.hashCode());
+		result = prime * result
+				+ ((authUser == null) ? 0 : authUser.hashCode());
+		result = prime
+				* result
+				+ ((carrierIntlPrefix == null) ? 0 : carrierIntlPrefix
+						.hashCode());
+		result = prime * result + (enable ? 1231 : 1237);
+		result = prime * result + (mMTel ? 1231 : 1237);
+		result = prime * result + (mwi ? 1231 : 1237);
+		result = prime * result + (outbound ? 1231 : 1237);
+		result = prime
+				* result
+				+ ((outboundServerName == null) ? 0 : outboundServerName
+						.hashCode());
+		result = prime * result + outboundServerPort;
+		result = prime
+				* result
+				+ ((outboundServerProtocol == null) ? 0
+						: outboundServerProtocol.hashCode());
+		result = prime * result + Float.floatToIntBits(q);
+		result = prime * result + (reg ? 1231 : 1237);
+		result = prime * result
+				+ ((regServerName == null) ? 0 : regServerName.hashCode());
+		result = prime * result + regServerPort;
+		result = prime
+				* result
+				+ ((regServerProtocol == null) ? 0 : regServerProtocol
+						.hashCode());
+		result = prime * result
+				+ ((ringTone == null) ? 0 : ringTone.hashCode());
+		result = prime * result
+				+ ((stunServerName == null) ? 0 : stunServerName.hashCode());
+		result = prime * result + stunServerPort;
+		result = prime
+				* result
+				+ ((stunServerProtocol == null) ? 0 : stunServerProtocol
+						.hashCode());
+		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof SIPIdentity))
+			return false;
+		SIPIdentity other = (SIPIdentity) obj;
+		if (authPassword == null) {
+			if (other.authPassword != null)
+				return false;
+		} else if (!authPassword.equals(other.authPassword))
+			return false;
+		if (authUser == null) {
+			if (other.authUser != null)
+				return false;
+		} else if (!authUser.equals(other.authUser))
+			return false;
+		if (carrierIntlPrefix == null) {
+			if (other.carrierIntlPrefix != null)
+				return false;
+		} else if (!carrierIntlPrefix.equals(other.carrierIntlPrefix))
+			return false;
+		if (enable != other.enable)
+			return false;
+		if (mMTel != other.mMTel)
+			return false;
+		if (mwi != other.mwi)
+			return false;
+		if (outbound != other.outbound)
+			return false;
+		if (outboundServerName == null) {
+			if (other.outboundServerName != null)
+				return false;
+		} else if (!outboundServerName.equals(other.outboundServerName))
+			return false;
+		if (outboundServerPort != other.outboundServerPort)
+			return false;
+		if (outboundServerProtocol == null) {
+			if (other.outboundServerProtocol != null)
+				return false;
+		} else if (!outboundServerProtocol.equals(other.outboundServerProtocol))
+			return false;
+		if (Float.floatToIntBits(q) != Float.floatToIntBits(other.q))
+			return false;
+		if (reg != other.reg)
+			return false;
+		if (regServerName == null) {
+			if (other.regServerName != null)
+				return false;
+		} else if (!regServerName.equals(other.regServerName))
+			return false;
+		if (regServerPort != other.regServerPort)
+			return false;
+		if (regServerProtocol == null) {
+			if (other.regServerProtocol != null)
+				return false;
+		} else if (!regServerProtocol.equals(other.regServerProtocol))
+			return false;
+		if (ringTone == null) {
+			if (other.ringTone != null)
+				return false;
+		} else if (!ringTone.equals(other.ringTone))
+			return false;
+		if (stunServerName == null) {
+			if (other.stunServerName != null)
+				return false;
+		} else if (!stunServerName.equals(other.stunServerName))
+			return false;
+		if (stunServerPort != other.stunServerPort)
+			return false;
+		if (stunServerProtocol == null) {
+			if (other.stunServerProtocol != null)
+				return false;
+		} else if (!stunServerProtocol.equals(other.stunServerProtocol))
+			return false;
+		if (uri == null) {
+			if (other.uri != null)
+				return false;
+		} else if (!uri.equals(other.uri))
+			return false;
+		return true;
 	}
 	
 }

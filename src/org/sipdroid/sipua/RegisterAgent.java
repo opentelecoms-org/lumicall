@@ -96,6 +96,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	
 	Boolean pub;
 	
+	boolean mwi;
+	
 	/** Nonce for the next authentication. */
 	String next_nonce;
 
@@ -134,7 +136,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	public RegisterAgent(SipProvider sip_provider, String target_url,
 			String contact_url, String username, String realm, String passwd,
 			RegisterAgentListener listener,UserAgentProfile user_profile,
-			String qvalue, String icsi, Boolean pub) {									// modified by mandrajg
+			String qvalue, String icsi, Boolean pub, boolean mwi) {									// modified by mandrajg
 		
 		init(sip_provider, target_url, contact_url, listener);
 		
@@ -149,6 +151,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		this.icsi = icsi;
 		
 		this.pub = pub;
+		
+		this.mwi = mwi;
 	}
 
 	public void halt() {
@@ -317,7 +321,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		if (alreadySubscribed)
 			return;
 		Message req = getSubscribeMessage(false);
-		if (!PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_MWI_ENABLED, Settings.DEFAULT_MWI_ENABLED))
+		if (!mwi)
 			return;
 		if (sd != null) sd.subscribe(req);
 	}
@@ -401,7 +405,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 			NameAddress notifier, NameAddress contact, String state,
 			String content_type, String body, Message msg)
 	{
-		if (!PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_MWI_ENABLED, Settings.DEFAULT_MWI_ENABLED))
+		if (!mwi)
 			return;
 		Parser p = new Parser(body);
 		final char[] propertysep = { ':', '\r', '\n' };

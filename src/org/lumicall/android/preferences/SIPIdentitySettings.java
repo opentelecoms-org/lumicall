@@ -8,6 +8,7 @@ import java.util.List;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
+import org.sipdroid.sipua.ui.Receiver;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,8 @@ public class SIPIdentitySettings extends PreferenceActivity {
 	public final static String SIP_IDENTITY_ID = "sipIdentityId";
 	
 	SIPIdentity sipIdentity;
+	
+	boolean changed = false;
 	
 	/* private void setEditTextPreference(String preferenceName, String value) {
 		EditTextPreference p = (EditTextPreference) findPreference(preferenceName);
@@ -121,7 +124,8 @@ public class SIPIdentitySettings extends PreferenceActivity {
         setListPreference("sip_identity_stun_server_protocol", sipIdentity.getStunServerProtocol()); */
 	}
 	
-	private void setBeanValue(Method m, Preference p, Object newValue) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	private boolean setBeanValue(Method m, Preference p, Object newValue) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		int hash1 = sipIdentity.hashCode();
 		if(m.getParameterTypes()[0].equals(String.class)) {
 			m.invoke(sipIdentity, newValue);
 		} else if(m.getParameterTypes()[0].equals(Float.TYPE)) {
@@ -136,6 +140,9 @@ public class SIPIdentitySettings extends PreferenceActivity {
 		ds.open();
 		ds.persistSIPIdentity(sipIdentity);
 		ds.close();
+		
+		int hash2 = sipIdentity.hashCode();
+		return (hash1 != hash2);
 	}
 	
 	private class MyListener implements Preference.OnPreferenceChangeListener {
@@ -143,6 +150,7 @@ public class SIPIdentitySettings extends PreferenceActivity {
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			String key = preference.getKey();
+			boolean _changed = false;
 			try {
 				Method[] methods = Class.forName(
 						sipIdentity.getClass().getName()).getMethods();
@@ -153,12 +161,14 @@ public class SIPIdentitySettings extends PreferenceActivity {
 					if (isSetter(methods[i].getName())
 							&& preferenceField != null
 							&& preferenceField.fieldName().equals(key)) {
-						setBeanValue(methods[i], preference, newValue);
+						_changed = setBeanValue(methods[i], preference, newValue);
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			if(_changed)
+				changed = true;
 			return true;
 		}
 	}
@@ -193,6 +203,20 @@ public class SIPIdentitySettings extends PreferenceActivity {
         }
 
 		loadPreferences(getPreferenceScreen(), id);
+	}
+	
+	protected void onStop() {
+		checkForChanges();
+		super.onStop();
+	}
+	
+	protected void checkForChanges() {
+		if(changed) {
+			//Receiver.engine(context).updateDNS();
+	   		Receiver.engine(this.getBaseContext()).halt();
+			Receiver.engine(this.getBaseContext()).StartEngine();
+			changed = false;
+		}
 	}
 
 }

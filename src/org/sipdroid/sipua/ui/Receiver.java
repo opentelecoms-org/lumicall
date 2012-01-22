@@ -196,8 +196,7 @@ import org.zoolu.sip.provider.SipProvider;
 								(rm == AudioManager.RINGER_MODE_NORMAL && vs == AudioManager.VIBRATE_SETTING_ON)))
 							v.vibrate(vibratePattern,1);
 						if (am.getStreamVolume(AudioManager.STREAM_RING) > 0) {				 
-							String sUriSipRingtone = PreferenceManager.getDefaultSharedPreferences(mContext).getString(org.sipdroid.sipua.ui.Settings.PREF_SIPRINGTONE,
-									Settings.System.DEFAULT_RINGTONE_URI.toString());
+							String sUriSipRingtone = Settings.System.DEFAULT_RINGTONE_URI.toString();  // FIXME - use profile
 							if(!TextUtils.isEmpty(sUriSipRingtone)) {
 								oRingtone = RingtoneManager.getRingtone(mContext, Uri.parse(sUriSipRingtone));
 								if (oRingtone != null) oRingtone.play();	
@@ -274,8 +273,10 @@ import org.zoolu.sip.provider.SipProvider;
 				cache_text = text;
 				cache_res = mInCallResId;
 			}
+			//boolean anyRegistration = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_REGISTRATION, org.sipdroid.sipua.ui.Settings.DEFAULT_REGISTRATION);
+			boolean anyRegistration = false;
 			if (type >= REGISTER_NOTIFICATION && mInCallResId == R.drawable.sym_presence_available &&
-					!PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_REGISTRATION, org.sipdroid.sipua.ui.Settings.DEFAULT_REGISTRATION))
+					!anyRegistration)
 				text = null;
 	        NotificationManager mNotificationMgr = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 	        if (text != null) {
@@ -329,10 +330,7 @@ import org.zoolu.sip.provider.SipProvider;
 					if (base != 0) {
 						contentView.setChronometer(R.id.text1, base, text+" (%s)", true);
 					} else if (type >= REGISTER_NOTIFICATION) {
-						if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_POS, org.sipdroid.sipua.ui.Settings.DEFAULT_POS))
-							contentView.setTextViewText(R.id.text2, text+"/"+mContext.getString(R.string.settings_pos3));
-						else
-							contentView.setTextViewText(R.id.text2, text);
+						contentView.setTextViewText(R.id.text2, text);
 						if (mSipdroidEngine != null)
 							contentView.setTextViewText(R.id.text1,
 								mSipdroidEngine.user_profiles[type-REGISTER_NOTIFICATION].username+"@"+
@@ -397,7 +395,7 @@ import org.zoolu.sip.provider.SipProvider;
 			if (am == null) am = (AlarmManager)mContext.getSystemService(Context.ALARM_SERVICE);
 			pos_gps(false);
 			if (enable) {
-				if (call_state == UserAgent.UA_STATE_IDLE && Sipdroid.on(mContext) &&
+				/* if (call_state == UserAgent.UA_STATE_IDLE && Sipdroid.on(mContext) &&
 						PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_POS, org.sipdroid.sipua.ui.Settings.DEFAULT_POS) &&
 						PreferenceManager.getDefaultSharedPreferences(mContext).getString(org.sipdroid.sipua.ui.Settings.PREF_POSURL, org.sipdroid.sipua.ui.Settings.DEFAULT_POSURL).length() > 0) {
 					Location last = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -407,7 +405,7 @@ import org.zoolu.sip.provider.SipProvider;
 					}
 					pos_net(true);
 				} else
-					pos_net(false);
+					pos_net(false); */
 			}
 		}
 
@@ -463,7 +461,7 @@ import org.zoolu.sip.provider.SipProvider;
     		wm.setWifiEnabled(enable);
 		}
 			    
-		public static void url(final String opt) {
+		/* public static void url(final String opt) {
 	        (new Thread() {
 				public void run() {
 					try {
@@ -478,7 +476,7 @@ import org.zoolu.sip.provider.SipProvider;
 
 				}
 			}).start();   
-		}
+		} */
 		
 		static boolean was_playing;
 		
@@ -626,9 +624,9 @@ import org.zoolu.sip.provider.SipProvider;
         	WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         	WifiInfo wi = wm.getConnectionInfo();
 
-        	if (PreferenceManager.getDefaultSharedPreferences(mContext).getString(org.sipdroid.sipua.ui.Settings.PREF_USERNAME+(i!=0?i:""),"").equals("") ||
+        	/* if (PreferenceManager.getDefaultSharedPreferences(mContext).getString(org.sipdroid.sipua.ui.Settings.PREF_USERNAME+(i!=0?i:""),"").equals("") ||
         			PreferenceManager.getDefaultSharedPreferences(mContext).getString(org.sipdroid.sipua.ui.Settings.PREF_SERVER+(i!=0?i:""),"").equals(""))
-        		return false;
+        		return false; */
         	if (wi != null) {
         		if (!Sipdroid.release) Log.i("SipUA:","isFastWifi() "+WifiInfo.getDetailedStateOf(wi.getSupplicantState())
         				+" "+wi.getIpAddress());

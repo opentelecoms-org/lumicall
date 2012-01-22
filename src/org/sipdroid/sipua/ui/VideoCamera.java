@@ -201,6 +201,8 @@ public class VideoCamera extends CallScreen implements
     public void onResume() {
 		if (!Sipdroid.release) Log.i("SipUA:","on resume");
         justplay = intent.hasExtra("justplay");
+        //boolean isPBXes = PreferenceManager.getDefaultSharedPreferences(this).getString(org.sipdroid.sipua.ui.Settings.PREF_SERVER, org.sipdroid.sipua.ui.Settings.DEFAULT_SERVER).equals(org.sipdroid.sipua.ui.Settings.DEFAULT_SERVER);
+        boolean isPBXes = false;
         if (!justplay) {
 			receiver = new LocalSocket();
 			try {
@@ -221,7 +223,7 @@ public class VideoCamera extends CallScreen implements
             mVideoPreview.setVisibility(View.VISIBLE);
 	        if (!mMediaRecorderRecording) initializeVideo();
 	        startVideoRecording();
-        } else if (Receiver.engine(mContext).getRemoteVideo() != 0 && PreferenceManager.getDefaultSharedPreferences(this).getString(org.sipdroid.sipua.ui.Settings.PREF_SERVER, org.sipdroid.sipua.ui.Settings.DEFAULT_SERVER).equals(org.sipdroid.sipua.ui.Settings.DEFAULT_SERVER)) {
+        } else if (Receiver.engine(mContext).getRemoteVideo() != 0 && isPBXes) {
         	mVideoFrame.setVideoURI(Uri.parse("rtsp://"+Receiver.engine(mContext).getRemoteAddr()+"/"+
         		Receiver.engine(mContext).getRemoteVideo()+"/sipdroid"));
         	mVideoFrame.setMediaController(mMediaController = new MediaController(this));

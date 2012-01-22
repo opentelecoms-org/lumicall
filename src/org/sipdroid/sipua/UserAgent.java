@@ -434,9 +434,10 @@ public class UserAgent extends CallListenerAdapter {
 		iceAgent = new org.ice4j.ice.Agent();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
-		if (sp.getBoolean(Settings.PREF_STUN, Settings.DEFAULT_STUN)) {
-			String stunServer = sp.getString(Settings.PREF_STUN_SERVER, Settings.DEFAULT_STUN_SERVER);
-			int port = Integer.valueOf(sp.getString(Settings.PREF_STUN_SERVER_PORT, Settings.DEFAULT_STUN_SERVER_PORT));
+		
+		String stunServer = user_profile.stun_server_name;
+		int port = user_profile.stun_server_port;
+		if(stunServer != null && stunServer.length() > 0) {
 		
 			LongTermCredential longTermCredential
 				//= new LongTermCredential("test", "1234"); // FIXME credentials

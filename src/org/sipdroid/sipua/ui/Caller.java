@@ -184,12 +184,7 @@ public class Caller extends BroadcastReceiver {
 							force = true;
 	    				if (!ask && Receiver.engine(context).call(number,force))
 	    					setResultData(null);
-	    				else if (!ask && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_CALLTHRU, Settings.DEFAULT_CALLTHRU) &&
-	    						(callthru_prefix = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_CALLTHRU2, Settings.DEFAULT_CALLTHRU2)).length() > 0) {
-	    					// Call failed - PSTN fall back
-	    					callthru_number = (callthru_prefix+","+callthru_number+"#").replaceAll(",", ",p");
-	    					setResultData(callthru_number);
-	    				} else if (ask || force) {
+	    				else if (ask || force) {
 	    					// Try the call another way?
 	    					setResultData(null);
 	    					final String n = number;

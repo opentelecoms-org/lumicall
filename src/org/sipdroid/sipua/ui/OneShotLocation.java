@@ -37,7 +37,7 @@ public class OneShotLocation extends BroadcastReceiver {
     	loc = (Location)intent.getParcelableExtra(LocationManager.KEY_LOCATION_CHANGED);
     	if (loc != null) {
     		Receiver.pos(false);
-    		Receiver.url("lat="+loc.getLatitude()+"&lon="+loc.getLongitude()+"&rad="+loc.getAccuracy());
+    	//	Receiver.url("lat="+loc.getLatitude()+"&lon="+loc.getLongitude()+"&rad="+loc.getAccuracy());
     	} else if (intent.hasExtra(Intent.EXTRA_ALARM_COUNT))
     		Receiver.pos(false);		
 	}

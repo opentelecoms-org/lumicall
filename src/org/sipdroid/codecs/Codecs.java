@@ -48,15 +48,15 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class Codecs {
     	private static final Vector<Codec> codecs = new Vector<Codec>() {{
-			add(new G722());			
+//			add(new G722());			
 //			add(new SILK24());		save space (until a common library for all bitrates gets available?)
 //			add(new SILK16());
-//			add(new SILK8());
+			add(new SILK8());
 			add(new alaw());
 			add(new ulaw());
-			add(new Speex());
-			add(new GSM());
-			add(new BV16());
+//			add(new Speex());
+//			add(new GSM());
+//			add(new BV16());
     			add(new G729());
 		}};
 	private static final HashMap<Integer, Codec> codecsNumbers;
@@ -158,8 +158,10 @@ public class Codecs {
 			l.setPersistent(true);
 			l.setEnabled(!c.isFailed());
 			c.setListPreference(l);
+			//boolean isPBXes = ps.getSharedPreferences().getString(Settings.PREF_SERVER, Settings.DEFAULT_SERVER).equals(Settings.DEFAULT_SERVER);
+			boolean isPBXes = false;
 			if (c.number() == 9)
-				if (ps.getSharedPreferences().getString(Settings.PREF_SERVER, Settings.DEFAULT_SERVER).equals(Settings.DEFAULT_SERVER))
+				if (isPBXes)
 					l.setSummary(l.getEntry()+" ("+r.getString(R.string.settings_improve2)+")");
 				else
 					l.setSummary(l.getEntry()+" ("+r.getString(R.string.settings_hdvoice)+")");

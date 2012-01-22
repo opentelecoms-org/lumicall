@@ -50,7 +50,7 @@ public class SipRingtonePreference extends RingtonePreference
         ringtonePickerIntent.putExtras(new Intent( RingtoneManager.ACTION_RINGTONE_PICKER));
     }
 
-    @Override
+/*    @Override
     protected void onSaveRingtone(Uri ringtoneUri) 
     {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
@@ -61,8 +61,8 @@ public class SipRingtonePreference extends RingtonePreference
     @Override
     protected Uri onRestoreRingtone() 
     {
-        String uriString = PreferenceManager.getDefaultSharedPreferences(mContext).getString(org.sipdroid.sipua.ui.Settings.PREF_SIPRINGTONE,
-        		Settings.System.DEFAULT_RINGTONE_URI.toString());
+        String uriString = 
+        		Settings.System.DEFAULT_RINGTONE_URI.toString();
         return !TextUtils.isEmpty(uriString) ? Uri.parse(uriString) : null;        
-    }    
+    } */    
 }

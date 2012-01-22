@@ -269,6 +269,14 @@
 <string name="settings_ownwifi">Control Wi-Fi Power</string>
 <string name="settings_ownwifi2">Saves battery</string>
 
+<string name="settings_siproute">SIP identity</string>
+<string name="settings_siproute2">Identity used for calling arbitrary SIP addresses</string>
+<string name="settings_siproute_dialog">SIP identity</string>
+
+<string name="settings_telroute">PSTN carrier</string>
+<string name="settings_telroute2">Identity used for calling PSTN numbers</string>
+<string name="settings_telroute_dialog">PSTN carrier</string>
+
 <string name="menu_settings">Settings</string>
 <string name="menu_exit">Exit</string>
 <string name="menu_about">About</string>
