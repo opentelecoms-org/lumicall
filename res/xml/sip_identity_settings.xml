@@ -27,6 +27,10 @@
 		android:summary="@string/settings_MWI2" />
     <CheckBoxPreference
         android:persistent="false"
+		android:key="sip_identity_mmtel"
+		android:title="@string/settings_mmtel" />
+    <CheckBoxPreference
+        android:persistent="false"
 		android:key="sip_identity_registration"
 		android:title="@string/settings_reg"
 		android:summary="@string/settings_reg2" />

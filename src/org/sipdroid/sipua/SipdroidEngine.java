@@ -23,9 +23,12 @@ package org.sipdroid.sipua;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import org.ice4j.StackProperties;
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIPIdentity;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
 import org.sipdroid.sipua.ui.LoopAlarm;
@@ -46,10 +49,11 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class SipdroidEngine implements RegisterAgentListener {
 
-	public static final int LINES = 2;
+	//public static final int LINES = 2;
 	public int pref;
 	
 	public static final int UNINITIALIZED = 0x0;
@@ -71,34 +75,62 @@ public class SipdroidEngine implements RegisterAgentListener {
 	
 	public static PowerManager.WakeLock[] wl,pwl;
 	
-	UserAgentProfile getUserAgentProfile(String suffix) {
+	UserAgentProfile getUserAgentProfile(SIPIdentity sipIdentity) {
 		UserAgentProfile user_profile = new UserAgentProfile(null);
 		
-		user_profile.username = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_USERNAME+suffix, Settings.DEFAULT_USERNAME); // modified
-		user_profile.passwd = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_PASSWORD+suffix, Settings.DEFAULT_PASSWORD);
-		if (PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_DOMAIN+suffix, Settings.DEFAULT_DOMAIN).length() == 0) {
-			user_profile.realm = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_SERVER+suffix, Settings.DEFAULT_SERVER);
-		} else {
-			user_profile.realm = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_DOMAIN+suffix, Settings.DEFAULT_DOMAIN);
-		}
-		user_profile.realm_orig = user_profile.realm;
-		if (PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_FROMUSER+suffix, Settings.DEFAULT_FROMUSER).length() == 0) {
-			user_profile.from_url = user_profile.username;
-		} else {
-			user_profile.from_url = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_FROMUSER+suffix, Settings.DEFAULT_FROMUSER);
-		}
+		user_profile.enable = sipIdentity.isEnable();
 		
-		// MMTel configuration (added by mandrajg)
-		user_profile.qvalue = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_MMTEL_QVALUE, Settings.DEFAULT_MMTEL_QVALUE);
-		user_profile.mmtel = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_MMTEL, Settings.DEFAULT_MMTEL);
+		//Uri uri = Uri.parse("sip:" + sipIdentity.getUri());
+		user_profile.username = sipIdentity.getAuthUser();
+		user_profile.passwd = sipIdentity.getAuthPassword();
+		int i = sipIdentity.getUri().indexOf('@') + 1;
+		user_profile.realm = sipIdentity.getUri().substring(i);
+		
+		user_profile.realm_orig = user_profile.realm;
+		user_profile.from_url = sipIdentity.getUri();
+				
+		user_profile.reg = sipIdentity.isReg();
+		user_profile.reg_server_name = sipIdentity.getRegServerName();
+		user_profile.reg_server_port = sipIdentity.getRegServerPort();
+		user_profile.reg_server_protocol = sipIdentity.getRegServerProtocol();
+		
+		user_profile.qvalue = new Float(sipIdentity.getQ()).toString();
+		user_profile.mmtel = sipIdentity.isMMTel();
 
-		user_profile.pub = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_EDGE+suffix, Settings.DEFAULT_EDGE) ||
-			PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_3G+suffix, Settings.DEFAULT_3G);
+		user_profile.pub = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_EDGE, Settings.DEFAULT_EDGE) ||
+			PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_3G, Settings.DEFAULT_3G);
+		
+		user_profile.mwi = sipIdentity.isMwi();
+		
+		user_profile.stun_server_name = sipIdentity.getStunServerName();
+		user_profile.stun_server_port = sipIdentity.getStunServerPort();
+		
+		user_profile.ringTone = sipIdentity.getRingTone();
+		
+		user_profile.protocol = sipIdentity.getRegServerProtocol();
+		
+		user_profile.use_outbound = sipIdentity.isOutbound();
+		user_profile.outbound_server_name = sipIdentity.getOutboundServerName();
+		user_profile.outbound_server_port = sipIdentity.getOutboundServerPort();
+		user_profile.outbound_server_protocol = sipIdentity.getOutboundServerProtocol();
+		
 		return user_profile;
+	}
+	
+	int lineCount = 0;
+	public int getLineCount() {
+		return lineCount;
 	}
 
 	public boolean StartEngine() {
 		Context context = getUIContext();
+		
+		LumicallDataSource ds = new LumicallDataSource(context);
+		ds.open();
+		List<SIPIdentity> sipIdentities = ds.getSIPIdentities();
+		ds.close();
+		lineCount = sipIdentities.size();
+		
 			PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 			if (wl == null) {
 				if (!PreferenceManager.getDefaultSharedPreferences(getUIContext()).contains(org.sipdroid.sipua.ui.Settings.PREF_KEEPON)) {
@@ -115,20 +147,21 @@ public class SipdroidEngine implements RegisterAgentListener {
 							Build.MODEL.equals("GT-I9100"));
 					edit.commit();
 				}
-				wl = new PowerManager.WakeLock[LINES];
-				pwl = new PowerManager.WakeLock[LINES];
+				wl = new PowerManager.WakeLock[lineCount];
+				pwl = new PowerManager.WakeLock[lineCount];
 			}
 			pref = ChangeAccount.getPref(Receiver.mContext);
 
-			uas = new UserAgent[LINES];
-			ras = new RegisterAgent[LINES];
-			kas = new KeepAliveSip[LINES];
-			lastmsgs = new String[LINES];
-			sip_providers = new SipProvider[LINES];
-			user_profiles = new UserAgentProfile[LINES];
-			user_profiles[0] = getUserAgentProfile("");
-			for (int i = 1; i < LINES; i++)
-				user_profiles[1] = getUserAgentProfile(""+i);
+			uas = new UserAgent[lineCount];
+			ras = new RegisterAgent[lineCount];
+			kas = new KeepAliveSip[lineCount];
+			lastmsgs = new String[lineCount];
+			sip_providers = new SipProvider[lineCount];
+			user_profiles = new UserAgentProfile[lineCount];
+			for(int i = 0; i < lineCount; i++) {
+				SIPIdentity sipIdentity = sipIdentities.get(i);
+				user_profiles[i] = getUserAgentProfile(sipIdentity);
+			}
 			
 			SipStack.init(null);
 			int i = 0;
@@ -144,8 +177,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 		//			SipStack.log_path = "/data/data/org.sipdroid.sipua";
 					SipStack.max_retransmission_timeout = 4000;
 					SipStack.default_transport_protocols = new String[1];
-					SipStack.default_transport_protocols[0] = PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_PROTOCOL+(i!=0?i:""),
-							user_profile.realm.equals(Settings.DEFAULT_SERVER)?"tcp":"udp");
+					SipStack.default_transport_protocols[0] = user_profile.protocol;
 					
 					String version = context.getString(R.string.app_name) +
 							"/" + Sipdroid.getVersion() + "/" + Build.MODEL;
@@ -173,12 +205,19 @@ public class SipdroidEngine implements RegisterAgentListener {
 					}
 		
 					uas[i] = ua = new UserAgent(sip_providers[i], user_profile);
-					ras[i] = new RegisterAgent(sip_providers[i], user_profile.from_url, // modified
+					if(user_profile.enable && user_profile.reg){ 
+						ras[i] = new RegisterAgent(sip_providers[i], user_profile.from_url, // modified
 							user_profile.contact_url, user_profile.username,
 							user_profile.realm, user_profile.passwd, this, user_profile,
-							user_profile.qvalue, icsi, user_profile.pub); // added by mandrajg
+							user_profile.qvalue, icsi, user_profile.pub, user_profile.mwi);
+					} else {
+						ras[i] = null;
+					}
 					kas[i] = new KeepAliveSip(sip_providers[i],100000);
 				} catch (Exception E) {
+					Log.e(getClass().getCanonicalName(), "Exception while setting up profile: " + 
+							E.getClass().getCanonicalName() + ": " +
+							E.getMessage());
 				}
 				i++;
 			}
@@ -204,8 +243,9 @@ public class SipdroidEngine implements RegisterAgentListener {
 	void setOutboundProxy(SipProvider sip_provider,int i) {
 		try {
 			if (sip_provider != null) sip_provider.setOutboundProxy(new SocketAddress(
-					IpAddress.getByName(PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_DNS+i, Settings.DEFAULT_DNS)),
-					Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_PORT+(i!=0?i:""), Settings.DEFAULT_PORT))));
+					user_profiles[i].outbound_server_name,
+					user_profiles[i].outbound_server_port
+					));
 		} catch (Exception e) {
 		}
 	}
@@ -249,7 +289,10 @@ public class SipdroidEngine implements RegisterAgentListener {
 	}
 	
 	public void unregister(int i) {
-			if (user_profiles[i] == null || user_profiles[i].username.equals("") ||
+			if (user_profiles[i] == null ||
+					user_profiles[i].username == null ||
+					user_profiles[i].username.equals("") ||
+					user_profiles[i].realm == null ||
 					user_profiles[i].realm.equals("")) return;
 
 			RegisterAgent ra = ras[i];
@@ -346,7 +389,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		
 		int i = 0;
 		for (RegisterAgent ra : ras) {
-			unregister(i);
+			if(ra != null)
+				unregister(i);
 			while (ra != null && ra.CurrentState != RegisterAgent.UNREGISTERED && SystemClock.elapsedRealtime()-time < 2000)
 				try {
 					Thread.sleep(100);
@@ -468,14 +512,14 @@ public class SipdroidEngine implements RegisterAgentListener {
 			lasthalt = SystemClock.uptimeMillis();
 			sip_providers[i].haltConnections();
 		}
-		if (!Thread.currentThread().getName().equals("main"))
-			updateDNS();
+		/* if (!Thread.currentThread().getName().equals("main"))
+			updateDNS(); */
 		reg_ra.stopMWI();
     	WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
     	wm.startScan();
 	}
 	
-	public void updateDNS() {
+	/* public void updateDNS() {
 		Editor edit = PreferenceManager.getDefaultSharedPreferences(getUIContext()).edit();
 		int i = 0;
 		for (SipProvider sip_provider : sip_providers) {
@@ -489,7 +533,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			setOutboundProxy(sip_provider,i);
 			i++;
 		}
-	}
+	} */
 
 	/** Receives incoming calls (auto accept) */
 	public void listen() 
@@ -520,7 +564,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 		if (isRegistered(p) && Receiver.isFast(p))
 			found = true;
 		else {
-			for (p = 0; p < LINES; p++)
+			for (p = 0; p < lineCount; p++)
 				if (isRegistered(p) && Receiver.isFast(p)) {
 					found = true;
 					break;
@@ -529,7 +573,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 				p = pref;
 				if (Receiver.isFast(p))
 					found = true;
-				else for (p = 0; p < LINES; p++)
+				else for (p = 0; p < lineCount; p++)
 					if (Receiver.isFast(p)) {
 						found = true;
 						break;
@@ -538,11 +582,11 @@ public class SipdroidEngine implements RegisterAgentListener {
 		}
 				
 		if (!found || (ua = uas[p]) == null) {
-			if (PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_CALLBACK, Settings.DEFAULT_CALLBACK) &&
+			/* if (PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_CALLBACK, Settings.DEFAULT_CALLBACK) &&
 					PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_POSURL, Settings.DEFAULT_POSURL).length() > 0) {
 				Receiver.url("n="+Uri.decode(target_url));
 				return true;
-			}
+			} */
 			return false;
 		}
 

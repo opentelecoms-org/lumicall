@@ -155,7 +155,9 @@ public class RtpStreamSender extends Thread {
 			  int dest_port) {
 		this.p_type = payload_type;
 		this.frame_rate = (int)frame_rate;
-		if (PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getString(Settings.PREF_SERVER, "").equals(Settings.DEFAULT_SERVER))
+		//boolean isPBXes = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getString(Settings.PREF_SERVER, "").equals(Settings.DEFAULT_SERVER);
+		boolean isPBXes = false;
+		if (isPBXes)
 			switch (payload_type.codec.number()) {
 			case 0:
 			case 8:

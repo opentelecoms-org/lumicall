@@ -238,76 +238,13 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		createButton = (Button) findViewById(R.id.create_button);
 		createButton.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				CreateAccount createDialog = new CreateAccount(mContext);
+				/* CreateAccount createDialog = new CreateAccount(mContext);
 				createDialog.setOnDismissListener(listener);
-		        createDialog.show();
+		        createDialog.show(); */
 			}
 		});
 		
-		if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Settings.PREF_NOPORT, Settings.DEFAULT_NOPORT)) {
-			boolean ask = false;
-    		for (int i = 0; i < SipdroidEngine.LINES; i++) {
-    			String j = (i!=0?""+i:"");
-    			if (PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_SERVER+j, Settings.DEFAULT_SERVER).equals(Settings.DEFAULT_SERVER)
-    					&& PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_USERNAME+j, Settings.DEFAULT_USERNAME).length() != 0 &&
-    					PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_PORT+j, Settings.DEFAULT_PORT).equals(Settings.DEFAULT_PORT))
-    				ask = true;
-    		}
-    		if (ask)
-			new AlertDialog.Builder(this)
-				.setMessage(R.string.dialog_port)
-	            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                		Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-	                		for (int i = 0; i < SipdroidEngine.LINES; i++) {
-	                			String j = (i!=0?""+i:"");
-	                			if (PreferenceManager.getDefaultSharedPreferences(mContext).getString(Settings.PREF_SERVER+j, Settings.DEFAULT_SERVER).equals(Settings.DEFAULT_SERVER)
-	                					&& PreferenceManager.getDefaultSharedPreferences(mContext).getString(Settings.PREF_USERNAME+j, Settings.DEFAULT_USERNAME).length() != 0 &&
-	                					PreferenceManager.getDefaultSharedPreferences(mContext).getString(Settings.PREF_PORT+j, Settings.DEFAULT_PORT).equals(Settings.DEFAULT_PORT))
-	                				edit.putString(Settings.PREF_PORT+j, "5061");
-	                		}
-	                		edit.commit();
-	                   		Receiver.engine(mContext).halt();
-	               			Receiver.engine(mContext).StartEngine();
-	                   }
-	                })
-	            .setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	
-	                    }
-	                })
-	            .setNegativeButton(R.string.dontask, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                		Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-	                		edit.putBoolean(Settings.PREF_NOPORT, true);
-	                		edit.commit();
-	                    }
-	                })
-				.show();
-		} else if (PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_PSTN) &&
-				!PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Settings.PREF_NODEFAULT, Settings.DEFAULT_NODEFAULT))
-			new AlertDialog.Builder(this)
-				.setMessage(R.string.dialog_default)
-	            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                		Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-	                		edit.putString(Settings.PREF_PREF, Settings.VAL_PREF_SIP);
-	                		edit.commit();	
-	                    }
-	                })
-	            .setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	
-	                    }
-	                })
-	            .setNegativeButton(R.string.dontask, new DialogInterface.OnClickListener() {
-	                    public void onClick(DialogInterface dialog, int whichButton) {
-	                		Editor edit = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-	                		edit.putBoolean(Settings.PREF_NODEFAULT, true);
-	                		edit.commit();
-	                    }
-	                })
-				.show();
+		
 	}
 
 	public static boolean on(Context context) {
@@ -325,11 +262,11 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	public void onResume() {
 		super.onResume();
 		if (Receiver.call_state != UserAgent.UA_STATE_IDLE) Receiver.moveTop();
-		String text;
-		if (Checkin.createButton == 0 || Random.nextInt(Checkin.createButton) != 0)
+		String text = null;
+		/* if (Checkin.createButton == 0 || Random.nextInt(Checkin.createButton) != 0)
 			text = null;
 		else
-			text = Integer.parseInt(Build.VERSION.SDK) >= 5?CreateAccount.isPossible(this):null;
+			text = Integer.parseInt(Build.VERSION.SDK) >= 5?CreateAccount.isPossible(this):null; */
 		if (text != null) {
 			createButton.setVisibility(View.VISIBLE);
 			createButton.setText(text);

@@ -302,14 +302,23 @@ public class EnrolmentService extends IntentService {
 		String num = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
 		String email = settings.getString(RegisterAccount.PREF_EMAIL, null);
 		
-		edSIP.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
+		LumicallDataSource ds = new LumicallDataSource(context);
+		ds.open();
+		SIPIdentity sipIdentity = createSIPIdentity(settings);
+		ds.persistSIPIdentity(sipIdentity); 
+		ds.close();
+		edSIP.putString(Settings.PREF_SIP, Long.toString(sipIdentity.getId()));
+		if(!sipSettings.contains(Settings.PREF_TEL))
+			edSIP.putString(Settings.PREF_TEL, "-1");
+		
+		/* edSIP.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
 		edSIP.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
 		edSIP.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
 		edSIP.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
 		edSIP.putString(Settings.PREF_PROTOCOL, "tcp");  // FIXME - change to TLS
 		edSIP.putBoolean(Settings.PREF_STUN, true);
 		edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
-		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, "" + DEFAULT_STUN_SERVER_PORT);
+		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, "" + DEFAULT_STUN_SERVER_PORT); */
 		edSIP.putBoolean(Settings.PREF_WLAN, true);
 		edSIP.putBoolean(Settings.PREF_EDGE, true);
 		edSIP.putBoolean(Settings.PREF_3G, true);
@@ -320,13 +329,8 @@ public class EnrolmentService extends IntentService {
 		else {
 			Log.e(LOG_TAG, "error while committing preferences");
 		}
-		
-		LumicallDataSource ds = new LumicallDataSource(context);
-		ds.open();
-		ds.persistSIPIdentity(createSIPIdentity(settings));
-		ds.close();
 
-		Receiver.engine(context).updateDNS();
+		//Receiver.engine(context).updateDNS();
    		Receiver.engine(context).halt();
 		Receiver.engine(context).StartEngine();
 			

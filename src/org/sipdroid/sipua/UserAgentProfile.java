@@ -64,6 +64,8 @@ public class UserAgentProfile extends Configure {
 	
 	public boolean pub = false;
 	
+	public boolean mwi = false;
+	
 	/**
 	 * Path for the 'ua.jar' lib, used to retrive various UA media (gif, wav,
 	 * etc.) By default, it is used the "lib/ua.jar" folder
@@ -168,6 +170,20 @@ public class UserAgentProfile extends Configure {
 	public int video_port = 21070;
 	/** Video avp */
 	public int video_avp = 103;
+	public String stun_server_name = null;
+	public int stun_server_port = 0;
+	
+	public String ringTone = null;
+	public String protocol = null;
+	public String outbound_server_name;
+	public int outbound_server_port;
+	public boolean reg;
+	public boolean enable;
+	public boolean use_outbound;
+	public String outbound_server_protocol;
+	public String reg_server_name;
+	public int reg_server_port;
+	public String reg_server_protocol;
 
 	// ************************** Costructors *************************
 

@@ -85,9 +85,8 @@ public class SIPUri extends Activity {
 		if (!target.contains("@") && PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_ASK)) {
 			final String t = target;
 			String items[] = {getString(R.string.pstn_name)};
-			for (int p = 0; p < SipdroidEngine.LINES; p++)
-				if (Receiver.isFast(p) || (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Settings.PREF_CALLBACK, Settings.DEFAULT_CALLBACK) &&
-						PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_POSURL, Settings.DEFAULT_POSURL).length() > 0)) {
+			for (int p = 0; p < Receiver.engine(Receiver.mContext).getLineCount(); p++)
+				if (Receiver.isFast(p)) {
 					items = new String[2];
 					items[0] = getString(R.string.app_name);
 					items[1] = getString(R.string.pstn_name);
