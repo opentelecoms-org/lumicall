@@ -3,6 +3,7 @@ package org.lumicall.android.reg;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
@@ -24,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.util.Log;
 import android.util.Xml;
 
@@ -40,6 +42,8 @@ public class EnrolmentService extends IntentService {
 	//public static final String ENROLMENT_MSG = "org.lumicall.android.extra.ENROLMENT_MSG";
 	public static final String VALIDATION_CODE = "org.lumicall.android.extra.VALIDATION_CODE";
 	
+	public static final String VALIDATION_ATTEMPTED = "org.lumicall.android.extra.VALIDATION_ATTEMPTED";
+	
 	private static final String DEFAULT_SIP_SERVER = "sip.lvdx.com";
 	private static final String DEFAULT_SIP_DOMAIN = "lvdx.com";
 	
@@ -47,6 +51,8 @@ public class EnrolmentService extends IntentService {
 	private static final int DEFAULT_STUN_SERVER_PORT = 3478;
 	
 	private static final String LOG_TAG = "EnrolSvc";
+	
+	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	
 	public EnrolmentService() {
 		super("EnrolmentService");
@@ -71,7 +77,6 @@ public class EnrolmentService extends IntentService {
 			// Get the validation code from the SMS
 			String regCode = intent.getStringExtra(VALIDATION_CODE);
 			handleValidationCode(this, regCode);
-			setupSIP(this);
 		} else if(intent.getAction().equals(ACTION_SCAN_SMS_INBOX)) {
 			
 			// TODO
@@ -90,6 +95,27 @@ public class EnrolmentService extends IntentService {
 		}
 	}
 	
+	protected void validationDone(Context context) {
+		SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
+		Editor ed = settings.edit();
+		ed.putLong(RegisterAccount.PREF_LAST_VALIDATION_ATTEMPT,
+				new Date().getTime() / 1000);
+		ed.commit();
+		
+		Intent intent = new Intent();
+		intent.setAction(EnrolmentService.VALIDATION_ATTEMPTED);
+		this.sendBroadcast(intent);
+		
+		setupSIP(this);
+	}
+	
+	protected void makeValidationCall(Context context, String numberToDial) {
+		String number = "tel:" + numberToDial;
+        Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(number));
+        callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(callIntent);
+	}
+	
 	protected void handleEnrolment(Context context) {
 		try {
 			
@@ -100,7 +126,7 @@ public class EnrolmentService extends IntentService {
             nm.notify(10, notification);
             
 			String enrolmentMessage = getEnrolmentEncryptedXml();
-			RegistrationUtil.submitMessage("enrol", enrolmentMessage);
+			String numberToDial = RegistrationUtil.submitMessage("enrol", enrolmentMessage);
 			
 			notification = new Notification(R.drawable.icon22, "Enrolment requested", new Date().getTime());
 			notificationIntent = new Intent(this, ActivateAccount.class);
@@ -110,6 +136,12 @@ public class EnrolmentService extends IntentService {
             
 			// If we got here, it was successful
 			updateSubmissionTimes();
+			
+			logger.info("HTTP response: " + numberToDial);
+			if(numberToDial.charAt(0) == '+') {
+				makeValidationCall(context, numberToDial);
+				validationDone(context);
+			}
 
 		} catch (RegistrationFailedException e) {
 			// TODO Auto-generated catch block
@@ -144,10 +176,7 @@ public class EnrolmentService extends IntentService {
             nm.notify(10, notification);
 
 			// This only gets updated if no exception occurred
-			Editor ed = settings.edit();
-			ed.putLong(RegisterAccount.PREF_LAST_VALIDATION_ATTEMPT,
-					new Date().getTime() / 1000);
-			ed.commit();
+			validationDone(context);
 
 		} catch (RegistrationFailedException e) {
 			// TODO: display error to user

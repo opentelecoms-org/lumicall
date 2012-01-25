@@ -79,10 +79,30 @@ public class RegistrationUtil {
 
 	}
 	
-	public static void submitMessage(String route, String message) throws RegistrationFailedException {
+	// Fast Implementation
+	private static String inputStreamToString(InputStream is) throws IOException {
+	    String line = "";
+	    StringBuilder total = new StringBuilder();
+	    
+	    // Wrap a BufferedReader around the InputStream
+	    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+
+	    // Read response until the end
+	    while ((line = rd.readLine()) != null) { 
+	        total.append(line); 
+	    }
+	    
+	    // Return full string
+	    return total.toString();
+	}
+
+	
+	public static String submitMessage(String route, String message) throws RegistrationFailedException {
 		HttpClient httpclient = new DefaultHttpClient();  
 		HttpPost httppost = new HttpPost(REG_URL + "/" + route);  
 
+		String responseText = null;
+		
 		try {  
 			  
 			
@@ -91,7 +111,8 @@ public class RegistrationUtil {
 			httppost.setEntity(en);
 
 			// Execute HTTP Post Request  
-			HttpResponse response = httpclient.execute(httppost);  
+			HttpResponse response = httpclient.execute(httppost);
+			responseText = inputStreamToString(response.getEntity().getContent());
 
 		} catch (ClientProtocolException e) {  
 			// TODO Auto-generated catch block
@@ -101,6 +122,7 @@ public class RegistrationUtil {
 			// TODO Auto-generated catch block
 			throw new RegistrationFailedException (e.toString());
 		}
+		return responseText;
 	}
 	
 }
