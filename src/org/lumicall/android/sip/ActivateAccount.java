@@ -6,7 +6,10 @@ import org.lumicall.android.R;
 import org.lumicall.android.reg.EnrolmentService;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -27,6 +30,16 @@ public class ActivateAccount extends Activity {
 	private Button buttonRegAgain;
 	
 	private static final String TAG = "ActAcct";
+	
+	public class IncomingReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(EnrolmentService.VALIDATION_ATTEMPTED)) {
+				ActivateAccount.this.finish();
+			}
+		}
+	}
 	
 	protected boolean activateAccountNow() {
 		String regCode = etCode.getText().toString();
@@ -59,6 +72,11 @@ public class ActivateAccount extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(EnrolmentService.VALIDATION_ATTEMPTED);
+        registerReceiver(new IncomingReceiver(), filter);
+        
         setContentView(R.layout.activate_dialog);
         setTitle("Complete service activation");
         buttonOK = (Button) findViewById(R.id.Button01);
