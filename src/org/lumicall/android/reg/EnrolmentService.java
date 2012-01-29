@@ -1,10 +1,12 @@
 package org.lumicall.android.reg;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import org.lumicall.android.AppProperties;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
@@ -43,12 +45,6 @@ public class EnrolmentService extends IntentService {
 	public static final String VALIDATION_CODE = "org.lumicall.android.extra.VALIDATION_CODE";
 	
 	public static final String VALIDATION_ATTEMPTED = "org.lumicall.android.extra.VALIDATION_ATTEMPTED";
-	
-	private static final String DEFAULT_SIP_SERVER = "sip.lvdx.com";
-	private static final String DEFAULT_SIP_DOMAIN = "lvdx.com";
-	
-	private static final String DEFAULT_STUN_SERVER = "stun.lvdx.com";
-	private static final int DEFAULT_STUN_SERVER_PORT = 3478;
 	
 	private static final String LOG_TAG = "EnrolSvc";
 	
@@ -106,7 +102,12 @@ public class EnrolmentService extends IntentService {
 		intent.setAction(EnrolmentService.VALIDATION_ATTEMPTED);
 		this.sendBroadcast(intent);
 		
-		setupSIP(this);
+		try {
+			setupSIP(this);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	protected void makeValidationCall(Context context, String numberToDial) {
@@ -118,6 +119,12 @@ public class EnrolmentService extends IntentService {
 	
 	protected void handleEnrolment(Context context) {
 		try {
+			AppProperties props;
+			try {
+				props = new AppProperties(context);
+			} catch (IOException e) {
+				throw new RegistrationFailedException(e.getClass().getCanonicalName() + ": " + e.getMessage());
+			}
 			
 			notification = new Notification(R.drawable.icon22, "Requesting enrolment...", new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
@@ -126,7 +133,7 @@ public class EnrolmentService extends IntentService {
             nm.notify(10, notification);
             
 			String enrolmentMessage = getEnrolmentEncryptedXml();
-			String numberToDial = RegistrationUtil.submitMessage("enrol", enrolmentMessage);
+			String numberToDial = RegistrationUtil.submitMessage(props, "enrol", enrolmentMessage);
 			
 			notification = new Notification(R.drawable.icon22, "Enrolment requested", new Date().getTime());
 			notificationIntent = new Intent(this, ActivateAccount.class);
@@ -158,6 +165,14 @@ public class EnrolmentService extends IntentService {
 	protected void handleValidationCode(final Context context, final String regCode) {
 
 		try {
+			
+			AppProperties props;
+			try {
+				props = new AppProperties(context);
+			} catch (IOException e) {
+				throw new RegistrationFailedException(e.getClass().getCanonicalName() + ": " + e.getMessage());
+			}
+			
 			notification = new Notification(R.drawable.icon22, "Submitting validation code...", new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
@@ -167,7 +182,7 @@ public class EnrolmentService extends IntentService {
 			SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
 			String phoneNumber = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
 			String s = getValidationBodyXml(phoneNumber, regCode);
-			RegistrationUtil.submitMessage("validate", getValidationEncryptedXml(context, s));  
+			RegistrationUtil.submitMessage(props, "validate", getValidationEncryptedXml(context, s));  
 
 			notification = new Notification(R.drawable.icon22, "Validation requested", new Date().getTime());
 			notificationIntent = new Intent(this, ActivateAccount.class);
@@ -321,7 +336,10 @@ public class EnrolmentService extends IntentService {
 	
 	
 	
-	protected void setupSIP(Context context) {
+	protected void setupSIP(Context context) throws IOException {
+		
+		AppProperties props = new AppProperties(context);
+
 		// Setup the SIP preferences
 		SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
 		
@@ -333,7 +351,11 @@ public class EnrolmentService extends IntentService {
 		
 		LumicallDataSource ds = new LumicallDataSource(context);
 		ds.open();
-		SIPIdentity sipIdentity = createSIPIdentity(settings);
+		SIPIdentity sipIdentity = createSIPIdentity(props, settings);
+		for(SIPIdentity s : ds.getSIPIdentities()) {
+			if(s.getUri().equals(sipIdentity.getUri()))
+				sipIdentity.setId(s.getId());
+		}		
 		ds.persistSIPIdentity(sipIdentity); 
 		ds.close();
 		edSIP.putString(Settings.PREF_SIP, Long.toString(sipIdentity.getId()));
@@ -366,21 +388,22 @@ public class EnrolmentService extends IntentService {
 			
 	}
 	
-	private SIPIdentity createSIPIdentity(SharedPreferences settings) {
+	private SIPIdentity createSIPIdentity(AppProperties props, SharedPreferences settings) {
+		
 		SIPIdentity sipIdentity = new SIPIdentity();
 		sipIdentity.setUri(settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null) +
-				"@" + DEFAULT_SIP_DOMAIN);
+				"@" + props.getSipDomain());
 		sipIdentity.setAuthUser(settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
 		sipIdentity.setAuthPassword(settings.getString(RegisterAccount.PREF_SECRET, null));
 		sipIdentity.setReg(true);
-		sipIdentity.setRegServerName(DEFAULT_SIP_SERVER);
-		sipIdentity.setRegServerPort(5060);
-		sipIdentity.setRegServerProtocol("tcp");
-		sipIdentity.setOutboundServerName(DEFAULT_SIP_SERVER);
-		sipIdentity.setOutboundServerPort(5060);
-		sipIdentity.setOutboundServerProtocol("tcp");
-		sipIdentity.setStunServerName(DEFAULT_STUN_SERVER);
-		sipIdentity.setStunServerPort(DEFAULT_STUN_SERVER_PORT);
+		sipIdentity.setRegServerName(props.getSipServer());
+		sipIdentity.setRegServerPort(props.getSipPort());
+		sipIdentity.setRegServerProtocol(props.getSipProtocol());
+		sipIdentity.setOutboundServerName(props.getSipServer());
+		sipIdentity.setOutboundServerPort(props.getSipPort());
+		sipIdentity.setOutboundServerProtocol(props.getSipProtocol());
+		sipIdentity.setStunServerName(props.getStunServer());
+		sipIdentity.setStunServerPort(props.getStunPort());
 		sipIdentity.setStunServerProtocol("udp");
 		return sipIdentity;
 	}
