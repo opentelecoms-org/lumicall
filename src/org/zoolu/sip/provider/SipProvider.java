@@ -215,6 +215,8 @@ public class SipProvider implements Configurable, TransportListener,
 
 	/** Tcp server */
 	TcpServer tcp_server = null;
+	
+	TcpServer tls_server = null;
 
 	/** Connections */
 	Hashtable<ConnectionIdentifier, ConnectedTransport> connections = null;
@@ -289,9 +291,9 @@ public class SipProvider implements Configurable, TransportListener,
 				transport_udp = true;
 			else if (transport_protocols[i].equals(PROTO_TCP))
 				transport_tcp = true;
-			/*
-			 * else if (transport_protocols[i].equals(PROTO_TLS))
-			 * transport_tls=true; else if
+			else if (transport_protocols[i].equals(PROTO_TLS))
+				transport_tls=true;
+			/* else if
 			 * (transport_protocols[i].equals(PROTO_SCTP)) transport_sctp=true;
 			 */
 		}
@@ -356,15 +358,31 @@ public class SipProvider implements Configurable, TransportListener,
 		if (transport_tcp) {
 			try {
 				if (host_ipaddr == null)
-					tcp_server = new TcpServer(host_port, this);
+					tcp_server = new TcpServer(host_port, this, false);
 				else
-					tcp_server = new TcpServer(host_port, host_ipaddr, this);
+					tcp_server = new TcpServer(host_port, host_ipaddr, this, false);
 				host_port = tcp_server.getPort();
 				printLog("tcp is up", LogLevel.MEDIUM);
 			} catch (Exception e) {
 				printException(e, LogLevel.HIGH);
 			}
 		}
+		// start tls
+				if (transport_tls) {
+					try {
+						int _tls_port = 0;
+						if((host_port > 0) && transport_tcp)
+							_tls_port = host_port + 1;
+						if (host_ipaddr == null)
+							tls_server = new TcpServer(_tls_port, this, true);
+						else
+							tls_server = new TcpServer(_tls_port + 1, host_ipaddr, this, true);
+						host_port = tls_server.getPort();
+						printLog("tls is up", LogLevel.MEDIUM);
+					} catch (Exception e) {
+						printException(e, LogLevel.HIGH);
+					}
+				}
 		// printLog("transport is up",LogLevel.MEDIUM);
 	}
 
@@ -811,7 +829,46 @@ public class SipProvider implements Configurable, TransportListener,
 						+ ":" + dest_port, LogLevel.MEDIUM);
 				TcpTransport conn = null;
 				try {
-					conn = new TcpTransport(dest_ipaddr, dest_port, this);
+					conn = new TcpTransport(dest_ipaddr, dest_port, this, false);
+				} catch (Exception e) {
+					printException(e, LogLevel.HIGH);
+					printLog("connection setup FAILED", LogLevel.HIGH);
+					return null;
+				}
+				printLog("connection " + conn + " opened", LogLevel.HIGH);
+				addConnection(conn);
+				if (!msg.isRegister())
+					Receiver.engine(Receiver.mContext).register(); // modified
+			} else {
+				printLog("active connection found matching " + conn_id,
+						LogLevel.MEDIUM);
+			}
+			ConnectedTransport conn = (ConnectedTransport) connections
+					.get(conn_id);
+			if (conn != null) {
+				printLog("sending data through conn " + conn, LogLevel.MEDIUM);
+				try {
+					conn.sendMessage(msg);
+					conn_id = new ConnectionIdentifier(conn);
+				} catch (IOException e) {
+					printException(e, LogLevel.HIGH);
+					return null;
+				}
+			} else { // this point has not to be reached
+				printLog("ERROR: conn " + conn_id + " not found: abort.",
+						LogLevel.MEDIUM);
+				return null;
+			}
+		} else if (transport_tls && proto.equals(PROTO_TLS)) { // TLS
+			// printLog("using TCP",LogLevel.LOW);
+			if (connections == null || !connections.containsKey(conn_id)) { // modified
+				printLog("no active connection found matching " + conn_id,
+						LogLevel.MEDIUM);
+				printLog("open " + proto + " connection to " + dest_ipaddr
+						+ ":" + dest_port, LogLevel.MEDIUM);
+				TcpTransport conn = null;
+				try {
+					conn = new TcpTransport(dest_ipaddr, dest_port, this, true);
 				} catch (Exception e) {
 					printException(e, LogLevel.HIGH);
 					printLog("connection setup FAILED", LogLevel.HIGH);

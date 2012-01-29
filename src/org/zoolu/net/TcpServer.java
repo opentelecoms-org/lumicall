@@ -68,29 +68,29 @@ public class TcpServer extends Thread {
 	TcpServerListener listener;
 
 	/** Costructs a new TcpServer */
-	public TcpServer(int port, TcpServerListener listener)
+	public TcpServer(int port, TcpServerListener listener, boolean useTls)
 			throws java.io.IOException {
-		init(port, null, 0, listener);
+		init(port, null, 0, listener, useTls);
 		start();
 	}
 
 	/** Costructs a new TcpServer */
-	public TcpServer(int port, IpAddress bind_ipaddr, TcpServerListener listener)
+	public TcpServer(int port, IpAddress bind_ipaddr, TcpServerListener listener, boolean useTls)
 			throws java.io.IOException {
-		init(port, bind_ipaddr, 0, listener);
+		init(port, bind_ipaddr, 0, listener, useTls);
 		start();
 	}
 
 	/** Costructs a new TcpServer */
 	public TcpServer(int port, IpAddress bind_ipaddr, long alive_time,
-			TcpServerListener listener) throws java.io.IOException {
-		init(port, bind_ipaddr, alive_time, listener);
+			TcpServerListener listener, boolean useTls) throws java.io.IOException {
+		init(port, bind_ipaddr, alive_time, listener, useTls);
 		start();
 	}
 
 	/** Inits the TcpServer */
 	private void init(int port, IpAddress bind_ipaddr, long alive_time,
-			TcpServerListener listener) throws java.io.IOException {
+			TcpServerListener listener, boolean useTls) throws java.io.IOException {
 		this.listener = listener;
 		if (bind_ipaddr == null)
 			server_socket = new ServerSocket(port);
