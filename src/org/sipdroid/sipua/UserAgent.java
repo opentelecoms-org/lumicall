@@ -685,8 +685,12 @@ public class UserAgent extends CallListenerAdapter {
 		
 		DatagramSocket socket = null;
 		if(mediaStreams != null && mediaStreams.get("audio") != null) {
-			remote_audio_port = mediaStreams.get("audio").getRemoteRtpPort();
-			remote_media_address = mediaStreams.get("audio").getRemoteRtpAddress();
+			int _remote_audio_port = mediaStreams.get("audio").getRemoteRtpPort();
+			if(_remote_audio_port > 0)
+				remote_audio_port = _remote_audio_port;
+			String _remote_media_address = mediaStreams.get("audio").getRemoteRtpAddress();
+			if(_remote_media_address != null)
+				remote_media_address = _remote_media_address;
 			socket = mediaStreams.get("audio").getRTPSocket();
 		} else {
 			try {
@@ -1099,11 +1103,12 @@ public class UserAgent extends CallListenerAdapter {
 				}
 			} else {
 				// No ICE... local ICE agent not needed
+				// actually, it IS needed, if a TURN relay is in use as the default candidate
 				printLog("peer has not indicated support for ICE, destroying local ICE agent");
-				if(iceAgent != null) {
+				/* if(iceAgent != null) {
 					iceAgent.free();
 					iceAgent = null;
-				}
+				} */
 			}
 			
 			if (! user_profile.no_offer && 
@@ -1147,6 +1152,7 @@ public class UserAgent extends CallListenerAdapter {
 			// Update the local SDP along with offer/answer 
 			sessionProduct(remote_sdp);
 		}
+		mediaStreams.get("audio").handleAnswer();
 		launchMediaApplication();
 
 		if (call == call_transfer) 
