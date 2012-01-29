@@ -813,6 +813,7 @@ public class SipProvider implements Configurable, TransportListener,
 				try {
 					conn = new TcpTransport(dest_ipaddr, dest_port, this);
 				} catch (Exception e) {
+					printException(e, LogLevel.HIGH);
 					printLog("connection setup FAILED", LogLevel.HIGH);
 					return null;
 				}
