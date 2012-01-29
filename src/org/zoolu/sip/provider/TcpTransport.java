@@ -33,6 +33,7 @@ import java.io.IOException;
 class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 	/** TCP protocol type */
 	public static final String PROTO_TCP = "tcp";
+	public static final String PROTO_TLS = "tls";
 
 	/** TCP connection */
 	TcpConnection tcp_conn;
@@ -51,9 +52,9 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 
 	/** Creates a new TcpTransport */
 	public TcpTransport(IpAddress remote_ipaddr, int remote_port,
-			TransportListener listener) throws IOException {
+			TransportListener listener, boolean useTls) throws IOException {
 		this.listener = listener;
-		TcpSocket socket = new TcpSocket(remote_ipaddr, remote_port);
+		TcpSocket socket = new TcpSocket(remote_ipaddr, remote_port, useTls);
 		tcp_conn = new TcpConnection(socket, this);
 		connection_id = new ConnectionIdentifier(this);
 		last_time = System.currentTimeMillis();
@@ -71,6 +72,8 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 
 	/** Gets protocol type */
 	public String getProtocol() {
+		if(tcp_conn.getSocket().isTls())
+			return PROTO_TLS;
 		return PROTO_TCP;
 	}
 

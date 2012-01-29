@@ -65,7 +65,7 @@ public class SipStack extends Configure {
 	public static int default_port = 5060;
 	/** Default supported transport protocols. */
 	public static String[] default_transport_protocols = {
-			SipProvider.PROTO_UDP, SipProvider.PROTO_TCP };
+			SipProvider.PROTO_UDP, SipProvider.PROTO_TCP, SipProvider.PROTO_TLS };
 	/** Default max number of contemporary open transport connections. */
 	public static int default_nmax_connections = 32;
 	/**

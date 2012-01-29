@@ -89,6 +89,8 @@ public class TcpSocket {
 	/** Socket */
 	Socket socket;
 
+	private boolean useTls;
+
 	/** Creates a new TcpSocket */
 	TcpSocket() {
 		socket = null;
@@ -102,11 +104,10 @@ public class TcpSocket {
 	static boolean lock;
 	
 	/** Creates a new UdpSocket */
-	public TcpSocket(IpAddress ipaddr, int port) throws java.io.IOException {
+	public TcpSocket(IpAddress ipaddr, int port, boolean _useTls) throws java.io.IOException {
 //		socket = new Socket(ipaddr.getInetAddress(), port); modified
 		
-		// TLS hack: if port 5061 selected, always open a TLS socket
-		boolean useTls = (port == 5061) ? true : false;
+		useTls = _useTls;
 		
 		if(!useTls)
 			socket = new Socket();
@@ -242,6 +243,10 @@ public class TcpSocket {
 	/** Converts this object to a String. */
 	public String toString() {
 		return socket.toString();
+	}
+
+	public boolean isTls() {
+		return useTls;
 	}
 
 }
