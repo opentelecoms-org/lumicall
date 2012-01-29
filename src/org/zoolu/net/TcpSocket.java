@@ -26,14 +26,66 @@ package org.zoolu.net;
 
 import java.net.InetSocketAddress;
 import java.net.Socket; // import java.net.InetAddress;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.logging.Logger;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
+/* import org.bouncycastle.crypto.tls.AlwaysValidVerifyer;
+import org.bouncycastle.crypto.tls.CertificateVerifyer;
+import org.bouncycastle.crypto.tls.TlsProtocolHandler; */
 
 /**
  * TcpSocket provides a uniform interface to TCP transport protocol, regardless
  * J2SE or J2ME is used.
  */
 public class TcpSocket {
+	
+	static SecureRandom secureRandom = new SecureRandom();
+	
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
+	
+	// For testing with BouncyCastle light TLS implementation
+	// TlsProtocolHandler tlsHandler = null;
+	
+	public class ShoddyTrustManager implements X509TrustManager {
+
+		@Override
+		public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+				throws CertificateException {
+			// TODO Auto-generated method stub
+			logger.warning("Trusting a client certificate without verification");
+		}
+
+		@Override
+		public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+				throws CertificateException {
+			// TODO Auto-generated method stub
+			logger.warning("Trusting a server certificate without verification");
+			
+		}
+
+		@Override
+		public X509Certificate[] getAcceptedIssuers() {
+			// TODO Auto-generated method stub
+			logger.warning("Not returning any accepted issuer list");
+			return null;
+		}
+		
+	}
+	
 	/** Socket */
 	Socket socket;
 
@@ -52,7 +104,62 @@ public class TcpSocket {
 	/** Creates a new UdpSocket */
 	public TcpSocket(IpAddress ipaddr, int port) throws java.io.IOException {
 //		socket = new Socket(ipaddr.getInetAddress(), port); modified
-		socket = new Socket();
+		
+		// TLS hack: if port 5061 selected, always open a TLS socket
+		boolean useTls = (port == 5061) ? true : false;
+		
+		if(!useTls)
+			socket = new Socket();
+		else {
+			/* FIXME: BIG WARNING
+			 * 
+			 * This is NOT a full TLS implementation for SIP
+			 * 
+			 * It ONLY verifies that we are connecting to the named server
+			 * 
+			 * Proper SIP TLS compliance requires that we verify the server
+			 * certificate is valid for the SIP domain of each SIP message
+			 * we send to the server.
+			 * 
+			 * However, this initial implementation is
+			 * - still more secure than ordinary TCP or UDP based SIP, without
+			 *   bringing in any new vulnerabilities
+			 * - suitable for connecting to an outbound proxy that is
+			 *   explicitly configured in the UA (user implicitly trusts the proxy)
+			 * - serves to prevent SIP-aware NAT devices from mangling the SIP
+			 *   headers and SDP body
+			 * - serves to prevent a man-in-the-middle from snooping on SIP traffic
+			 *   (e.g. a mobile phone company that tries to detect and punish users who
+			 *   use VoIP on mobile broadband)
+			 */
+			SSLContext sslContext = null;
+			
+			try {
+				if (sslContext == null) {
+					KeyStore trusted = KeyStore.getInstance("BKS", "BC");
+				    trusted.load(null, "".toCharArray());
+				    TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+				    tmf.init(trusted);
+				    //TrustManager[] tm = tmf.getTrustManagers();
+				    TrustManager[] tm = { new ShoddyTrustManager() };
+					//sslContext = SSLContext.getInstance("TLSv1");
+					sslContext = SSLContext.getInstance("TLS");
+					//sslContext = SSLContext.getInstance("TLS");
+					logger.info("Using default trust manager");
+					sslContext.init(null, null, secureRandom);
+					//sslContext.init(null, tm, secureRandom);
+				}
+				SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+				socket = socketFactory.createSocket();
+				
+				// socket = new Socket();
+				
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IOException(e.getMessage());
+			}
+		}
 		if (lock) throw new java.io.IOException();
 		lock = true;
 		try {
@@ -61,6 +168,22 @@ public class TcpSocket {
 		} catch (java.io.IOException e) {
 			lock = false;
 			throw e;
+		}
+		if(useTls) {
+			logger.info("Checking SSL session validity");
+			SSLSocket _socket = (SSLSocket)socket;
+			SSLSession session = _socket.getSession();
+			if(session.isValid()) {
+				logger.info("Secure connection established");
+			} else {
+				logger.warning("Connection NOT secure");
+				throw new IOException("SSLSession NOT valid/secure");
+			}
+			
+			// For testing with BouncyCastle light TLS implementation
+			/* tlsHandler = new TlsProtocolHandler(socket.getInputStream(), socket.getOutputStream());
+			CertificateVerifyer cv = new AlwaysValidVerifyer();
+			tlsHandler.connect(cv); */
 		}
 		lock = false;
 	}
@@ -77,6 +200,9 @@ public class TcpSocket {
 
 	/** Gets an input stream for this socket. */
 	public InputStream getInputStream() throws java.io.IOException {
+		// For testing with BouncyCastle light TLS implementation
+		/* if(tlsHandler != null)
+			return tlsHandler.getInputStream(); */
 		return socket.getInputStream();
 	}
 
@@ -92,6 +218,9 @@ public class TcpSocket {
 
 	/** Gets an output stream for this socket. */
 	public OutputStream getOutputStream() throws java.io.IOException {
+		// For testing with BouncyCastle light TLS implementation
+		/* if(tlsHandler != null)
+			return tlsHandler.getOutputStream(); */
 		return socket.getOutputStream();
 	}
 
