@@ -2,7 +2,7 @@
 registrationUrl=http://192.168.1.4:8086/test2
 sipServer=sip-server.sip5060.net
 sipDomain=sip5060.net
-sipProtocol=tcp
+sipProtocol=tls
 sipPort=5061
 stunServer=stun-server.sip5060.net
 stunPort=3478
