@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.util.Base64;
+import org.lumicall.android.AppProperties;
 import org.lumicall.android.R;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -36,8 +37,6 @@ import android.util.Xml;
 public class RegistrationUtil {
 
 	public final static String NS = "http://opentelecoms.org/sipdroid/reg";
-	
-	protected final static String REG_URL = "http://192.168.1.4:8086/test2";
 	
 	public static void serializeProperty(XmlSerializer serializer, String ns, String propertyName, String value) throws IllegalArgumentException, IllegalStateException, IOException {
 		serializer.startTag(ns, propertyName);
@@ -97,9 +96,9 @@ public class RegistrationUtil {
 	}
 
 	
-	public static String submitMessage(String route, String message) throws RegistrationFailedException {
+	public static String submitMessage(AppProperties props, String route, String message) throws RegistrationFailedException {
 		HttpClient httpclient = new DefaultHttpClient();  
-		HttpPost httppost = new HttpPost(REG_URL + "/" + route);  
+		HttpPost httppost = new HttpPost(props.getRegistrationUrl() + "/" + route);  
 
 		String responseText = null;
 		
