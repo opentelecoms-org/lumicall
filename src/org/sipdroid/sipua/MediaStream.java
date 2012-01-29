@@ -95,16 +95,24 @@ public class MediaStream {
 	}
 
 	protected int getPortForComponent(int componentId) {
-		return iceStream.getComponent(componentId).getSelectedPair().getRemoteCandidate().getTransportAddress().getPort();
+		CandidatePair selectedPair = iceStream.getComponent(componentId).getSelectedPair();
+		if(selectedPair != null)
+			return selectedPair.getRemoteCandidate().getTransportAddress().getPort();
+		return -1;
 	}
 	
 	protected String getAddressForComponent(int componentId) {
-		return iceStream.getComponent(componentId).getSelectedPair().getRemoteCandidate().getTransportAddress().getAddress().getHostAddress();
+		CandidatePair selectedPair = iceStream.getComponent(componentId).getSelectedPair();
+		if(selectedPair != null)
+			return selectedPair.getRemoteCandidate().getTransportAddress().getAddress().getHostAddress();
+		return null;
 	}
 	
 	protected DatagramSocket getDatagramSocketForComponent(int componentId) {
-		return iceStream.getComponent(componentId).getSelectedPair().getLocalCandidate().
-                getDatagramSocket();
+		CandidatePair selectedPair = iceStream.getComponent(componentId).getSelectedPair();
+		if(selectedPair != null)
+			return selectedPair.getLocalCandidate().getDatagramSocket();
+		return iceStream.getComponent(componentId).getDefaultCandidate().getDatagramSocket();
 	}
 	
 	protected void handleCompletion() {
@@ -114,6 +122,11 @@ public class MediaStream {
 		remoteRtcpAddress = getAddressForComponent(Component.RTCP);
 		
 		rtpSocket = getDatagramSocketForComponent(Component.RTP);
+	}
+	
+	protected void handleAnswer() {
+		if(rtpSocket == null)
+			handleCompletion();
 	}
 
 	public class IceProcessingListener implements PropertyChangeListener {
