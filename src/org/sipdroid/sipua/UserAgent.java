@@ -438,10 +438,13 @@ public class UserAgent extends CallListenerAdapter {
 		String stunServer = user_profile.stun_server_name;
 		int port = user_profile.stun_server_port;
 		if(stunServer != null && stunServer.length() > 0) {
+			
+			String stunUser = user_profile.username;
+			String stunPassword = user_profile.passwd;
 		
 			LongTermCredential longTermCredential
 				//= new LongTermCredential("test", "1234"); // FIXME credentials
-        			= new LongTermCredential(user_profile.username, "1234");
+        			= new LongTermCredential(stunUser, stunPassword);
         
         	/* iceAgent.addCandidateHarvester(
                 new StunCandidateHarvester(
