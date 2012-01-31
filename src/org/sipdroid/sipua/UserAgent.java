@@ -100,6 +100,8 @@ public class UserAgent extends CallListenerAdapter {
 	// FIXME - to go in ICE module
 	final static String ATTR_ICE_UFRAG = "ice-ufrag";
 	final static String ATTR_ICE_PWD = "ice-pwd";
+	final static String ATTR_ICE_LITE = "ice-lite";
+	final static String ATTR_ICE_MISMATCH = "ice-mismatch";
 	
 	/** Factory/caching system for UDP sockets */
 	SocketAllocator socketAllocator = null;
@@ -500,6 +502,8 @@ public class UserAgent extends CallListenerAdapter {
     }
 
 	String realm;
+
+	private boolean iceLitePeer;
 	
 	/** Makes a new call (acting as UAC). */
 	public boolean call(String target_url, boolean send_anonymous) {
@@ -809,6 +813,25 @@ public class UserAgent extends CallListenerAdapter {
 		printLog("scanning for ICE candidates in remote SDP");
 		printLog("local stream count = " + iceAgent.getStreamCount());
 		
+		if(remote_sdp.hasAttribute(ATTR_ICE_MISMATCH)) {
+			printLog("ice-mismatch reported by peer, aborting");
+			Receiver.call_end_reason = R.string.card_title_ended_ICE_failure;
+			changeStatus(UA_STATE_IDLE);
+			return;
+		}
+			
+		if(remote_sdp.hasAttribute(ATTR_ICE_LITE)) {
+			// peer is ICE-lite
+			iceLitePeer = true;
+			// According to RFC 5245, we must be the controlling agent
+			// if the peer is a LITE implementation
+			iceAgent.setControlling(true);
+			printLog("peer is an ICE LITE implementation, we are the controlling agent");
+		} else {
+			iceLitePeer = false;
+			printLog("peer is not an ICE LITE implementation");
+		}
+		
 		String rUfrag = remote_sdp.getAttribute(ATTR_ICE_UFRAG).getAttributeValue();
 		String rPassword = remote_sdp.getAttribute(ATTR_ICE_PWD).getAttributeValue();
 		
@@ -1108,8 +1131,8 @@ public class UserAgent extends CallListenerAdapter {
 			} else {
 				// No ICE... local ICE agent not needed
 				// actually, it IS needed, if a TURN relay is in use as the default candidate
-				printLog("peer has not indicated support for ICE, destroying local ICE agent");
-				/* if(iceAgent != null) {
+				/* printLog("peer has not indicated support for ICE, destroying local ICE agent");
+				if(iceAgent != null) {
 					iceAgent.free();
 					iceAgent = null;
 				} */
