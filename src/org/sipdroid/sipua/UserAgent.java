@@ -386,22 +386,23 @@ public class UserAgent extends CallListenerAdapter {
 		TransportAddress defaultAddress = iceAgent.getStreams().get(0)
 	            .getComponent(Component.RTP).getDefaultCandidate()
 	                .getTransportAddress();
+		
+		printLog("Default candidate = " + defaultAddress);
 
-	        String addrType = defaultAddress.isIPv6()
-	                                    ? "IP6"
-	                                    : "IP4";
+		String addrType = defaultAddress.isIPv6()
+				? "IP6"	: "IP4";
 
-	        //origin (use ip from the first component of the first stream)
-	        OriginField o = new OriginField("user", "0", "0", addrType,
-	                        defaultAddress.getHostAddress());
-	        sdp.setOrigin(o);
+		//origin (use ip from the first component of the first stream)
+		OriginField o = new OriginField("user", "0", "0", addrType,
+				defaultAddress.getHostAddress());
+		sdp.setOrigin(o);
 
-	        //connection  (again use ip from first stream's component)
-	        ConnectionField c = new ConnectionField(addrType,
-	                        defaultAddress.getHostAddress() );
-	        sdp.setConnection(c);
-	        
-	        local_session = sdp.toString();
+		//connection  (again use ip from first stream's component)
+		ConnectionField c = new ConnectionField(addrType,
+				defaultAddress.getHostAddress() );
+		sdp.setConnection(c);
+
+		local_session = sdp.toString();
 		
 	}
 
