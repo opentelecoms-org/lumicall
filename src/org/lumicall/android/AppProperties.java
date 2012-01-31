@@ -2,7 +2,10 @@ package org.lumicall.android;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -19,6 +22,7 @@ public class AppProperties extends Properties {
 	protected final static String SIP_PORT = "sipPort";
 	protected final static String STUN_SERVER = "stunServer";
 	protected final static String STUN_PORT = "stunPort";
+	protected final static String ENUM_SUFFIXES = "enumSuffixes";
 
 	public AppProperties(Context context) throws IOException {
 		Resources resources = context.getResources();
@@ -56,6 +60,15 @@ public class AppProperties extends Properties {
 	
 	public int getStunPort() {
 		return Integer.parseInt(getProperty(STUN_PORT));
+	}
+	
+	public List<String> getEnumSuffixes() {
+		Vector<String> v = new Vector<String>();
+		String s = getProperty(ENUM_SUFFIXES);
+		StringTokenizer st = new StringTokenizer(s, ";");
+		while(st.hasMoreTokens())
+			v.add(st.nextToken());
+		return v;
 	}
 
 }

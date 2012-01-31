@@ -18,6 +18,14 @@
 
 package org.lumicall.android.sip;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+import org.lumicall.android.AppProperties;
+
 import uk.nominet.DDDS.ENUM;
 import uk.nominet.DDDS.Rule;
 import android.content.ContentProvider;
@@ -43,8 +51,6 @@ public class ENUMProviderForSIP extends ContentProvider {
 		"_id", "service", "uri",
 	};
 	
-	/* member variables */
-	private ENUM mENUM = null;
 	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -67,21 +73,6 @@ public class ENUMProviderForSIP extends ContentProvider {
 		// FIXME - should we have a hardcoded DNS server?
         System.setProperty("dns.server", "208.67.222.222,208.67.220.220");
 		return true;
-	}
-
-	private String getSuffix() {
-		/* SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-		String suffix = null;
-		if (prefs.getBoolean(ENUMPrefs.ENUM_PREF_CUSTOM, false)) {
-			suffix = prefs.getString(ENUMPrefs.ENUM_PREF_SUFFIX, null);
-		}
-		if (suffix == null || suffix.length() <= 0) {
-			suffix = "e164.arpa";
-		}
-		return suffix; */
-		
-		// FIXME - should not be hard-coded
-		return "e164.lvdx.com";
 	}
 	
 	protected void parseRule(Rule rule, MatrixCursor c)
@@ -109,22 +100,81 @@ public class ENUMProviderForSIP extends ContentProvider {
 		}
 	}
 	
+	private static class LookupThread extends Thread {
+		Rule[] rules;
+		CyclicBarrier barrier;
+		String suffix;
+		String number;
+		private ENUM mENUM = null;
+
+		LookupThread(CyclicBarrier barrier, String number, String suffix) {
+			this.barrier = barrier;
+			rules = new Rule[] {};
+			this.suffix = suffix;
+			this.number = number;
+		}
+
+		public Rule[] getRules() {
+			return rules;
+		}
+
+		public void run() {
+			try {
+				Log.v(TAG, "looking up " + number + " in " + suffix);
+				mENUM = new ENUM(suffix);
+				rules = mENUM.lookup(number);
+
+				barrier.await();
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			} catch (BrokenBarrierException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	 
+	
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
-			String[] selectionArgs, String sortOrder)
-	{
+			String[] selectionArgs, String sortOrder) {
 		String number = uri.getPath().substring(1);
-		String suffix = getSuffix();
-		Log.v(TAG, "looking up " + number + " in " + suffix);
-
-		mENUM = new ENUM(suffix);
-    	Rule[] rules = mENUM.lookup(number);
-    	
-		MatrixCursor c = new MatrixCursor(COLUMN_NAMES, 10);
-		for (Rule rule : rules) {
-			parseRule(rule, c);
+		List<String> suffixes;
+		try {
+			suffixes = new AppProperties(this.getContext()).getEnumSuffixes();
+		} catch (IOException e) {
+			Log.e(TAG, "failed to load properties", e);
+			return null;
 		}
 		
+		// Setup variables
+		MatrixCursor c = new MatrixCursor(COLUMN_NAMES, 10);
+		CyclicBarrier b = new CyclicBarrier(suffixes.size() + 1);
+		Vector<LookupThread> v = new Vector<LookupThread>();
+		
+		// Run the lookups in parallel
+		for(String suffix : suffixes) {
+			LookupThread t = new LookupThread(b, number, suffix);
+			v.add(t);
+			t.start();
+		}
+		
+		// Wait for all lookups to finish
+		try {
+			b.await();
+		} catch (InterruptedException e) {
+			Log.e(TAG, "InterruptedException", e);
+		} catch (BrokenBarrierException e) {
+			Log.e(TAG, "BrokenBarrierException", e);
+		}
+		
+		// Process the results
+		// Notice that we process them in the order of the suffixes
+		// Earlier results should have priority over later results
+		for(LookupThread t : v) {
+			for (Rule rule : t.getRules()) {
+				parseRule(rule, c);
+			}
+		}
 		return c;
 	}
 
