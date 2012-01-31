@@ -41,6 +41,9 @@ public class ENUMProviderForSIP extends ContentProvider {
 
 	/* Log tag */
 	static private final String TAG = "ENUMProviderForSIP";
+	
+	// These are the root DNS servers - they will be tried by the DNS library, as well as trying resolv.conf and other methods
+	private final static String ROOT_SERVERS = "198.41.0.4,192.228.79.201,192.33.4.12,128.8.10.90,192.203.230.10,192.5.5.241,192.112.36.4,128.63.2.53,192.36.148.17,192.58.128.30,193.0.14.129,199.7.83.42,202.12.27.33";
 
 	/* exported constants */
 	static public final Uri CONTENT_URI = Uri.parse("content://enum/");
@@ -71,7 +74,7 @@ public class ENUMProviderForSIP extends ContentProvider {
 	public boolean onCreate() {
 		Log.d(TAG, "onCreate() called");
 		// FIXME - should we have a hardcoded DNS server?
-        System.setProperty("dns.server", "208.67.222.222,208.67.220.220");
+        System.setProperty("dns.server", ROOT_SERVERS);
 		return true;
 	}
 	
