@@ -80,7 +80,6 @@ public class Sipdroid extends Activity implements OnDismissListener {
 
 	private static AlertDialog m_AlertDlg;
 	AutoCompleteTextView sip_uri_box,sip_uri_box2;
-	Button createButton;
 	
 	@Override
 	public void onStart() {
@@ -235,16 +234,6 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		final Context mContext = this;
 		final OnDismissListener listener = this;
 		
-		createButton = (Button) findViewById(R.id.create_button);
-		createButton.setOnClickListener(new Button.OnClickListener() {
-			public void onClick(View v) {
-				/* CreateAccount createDialog = new CreateAccount(mContext);
-				createDialog.setOnDismissListener(listener);
-		        createDialog.show(); */
-			}
-		});
-		
-		
 	}
 
 	public static boolean on(Context context) {
@@ -267,11 +256,6 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			text = null;
 		else
 			text = Integer.parseInt(Build.VERSION.SDK) >= 5?CreateAccount.isPossible(this):null; */
-		if (text != null) {
-			createButton.setVisibility(View.VISIBLE);
-			createButton.setText(text);
-		} else
-			createButton.setVisibility(View.GONE);
 	}
 
 	@Override
