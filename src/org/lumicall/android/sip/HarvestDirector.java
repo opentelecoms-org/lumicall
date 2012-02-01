@@ -27,7 +27,7 @@ public class HarvestDirector {
 		
 		harvesters.add(new ENUMCandidateHarvester());
 		harvesters.add(new EmailCandidateHarvester());
-		harvesters.add(new VoIPCandidateHarvester());
+		harvesters.add(new SIPCarrierCandidateHarvester());
 		harvesters.add(new GSMCandidateHarvester());
 		
 	}
