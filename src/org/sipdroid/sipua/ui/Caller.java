@@ -20,6 +20,7 @@ package org.sipdroid.sipua.ui;
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,8 +30,9 @@ import org.sipdroid.media.RtpStreamReceiver;
 import org.lumicall.android.R;
 import org.lumicall.android.sip.ENUMProviderForSIP;
 import org.lumicall.android.sip.ENUMUtil;
+import org.lumicall.android.sip.EmailCandidateHarvester;
+import org.lumicall.android.sip.SIPCandidate;
 import org.sipdroid.sipua.UserAgent;
-
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -119,6 +121,10 @@ public class Caller extends BroadcastReceiver {
 					noexclude = 0;
 					force = true;
 				}
+				
+				EmailCandidateHarvester h = new EmailCandidateHarvester();
+				List<SIPCandidate> emailCandidates = h.getCandidatesForNumber(context, number);
+				Log.v("Caller", "found " + emailCandidates.size() + " email addresses for " + number);
 				
 				if(doENUMRouting(context, number)) {
 					setResultData(null);
