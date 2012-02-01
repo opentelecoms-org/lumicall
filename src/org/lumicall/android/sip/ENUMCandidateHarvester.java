@@ -32,7 +32,7 @@ public class ENUMCandidateHarvester implements DialCandidateHarvester {
 		}
 		
 		/* ask the ENUM ContentProvider for the records */
-		Uri uri = Uri.withAppendedPath(ENUMProviderForSIP.CONTENT_URI, number);
+		Uri uri = Uri.withAppendedPath(ENUMProviderForSIP.CONTENT_URI, e164Number);
 		ContentResolver cr = context.getContentResolver();
 		Cursor mCursor = cr.query(uri, null, null, null, null);
 		
