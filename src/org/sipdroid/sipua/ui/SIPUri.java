@@ -22,7 +22,10 @@
 
 package org.sipdroid.sipua.ui;
 
+import java.util.List;
+
 import org.lumicall.android.R;
+import org.lumicall.android.sip.DialCandidate;
 import org.sipdroid.sipua.SipdroidEngine;
 
 import android.app.Activity;
@@ -31,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Window;
@@ -54,6 +58,28 @@ public class SIPUri extends Activity {
 			finish();
 	}
 	
+	public class MyListener implements DialogInterface.OnClickListener {
+		DialCandidate[] candidates;
+		DialCandidate candidate;
+		public MyListener(DialCandidate[] candidates) {
+			this.candidates = candidates;
+			this.candidate = null;
+		}
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			candidate = candidates[which];
+			if(candidate.getScheme().equals("sip")) {
+				Receiver.engine(SIPUri.this).call(candidate.getAddressToDial(), true);
+			} else if(candidate.getScheme().equals("tel")) {
+				PSTN.callPSTN2("tel:" + candidate.getAddress() + "?bypass-lumicall");
+			}
+			finish();
+		}
+		public DialCandidate getCandidate() {
+			return candidate;
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
@@ -66,6 +92,26 @@ public class SIPUri extends Activity {
 
 		Sipdroid.on(this,true);
 		Uri uri = getIntent().getData();
+		if(getIntent().getParcelableArrayExtra("dialCandidates") != null) {
+			Parcelable[] _candidates = getIntent().getParcelableArrayExtra("dialCandidates");
+			DialCandidate[] candidates = new DialCandidate[_candidates.length];
+			String[] candidateTitles = new String[candidates.length];
+			for(int i = 0; i < _candidates.length; i++) {
+				candidates[i] = (DialCandidate)_candidates[i];
+				candidateTitles[i] = candidates[i].getScheme() + ":" + candidates[i].getAddress() +
+						" (" + candidates[i].getSource() + ")";
+			}
+			MyListener l = new MyListener(candidates);
+			new AlertDialog.Builder(this)
+				.setIcon(R.drawable.icon22)
+				.setTitle(R.string.choose_route)
+				.setItems(candidateTitles, l)
+				.setOnCancelListener(new OnCancelListener() {
+					public void onCancel(DialogInterface dialog) {	finish();	} })
+				.show();
+			return;
+		}
+		
 		String target;
 		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME))
 			target = uri.getSchemeSpecificPart();

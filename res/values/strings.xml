@@ -365,4 +365,6 @@
 <string name="sip_stun_server_port" >STUN server port</string>
 <string name="sip_stun_server_protocol">STUN server protocol</string>
 
+<string name="choose_route">Choose destination</string>
+
 </resources>

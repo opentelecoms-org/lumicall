@@ -20,7 +20,7 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.util.Log;
 
-public class EmailCandidateHarvester {
+public class EmailCandidateHarvester implements DialCandidateHarvester {
 	
 	public EmailCandidateHarvester() {
 		//System.setProperty("dns.server", ENUMProviderForSIP.ROOT_SERVERS);
@@ -31,17 +31,17 @@ public class EmailCandidateHarvester {
 	private static class LookupThread extends Thread {
 		
 		CyclicBarrier barrier;
-		SIPCandidate sipCandidate;
+		DialCandidate sipCandidate;
 		String key;
 		int recordCount = 0;
 		
-		LookupThread(CyclicBarrier barrier, SIPCandidate sipCandidate, String key) {
+		LookupThread(CyclicBarrier barrier, DialCandidate sipCandidate, String key) {
 			this.barrier = barrier;
 			this.sipCandidate = sipCandidate;
 			this.key = key;
 		}
 		
-		public SIPCandidate getSIPCandidate() {
+		public DialCandidate getSIPCandidate() {
 			return sipCandidate;
 		}
 
@@ -86,14 +86,14 @@ public class EmailCandidateHarvester {
 		}
 	}
 
-	public List<SIPCandidate> getCandidatesForNumber(Context context, String number) {
-		List<SIPCandidate> candidates = getEmailAddressesForNumber(context, number);
-		Vector<SIPCandidate> goodCandidates = new Vector<SIPCandidate>();
+	public List<DialCandidate> getCandidatesForNumber(Context context, String number, String e164Number) {
+		List<DialCandidate> candidates = getEmailAddressesForNumber(context, e164Number);
+		Vector<DialCandidate> goodCandidates = new Vector<DialCandidate>();
 		
 		CyclicBarrier b = new CyclicBarrier(candidates.size() + 1);
 		Vector<LookupThread> v = new Vector<LookupThread>();
 		
-		for(SIPCandidate c : candidates) {
+		for(DialCandidate c : candidates) {
 			// For each candidate, check if SRV record exists
 			// We should check NAPTR too
 			String key = "_sips._tcp." + c.getDomain() + ".";  // trailing dot required
@@ -122,8 +122,8 @@ public class EmailCandidateHarvester {
 		return goodCandidates;
 	}
 	
-	private List<SIPCandidate> getEmailAddressesForNumber(Context context, String number) {
-		Vector<SIPCandidate> v = new Vector<SIPCandidate>();
+	private List<DialCandidate> getEmailAddressesForNumber(Context context, String number) {
+		Vector<DialCandidate> v = new Vector<DialCandidate>();
 		String SOURCE_NAME = "Contacts"; 
 		
 		// First identify the person (or list of people) with this number
@@ -156,7 +156,7 @@ public class EmailCandidateHarvester {
 					if(rowType.equals(Email.CONTENT_ITEM_TYPE)) {	
 						String emailAddress = emailsCursor.getString(
 							emailsCursor.getColumnIndex(ContactsContract.Data.DATA1));
-						v.add(new SIPCandidate(emailAddress, 
+						v.add(new DialCandidate("sip", emailAddress, 
 								person.get(personId),
 								SOURCE_NAME));
 						Log.v("Caller", "found email address for contact: " + emailAddress);
