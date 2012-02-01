@@ -31,16 +31,22 @@ import org.lumicall.android.R;
 import org.lumicall.android.sip.ENUMProviderForSIP;
 import org.lumicall.android.sip.ENUMUtil;
 import org.lumicall.android.sip.EmailCandidateHarvester;
-import org.lumicall.android.sip.SIPCandidate;
+import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.HarvestDirector;
 import org.sipdroid.sipua.UserAgent;
+
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Contacts;
@@ -57,6 +63,26 @@ public class Caller extends BroadcastReceiver {
 		static long noexclude;
 		String last_number;
 		long last_time;
+		
+		public class ChooserThread extends Thread {
+			DialCandidate[] candidates;
+			Context context;
+			public ChooserThread(Context context, DialCandidate[] candidates) {
+				this.context = context;
+				this.candidates = candidates;
+			}
+			public void run() {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+				}
+		        Intent intent = new Intent(Intent.ACTION_CALL,
+		                Uri.fromParts(Settings.URI_SCHEME, Uri.decode(candidates[0].getAddress()), null));
+		        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		        intent.putExtra("dialCandidates", candidates);
+		        context.startActivity(intent);					
+			}
+        }
 		
 		@Override
 		public void onReceive(final Context context, Intent intent) {
@@ -77,6 +103,13 @@ public class Caller extends BroadcastReceiver {
         		// is sipdroid enabled?
         		if (!Sipdroid.on(context)) {
         			Log.d("SipUA:", "sipdroid not on");
+        			return;
+        		}
+        		
+        		// If the user has chosen a GSM route in the chooser, we should
+        		// not do anything, just let the next handler deal with it
+        		if(number.endsWith("?p")) {
+        			setResultData(number.substring(0, number.indexOf('?')));
         			return;
         		}
         		
@@ -122,14 +155,33 @@ public class Caller extends BroadcastReceiver {
 					force = true;
 				}
 				
-				EmailCandidateHarvester h = new EmailCandidateHarvester();
-				List<SIPCandidate> emailCandidates = h.getCandidatesForNumber(context, number);
-				Log.v("Caller", "found " + emailCandidates.size() + " email addresses for " + number);
+				HarvestDirector hd = new HarvestDirector();
+				String e164Number = number;  // FIXME - convert number, or the ENUMHarvester just won't work
+				List<DialCandidate> candidates = hd.getCandidates(context, number, e164Number);
 				
-				if(doENUMRouting(context, number)) {
+				if(candidates.size() == 0) {
 					setResultData(null);
 					return;
 				}
+				
+				DialCandidate target = candidates.get(0);
+				if(candidates.size() > 1) {
+					// Display a popup for the user to choose a candidate
+					
+					(new ChooserThread(context, candidates.toArray(new DialCandidate[] {}))).start();  
+					setResultData(null);
+					return;
+				}
+				
+				// Only 1 candidate - so just dial it
+				Receiver.engine(context).call(candidates.get(0).getAddressToDial(),true);
+				if(true)
+					return;
+				
+				/* if(doENUMRouting(context, number)) {
+					setResultData(null);
+					return;
+				} */
 				
 				// Look for numbers that are excluded from SIP routing
 				// e.g. user can exclude SIP routing for calls

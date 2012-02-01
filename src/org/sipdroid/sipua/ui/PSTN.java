@@ -43,6 +43,20 @@ public class PSTN extends Activity {
 		}
 	}
 	
+	static void callPSTN2(String uri) {
+		String number;
+		
+		if (uri.indexOf(":") >= 0) {
+			number = uri.substring(uri.indexOf(":")+1);
+			if (!number.equals("")) {
+		        Intent intent = new Intent(Intent.ACTION_CALL,
+		                Uri.fromParts("tel", Uri.decode(number), "bypass-lumicall"));
+		        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		        Receiver.mContext.startActivity(intent);
+			}
+		}
+	}
+	
 	@Override
 	public void onCreate(Bundle saved) {
 		super.onCreate(saved);
