@@ -16,6 +16,13 @@ public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
 		
 		List<DialCandidate> candidates = new Vector<DialCandidate>();
 		
+		String number = dialedNumber;
+		boolean usePrefix = false;
+		if(e164Number != null) {
+			number = e164Number.substring(1);  // Strip off the leading +
+			usePrefix = true;
+		}
+		
 		LumicallDataSource ds = new LumicallDataSource(context);
 		ds.open();
 		
@@ -26,7 +33,8 @@ public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
 			String uri = s.getUri();
 			String domain = uri.substring(uri.indexOf('@') + 1);
 			if(prefix != null && prefix.length() > 0) {
-				String sipAddress = prefix + e164Number.substring(1) // Strip off the leading +
+				String sipAddress = (usePrefix ? prefix : "")
+						+ number
 						+ "@" + domain;
 				candidates.add(new DialCandidate("sip", sipAddress, "", "VoIP Carrier"));
 			}
