@@ -46,6 +46,9 @@ public class ENUMCandidateHarvester implements DialCandidateHarvester {
 
 		while(mCursor.moveToNext()) {
 			String destination = mCursor.getString(2);
+			// Prevent prefix sip: from appearing twice (we add it again later)
+			if(destination.startsWith("sip:"))
+				destination = destination.substring(4);
 			candidates.add(new DialCandidate("sip", destination, "", "ENUM"));
 		}
 		mCursor.close();
