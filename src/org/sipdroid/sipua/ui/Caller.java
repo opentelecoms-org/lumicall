@@ -35,6 +35,11 @@ import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.HarvestDirector;
 import org.sipdroid.sipua.UserAgent;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -53,6 +58,7 @@ import android.provider.Contacts;
 import android.provider.Contacts.People;
 import android.provider.Contacts.Phones;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -60,6 +66,7 @@ import android.widget.Toast;
 public class Caller extends BroadcastReceiver {
 
 		private static final int REDIAL_MINIMUM_INTERVAL = 3000;
+		private static final String TAG = "Caller";
 		static long noexclude;
 		String last_number;
 		long last_time;
@@ -155,8 +162,28 @@ public class Caller extends BroadcastReceiver {
 					force = true;
 				}
 				
+				String e164Number = null;
+				if(number.startsWith("+")) {
+					// Just assume it is an E.164 number already
+					e164Number = number;
+				} else {
+					// Try and convert to an E.164 number
+					PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+					try {
+						// FIXME - should prompt the user to check the number
+						// FIXME - should update the contact DB
+						TelephonyManager mTelephonyMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+						String countryIsoCode = mTelephonyMgr.getSimCountryIso().toUpperCase();
+						Log.v(TAG, "Converting number: " + number + ", country ISO = " + countryIsoCode);
+						PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode);
+						if(phoneUtil.isValidNumber(numberProto))
+							e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
+					} catch (NumberParseException e) {
+						Log.w(TAG, "Error parsing number", e);
+					}
+				}
+				
 				HarvestDirector hd = new HarvestDirector();
-				String e164Number = number;  // FIXME - convert number, or the ENUMHarvester just won't work
 				List<DialCandidate> candidates = hd.getCandidates(context, number, e164Number);
 				
 				if(candidates.size() == 0) {
