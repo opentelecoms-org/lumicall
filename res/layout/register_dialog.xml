@@ -110,10 +110,10 @@
     
     <TextView
     	android:layout_height="wrap_content"
-    	android:text="@string/reg_privacy"
+    	android:text="@string/reg_missed_call"
     	android:layout_width="wrap_content"
     	android:paddingTop="10dip"
-    	android:textColor="#000000">
+    	android:textColor="#ee2200">
     </TextView>
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -130,6 +130,15 @@
 		        </Button>
 		</LinearLayout>
 	</LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:text="@string/reg_privacy"
+        android:textColor="#000000"
+        android:textSize="11px" >
 
+    </TextView>	
   </LinearLayout>
 </ScrollView>

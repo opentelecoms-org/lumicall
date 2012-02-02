@@ -329,6 +329,7 @@
 <string name="reg_email">Email address</string>
 
 <string name="reg_privacy">Your personal data will be used for essential communications about your account.  Full privacy policy available at our web site.</string>
+<string name="reg_missed_call">Your phone will send us a missed call to verify your caller-ID number.  We do not answer - there is no charge.</string>
 
 <string name="reg_proceed">Proceed</string>
 
