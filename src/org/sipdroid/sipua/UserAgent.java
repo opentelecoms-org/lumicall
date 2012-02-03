@@ -27,6 +27,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -442,12 +443,13 @@ public class UserAgent extends CallListenerAdapter {
 		int port = user_profile.stun_server_port;
 		if(stunServer != null && stunServer.length() > 0) {
 			
-			String stunUser = user_profile.username;
+			String stunUser = user_profile.from_url;
 			String stunPassword = user_profile.passwd;
 		
 			LongTermCredential longTermCredential
 				//= new LongTermCredential("test", "1234"); // FIXME credentials
         			= new LongTermCredential(stunUser, stunPassword);
+			
         
         	/* iceAgent.addCandidateHarvester(
                 new StunCandidateHarvester(
@@ -457,6 +459,25 @@ public class UserAgent extends CallListenerAdapter {
                     new TurnCandidateHarvester(
                             new TransportAddress(stunServer, port, Transport.UDP),  // FIXME stun server name
                             longTermCredential));
+            
+            /* This is a temporary facility until we implement a TURN server with
+             * per-user authentication.
+             */
+            Calendar cal = Calendar.getInstance();
+            cal.set(2012, 4, 30);
+            boolean addTestServer = System.currentTimeMillis() < cal.getTime().getTime(); 
+            if(addTestServer) {
+            	printLog("Using test STUN server");
+            	String testStunServer = "test-stun.sip5060.net";
+            	int testPort = 3478;
+            	LongTermCredential ltcTest
+					= new LongTermCredential("test", "notasecret");
+            	iceAgent.addCandidateHarvester(
+                    new TurnCandidateHarvester(
+                            new TransportAddress(testStunServer, testPort, Transport.UDP),  // FIXME stun server name
+                            ltcTest));
+            }
+            
 		}
 
         //STREAMS
