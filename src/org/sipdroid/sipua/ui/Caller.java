@@ -214,7 +214,8 @@ public class Caller extends BroadcastReceiver {
 				// e.g. user can exclude SIP routing for calls
 				// to PSTN voicemail number
 				if (sip_type && !force) {
-	    			String sExPat = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_EXCLUDEPAT, Settings.DEFAULT_EXCLUDEPAT); 
+	    			//String sExPat = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_EXCLUDEPAT, Settings.DEFAULT_EXCLUDEPAT);
+					String sExPat = "";
 	   				boolean bExNums = false;
 					boolean bExTypes = false;
 					if (sExPat.length() > 0) 
@@ -250,17 +251,18 @@ public class Caller extends BroadcastReceiver {
 	        		if (number != null && !intent.getBooleanExtra("android.phone.extra.ALREADY_CALLED",false)) {
 
 	        		    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-		        			
-		        		    // Migrate the "prefix" option.
-		        			migratePrefixOption(sp);
-	        		    	
+		        				        		    	
 	        		    	// Search & replace.
-	    				String search = sp.getString(Settings.PREF_SEARCH, Settings.DEFAULT_SEARCH);
-	    				String callthru_number = searchReplaceNumber(search, number);
+	    				// String search = sp.getString(Settings.PREF_SEARCH, Settings.DEFAULT_SEARCH);
+		        		String search = "";
+	    				// String callthru_number = searchReplaceNumber(search, number);
+		        		String callthru_number = number;
 	    				String callthru_prefix;
 	    				
 	    				// if "par" is true, get all numbers from the contact, concatenate with "&"
-	    				if (!ask && !force && PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_PAR, Settings.DEFAULT_PAR)) {
+	    				// boolean par = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_PAR, Settings.DEFAULT_PAR);
+	    				boolean par = false;  // SIP forking / parallel dialing
+	    				if (!ask && !force && par) {
 							number = concatenateNumbers(context, number, callthru_number, search);
 	    				} else
 	    					number = callthru_number;
@@ -338,18 +340,6 @@ public class Caller extends BroadcastReceiver {
 			return Receiver.engine(context).call(destination, true);
 		}
 		
-		// TODO Remove this code in a future release.
-		private void migratePrefixOption(SharedPreferences sp) {
-		    if (sp.contains("prefix")) {
-		        String prefix = sp.getString(Settings.PREF_PREFIX, Settings.DEFAULT_PREFIX);
-		        Editor editor = sp.edit();
-		        if (!prefix.trim().equals("")) {
-		        	editor.putString(Settings.PREF_SEARCH, "(.*)," + prefix + "\\1");
-		        }
-		        editor.remove(Settings.PREF_PREFIX);
-		        editor.commit();
-		    }
-		}
 		
 		private String concatenateNumbers(Context context, String _number, String callthru_number, String search) {
 			String number = _number;

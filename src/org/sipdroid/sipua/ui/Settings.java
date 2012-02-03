@@ -122,8 +122,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_NOTIFY = "notify";
 	public static final String PREF_NODATA = "nodata";
 //	public static final String PREF_SIPRINGTONE = "sipringtone";
-	public static final String PREF_SEARCH = "search";
-	public static final String PREF_EXCLUDEPAT = "excludepat";
+//	public static final String PREF_SEARCH = "search";
+//	public static final String PREF_EXCLUDEPAT = "excludepat";
 	public static final String PREF_EARGAIN = "eargain";
 	public static final String PREF_MICGAIN = "micgain";
 	public static final String PREF_HEARGAIN = "heargain";
@@ -140,8 +140,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	// Call recording preferences.
 	public static final String PREF_CALLRECORD = "callrecord";
 	
-	public static final String PREF_PAR = "par";
-	public static final String PREF_IMPROVE = "improve";
+//	public static final String PREF_PAR = "par";
+//	public static final String PREF_IMPROVE = "improve";
 //	public static final String PREF_POSURL = "posurl";
 //	public static final String PREF_POS = "pos";
 //	public static final String PREF_CALLBACK = "callback";
@@ -516,14 +516,14 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 
 	public void updateSummaries() {
     
-       	getPreferenceScreen().findPreference(PREF_SEARCH).setSummary(settings.getString(PREF_SEARCH, DEFAULT_SEARCH)); 
-    	getPreferenceScreen().findPreference(PREF_EXCLUDEPAT).setSummary(settings.getString(PREF_EXCLUDEPAT, DEFAULT_EXCLUDEPAT)); 
+       	//getPreferenceScreen().findPreference(PREF_SEARCH).setSummary(settings.getString(PREF_SEARCH, DEFAULT_SEARCH)); 
+    	//getPreferenceScreen().findPreference(PREF_EXCLUDEPAT).setSummary(settings.getString(PREF_EXCLUDEPAT, DEFAULT_EXCLUDEPAT)); 
     	 
-    	if (! settings.getString(PREF_PREF, DEFAULT_PREF).equals(VAL_PREF_PSTN)) {
+    	/* if (! settings.getString(PREF_PREF, DEFAULT_PREF).equals(VAL_PREF_PSTN)) {
     		getPreferenceScreen().findPreference(PREF_PAR).setEnabled(true);
     	} else {
     		getPreferenceScreen().findPreference(PREF_PAR).setEnabled(false);
-      	}
+      	} */
     	fill(PREF_EARGAIN,  "" + DEFAULT_EARGAIN,  R.array.eargain_values, R.array.eargain_display_values);
     	fill(PREF_MICGAIN,  "" + DEFAULT_MICGAIN,  R.array.eargain_values, R.array.eargain_display_values);
     	fill(PREF_HEARGAIN, "" + DEFAULT_HEARGAIN, R.array.eargain_values, R.array.eargain_display_values);

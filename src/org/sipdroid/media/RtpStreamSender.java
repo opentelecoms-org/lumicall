@@ -286,7 +286,8 @@ public class RtpStreamSender extends Thread {
 		int seqn = 0;
 		long time = 0;
 		double p = 0;
-		boolean improve = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_IMPROVE, Settings.DEFAULT_IMPROVE);
+		// boolean improve = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_IMPROVE, Settings.DEFAULT_IMPROVE);
+		boolean improve = false;  // FIXME - what is the impact of this option?
 		boolean selectWifi = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_SELECTWIFI, org.sipdroid.sipua.ui.Settings.DEFAULT_SELECTWIFI);
 		int micgain = 0;
 		long last_tx_time = 0;

@@ -100,7 +100,7 @@
 	                android:targetClass="org.sipdroid.codecs.Codecs$CodecSettings" />
 
 	</PreferenceScreen>
-	<PreferenceScreen android:title="@string/settings_advanced_options">
+<!-- 	<PreferenceScreen android:title="@string/settings_advanced_options">
 			<EditTextPreference
 				android:key="search"
 				android:title="@string/settings_search"
@@ -109,7 +109,7 @@
 				android:key="excludepat"
 				android:title="@string/settings_excludepat"
 				android:singleLine="true" />
-	</PreferenceScreen>
+	</PreferenceScreen> -->
 	<PreferenceScreen android:title="@string/settings_wireless_options">
 			<CheckBoxPreference
 				android:key="ownwifi"
@@ -128,7 +128,7 @@
 				android:title="@string/menu_bluetooth"
 				android:summary="@string/settings_bluetooth" />
 	</PreferenceScreen>
-	<PreferenceScreen android:title="@string/settings_pbxes_options">
+<!-- 	<PreferenceScreen android:title="@string/settings_pbxes_options">
 			<CheckBoxPreference
 				android:key="par"
 				android:title="@string/settings_par"
@@ -136,5 +136,5 @@
 			<CheckBoxPreference
 				android:key="improve"
 				android:title="@string/settings_improve"/>
-	</PreferenceScreen> 
+	</PreferenceScreen> --> 
 </PreferenceScreen>
