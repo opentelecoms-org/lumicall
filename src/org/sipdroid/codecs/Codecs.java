@@ -47,17 +47,21 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class Codecs {
-    	private static final Vector<Codec> codecs = new Vector<Codec>() {{
-//			add(new G722());			
+	
+	
+	/* The default codec preference order is based on the order
+	   of the elements in this vector */
+    	private static final Vector<Codec> codecs = new Vector<Codec>() {{			
 //			add(new SILK24());		save space (until a common library for all bitrates gets available?)
 //			add(new SILK16());
 			add(new SILK8());
-			add(new alaw());
-			add(new ulaw());
+			add(new G729());
+			add(new GSM());
 //			add(new Speex());
-//			add(new GSM());
 //			add(new BV16());
-    			add(new G729());
+//			add(new alaw());   // These should be enabled for compatibility reasons,
+//			add(new ulaw());   // but they are currently disabled to reduce load on the TURN relay
+//			add(new G722());   // enable this once we have a way to prevent it being used with our TURN relay
 		}};
 	private static final HashMap<Integer, Codec> codecsNumbers;
 	private static final HashMap<String, Codec> codecsNames;
@@ -75,28 +79,19 @@ public class Codecs {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
 		String prefs = sp.getString(Settings.PREF_CODECS, Settings.DEFAULT_CODECS);
 		if (prefs == null) {
-			String v = "";
-			SharedPreferences.Editor e = sp.edit();
-
-			for (Codec c : codecs)
-				v = v + c.number() + " ";
-			e.putString(Settings.PREF_CODECS, v);
-			e.commit();
+			saveCodecPrefs(sp);
 		} else {
 			String[] vals = prefs.split(" ");
+			Vector<Codec> orderedCodecs = new Vector<Codec>();
 			for (String v: vals) {
 				try {
 					int i = Integer.parseInt(v);
 					Codec c = codecsNumbers.get(i);
-					/* moves the codec to the end
-					 * of the list so we end up
-					 * with the new codecs (if
-					 * any) at the top and the
-					 * remaining ones ordered
-					 * according to the user */
+					/* moves the configured codecs to the beginning of the list,
+					 * and any new codecs will automatically go at the end */
 					if (c != null) {
 						codecs.remove(c);
-						codecs.add(c);
+						orderedCodecs.add(c);
 					}
 				} catch (Exception e) {
 					// do nothing (expecting
@@ -104,7 +99,20 @@ public class Codecs {
 					// indexnot found
 				}
 			}
+			orderedCodecs.addAll(codecs);
+			codecs.clear();
+			codecs.addAll(orderedCodecs);
+			saveCodecPrefs(sp);
 		}
+	}
+	
+	private static void saveCodecPrefs(SharedPreferences sp) {
+		String v = "";
+		for (Codec c : codecs)
+			v = v + c.number() + " ";
+		SharedPreferences.Editor e = sp.edit();
+		e.putString(Settings.PREF_CODECS, v);
+		e.commit();
 	}
 
 	public static Codec get(int key) {
