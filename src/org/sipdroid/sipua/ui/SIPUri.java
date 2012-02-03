@@ -69,7 +69,7 @@ public class SIPUri extends Activity {
 		public void onClick(DialogInterface dialog, int which) {
 			candidate = candidates[which];
 			if(candidate.getScheme().equals("sip")) {
-				Receiver.engine(SIPUri.this).call(candidate.getAddressToDial(), true);
+				Receiver.engine(SIPUri.this).call(candidate, true);
 			} else if(candidate.getScheme().equals("tel")) {
 				PSTN.callPSTN2("tel:" + candidate.getAddress() + "?bypass-lumicall");
 			}
