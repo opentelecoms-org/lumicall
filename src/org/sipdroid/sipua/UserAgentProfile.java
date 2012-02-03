@@ -184,6 +184,8 @@ public class UserAgentProfile extends Configure {
 	public String reg_server_name;
 	public int reg_server_port;
 	public String reg_server_protocol;
+	
+	public long sipIdentityId = -1;
 
 	// ************************** Costructors *************************
 

@@ -36,7 +36,7 @@ public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
 				String sipAddress = (usePrefix ? prefix : "")
 						+ number
 						+ "@" + domain;
-				candidates.add(new DialCandidate("sip", sipAddress, "", "VoIP Carrier"));
+				candidates.add(new DialCandidate("sip", sipAddress, "", "VoIP Carrier", s));
 			}
 		}
 		

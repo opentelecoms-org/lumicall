@@ -29,6 +29,7 @@ import org.ice4j.StackProperties;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
+import org.lumicall.android.sip.DialCandidate;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
 import org.sipdroid.sipua.ui.LoopAlarm;
@@ -77,6 +78,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 	
 	UserAgentProfile getUserAgentProfile(SIPIdentity sipIdentity) {
 		UserAgentProfile user_profile = new UserAgentProfile(null);
+		
+		user_profile.sipIdentityId = sipIdentity.getId();
 		
 		user_profile.enable = sipIdentity.isEnable();
 		
@@ -559,6 +562,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 	/** Makes a new call */
 	public boolean call(String target_url,boolean force) {
 		int p = pref;
+		
 		boolean found = false;
 		
 		if (isRegistered(p) && Receiver.isFast(p))
@@ -581,7 +585,39 @@ public class SipdroidEngine implements RegisterAgentListener {
 			}
 		}
 				
-		if (!found || (ua = uas[p]) == null) {
+		if (!found)
+			return false;
+		
+		return call(target_url, force, p);
+	}
+	
+	public boolean call(DialCandidate target, boolean force) {
+		if(!target.getScheme().equals("sip")) {
+			ua.printLog("can't call non-SIP candidate");
+			return false;
+		}
+		
+		String target_url = target.getAddress();
+		
+		SIPIdentity sipIdentity = target.getSIPIdentity(this.getUIContext());
+		if(sipIdentity == null) {
+			ua.printLog("no SIP Identity found to make call");
+			return false;
+		}
+		
+		int p = 0;
+		for(p = 0; p < lineCount; p++) {
+			if(user_profiles[p].sipIdentityId == sipIdentity.getId())
+				return call(target_url, force, p);
+		}
+		
+		ua.printLog("SIP identity not active, can't make call");
+		return false;
+	}
+	
+	public boolean call(String target_url, boolean force, int p) {
+		
+		if((ua = uas[p]) == null) {
 			/* if (PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_CALLBACK, Settings.DEFAULT_CALLBACK) &&
 					PreferenceManager.getDefaultSharedPreferences(getUIContext()).getString(Settings.PREF_POSURL, Settings.DEFAULT_POSURL).length() > 0) {
 				Receiver.url("n="+Uri.decode(target_url));

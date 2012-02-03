@@ -201,7 +201,7 @@ public class Caller extends BroadcastReceiver {
 				}
 				
 				// Only 1 candidate - so just dial it
-				Receiver.engine(context).call(candidates.get(0).getAddressToDial(),true);
+				Receiver.engine(context).call(candidates.get(0),true);
 				if(true)
 					return;
 				
