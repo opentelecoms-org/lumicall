@@ -413,7 +413,8 @@ public class EnrolmentService extends IntentService {
 		SIPIdentity sipIdentity = new SIPIdentity();
 		sipIdentity.setUri(settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null) +
 				"@" + props.getSipDomain());
-		sipIdentity.setAuthUser(settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
+		sipIdentity.setAuthUser(settings.getString(
+				RegisterAccount.PREF_PHONE_NUMBER + "@" + props.getSipDomain(), null));
 		sipIdentity.setAuthPassword(settings.getString(RegisterAccount.PREF_SECRET, null));
 		sipIdentity.setReg(true);
 		sipIdentity.setRegServerName(props.getSipServer());
