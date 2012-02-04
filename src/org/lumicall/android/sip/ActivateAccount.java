@@ -31,11 +31,14 @@ public class ActivateAccount extends Activity {
 	
 	private static final String TAG = "ActAcct";
 	
+	BroadcastReceiver mReceiver = null;
+	
 	public class IncomingReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(EnrolmentService.VALIDATION_ATTEMPTED)) {
+				Log.v(TAG, "notified that validation attempted, dismissing activity for account activation");
 				ActivateAccount.this.finish();
 			}
 		}
@@ -75,7 +78,8 @@ public class ActivateAccount extends Activity {
         
         IntentFilter filter = new IntentFilter();
         filter.addAction(EnrolmentService.VALIDATION_ATTEMPTED);
-        registerReceiver(new IncomingReceiver(), filter);
+        mReceiver = new IncomingReceiver();
+        registerReceiver(mReceiver, filter);
         
         setContentView(R.layout.activate_dialog);
         setTitle("Complete service activation");
@@ -115,5 +119,14 @@ public class ActivateAccount extends Activity {
         // and activate automatically if one is found
         
     }
+	
+	@Override
+	public void onDestroy() {
+		if(mReceiver != null) {
+			unregisterReceiver(mReceiver);
+			mReceiver = null;
+		}
+		super.onDestroy();
+	}
 
 }

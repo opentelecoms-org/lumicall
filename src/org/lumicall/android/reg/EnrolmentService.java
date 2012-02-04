@@ -16,6 +16,7 @@ import org.lumicall.android.sip.RegistrationFailedException;
 import org.lumicall.android.sip.RegistrationUtil;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
+import org.sipdroid.sipua.ui.Sipdroid;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.app.IntentService;
@@ -46,13 +47,26 @@ public class EnrolmentService extends IntentService {
 	
 	public static final String VALIDATION_ATTEMPTED = "org.lumicall.android.extra.VALIDATION_ATTEMPTED";
 	
-	private static final String LOG_TAG = "EnrolSvc";
+	private static final String TAG = "EnrolSvc";
 	
 	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	
 	public EnrolmentService() {
 		super("EnrolmentService");
 	}
+	
+	/* BroadcastReceiver mReceiver = null;
+	
+	public class IncomingReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(EnrolmentService.VALIDATION_ATTEMPTED)) {
+				Log.v(TAG, "notified that validation attempted, dismissing notifications");
+				//EnrolmentService.this.nm.cancelAll();
+			}
+		}
+	} */
 	
 	@Override
     public void onCreate() {
@@ -101,6 +115,12 @@ public class EnrolmentService extends IntentService {
 		Intent intent = new Intent();
 		intent.setAction(EnrolmentService.VALIDATION_ATTEMPTED);
 		this.sendBroadcast(intent);
+		
+		notification = new Notification(R.drawable.icon22, "Validation requested", new Date().getTime());
+		Intent notificationIntent = new Intent(this, Sipdroid.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		notification.setLatestEventInfo(this, "Lumicall validation", "Validation requested - you may try to use Lumicall now", contentIntent);
+        nm.notify(10, notification);
 		
 		try {
 			setupSIP(this);
@@ -195,7 +215,7 @@ public class EnrolmentService extends IntentService {
 
 		} catch (RegistrationFailedException e) {
 			// TODO: display error to user
-			Log.e(LOG_TAG, e.toString());
+			Log.e(TAG, e.toString());
 
 			notification = new Notification(R.drawable.icon22, "Failed to submit validation code", new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
@@ -271,7 +291,7 @@ public class EnrolmentService extends IntentService {
 			//return writer.toString();
 			return encryptedBody;
 		} catch (Exception e) {
-			Log.e(LOG_TAG, e.toString());
+			Log.e(TAG, e.toString());
 			return null;
 		}
 	}
@@ -328,7 +348,7 @@ public class EnrolmentService extends IntentService {
 			//return writer.toString();
 			return encryptedText;
 		} catch (Exception e) {
-			Log.e(LOG_TAG, e.toString());
+			Log.e(TAG, e.toString());
 			return null;
 		}
 	}	
@@ -376,9 +396,9 @@ public class EnrolmentService extends IntentService {
 		edSIP.putBoolean(Settings.PREF_ON, true);
 		
 		if(edSIP.commit())
-			Log.v(LOG_TAG, "Configured prefs for number " + num + ", email " + email);
+			Log.v(TAG, "Configured prefs for number " + num + ", email " + email);
 		else {
-			Log.e(LOG_TAG, "error while committing preferences");
+			Log.e(TAG, "error while committing preferences");
 		}
 
 		//Receiver.engine(context).updateDNS();
