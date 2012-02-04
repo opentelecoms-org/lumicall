@@ -33,12 +33,16 @@
 
 <string name="about">Lumicall is an open-source SIP client for Android
 \n
-\nSee http://lumicall.org for more info
+\nSee http://www.lumicall.org for more info
 \n
 \nVersion ${VERSION}
 \nThe software has been released for testing.
 \n
 \nCopyright (C) 2012 Ready Technology (UK) Limited (http://www.lumicall.org)
+\nCopyright (C) 2011 Jitsi / ice4j
+\nCopyright (C)      DNSjava
+\nCopyright (C)      ENUMdroid
+\nCopyright (C)      libphonenumber
 \nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
