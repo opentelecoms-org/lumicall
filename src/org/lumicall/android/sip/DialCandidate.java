@@ -50,7 +50,7 @@ public class DialCandidate implements Parcelable {
 		if(_sipIdentityId == -1) {
 			// Must use the default SIP identity for SIP-SIP calls
 			SharedPreferences sipSettings = context.getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
-			_sipIdentityId = sipSettings.getLong(Settings.PREF_SIP, -1);
+			_sipIdentityId = Long.parseLong(sipSettings.getString(Settings.PREF_SIP, "-1"));
 		}
 		if(_sipIdentityId == -1) {
 			// No default SIP identity selected in the prefs
