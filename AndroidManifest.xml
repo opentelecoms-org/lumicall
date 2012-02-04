@@ -69,6 +69,9 @@
             android:name="org.lumicall.android.sip.ActivateAccount"
             android:label="@string/app_name" android:launchMode="singleInstance"
         	android:configChanges="orientation|keyboardHidden">
+            <intent-filter android:priority="100">
+                <action android:name="org.lumicall.android.extra.VALIDATION_ATTEMPTED" />
+            </intent-filter>
         </activity>
         <activity android:name="org.sipdroid.sipua.ui.PSTN" android:label="@string/pstn_name"
         	android:icon="@drawable/ic_launcher_phone">
@@ -173,7 +176,11 @@
         <provider android:name="org.lumicall.android.sip.ENUMProviderForSIP" android:authorities="enum"
                 android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
-    	<service android:name="org.lumicall.android.reg.EnrolmentService"/>
+    	<service android:name="org.lumicall.android.reg.EnrolmentService">
+    	    <!--  <intent-filter android:priority="100">
+                <action android:name="org.lumicall.android.extra.VALIDATION_ATTEMPTED" />
+            </intent-filter> -->
+    	</service>
     </application>
 	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"></uses-permission>
