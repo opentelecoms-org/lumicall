@@ -25,6 +25,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
@@ -49,6 +50,7 @@ import org.ice4j.ice.harvest.TurnCandidateHarvester;
 import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
 import org.lumicall.android.R;
+import org.opentelecoms.dns.SRVRecordHelper;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.JAudioLauncher;
@@ -454,11 +456,19 @@ public class UserAgent extends CallListenerAdapter {
         	/* iceAgent.addCandidateHarvester(
                 new StunCandidateHarvester(
                         new TransportAddress("stun.lvdx.com", port, Transport.UDP))); */
+			
+			SRVRecordHelper srh = new SRVRecordHelper("stun", "udp", stunServer, port);
+			for(InetSocketAddress sa : srh) {
+				
+				String _stunServer = sa.getHostName();
+				int _port = sa.getPort();
         
-            iceAgent.addCandidateHarvester(
+				iceAgent.addCandidateHarvester(
                     new TurnCandidateHarvester(
-                            new TransportAddress(stunServer, port, Transport.UDP),  // FIXME stun server name
+                            new TransportAddress(_stunServer, _port, Transport.UDP),
                             longTermCredential));
+				
+			}
             
             /* This is a temporary facility until we implement a TURN server with
              * per-user authentication.

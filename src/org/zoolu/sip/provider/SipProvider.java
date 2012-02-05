@@ -25,6 +25,7 @@
 
 package org.zoolu.sip.provider;
 
+import org.opentelecoms.dns.SRVRecordHelper;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.net.*;
@@ -43,6 +44,9 @@ import org.zoolu.tools.DateFormat;
 
 import java.util.Hashtable;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+
 import org.zoolu.tools.HashSet;
 import org.zoolu.tools.Iterator;
 
@@ -792,8 +796,19 @@ public class SipProvider implements Configurable, TransportListener,
 			printLog("Resolving host address '" + dest_addr + "'",
 					LogLevel.MEDIUM);
 		try {
-			IpAddress dest_ipaddr = IpAddress.getByName(dest_addr);
-			return sendMessage(msg, proto, dest_ipaddr, dest_port, ttl);
+			int _dest_port = dest_port;
+			SRVRecordHelper srh = new SRVRecordHelper(
+					proto.equals("tls") ? "sips" : "sip",
+					proto.equals("tls") ? "tcp" : proto,
+					dest_addr,
+					dest_port);
+			if(srh.isEmpty())
+				throw new Exception("No DNS SRV or A results found for: " + dest_addr);
+			// Very big FIXME: shouldn't just take the first entry, should iterate
+			InetSocketAddress addr = srh.get(0);
+			IpAddress dest_ipaddr = new IpAddress(addr.getAddress());
+			_dest_port = addr.getPort();
+			return sendMessage(msg, proto, dest_ipaddr, _dest_port, ttl);
 		} catch (Exception e) {
 			printException(e, LogLevel.HIGH);
 			return null;
