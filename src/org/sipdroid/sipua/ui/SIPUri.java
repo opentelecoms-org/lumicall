@@ -26,18 +26,25 @@ import java.util.List;
 
 import org.lumicall.android.R;
 import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
 import org.sipdroid.sipua.SipdroidEngine;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 public class SIPUri extends Activity {
 
@@ -56,6 +63,36 @@ public class SIPUri extends Activity {
 			.show();
 		} else
 			finish();
+	}
+	
+	public class MyArrayAdapter extends ArrayAdapter<DialCandidate> {
+		
+		final static int SIP_COLOUR = Color.GREEN;
+		final static int VOIP_CARRIER_COLOUR = Color.BLUE;
+		final static int GSM_COLOUR = Color.RED;
+
+		public MyArrayAdapter(Context context, DialCandidate[] objects) {
+			super(context, R.layout.candidate_list_item, objects);
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			TextView view = (TextView)super.getView(position, convertView, parent);
+			// Set the colour
+			DialCandidate dc = getDialCandidate(position);
+			if(dc.getScheme().equals("tel"))
+				view.setTextColor(GSM_COLOUR);
+			else if(dc.getSource().equals(SIPCarrierCandidateHarvester.SOURCE_INFO))
+				view.setTextColor(VOIP_CARRIER_COLOUR);
+			else
+				view.setTextColor(SIP_COLOUR);
+			return view;
+		}
+		
+		protected DialCandidate getDialCandidate(int position) {
+			return getItem(position);
+		}
+		
 	}
 	
 	public class MyListener implements DialogInterface.OnClickListener {
@@ -95,17 +132,14 @@ public class SIPUri extends Activity {
 		if(getIntent().getParcelableArrayExtra("dialCandidates") != null) {
 			Parcelable[] _candidates = getIntent().getParcelableArrayExtra("dialCandidates");
 			DialCandidate[] candidates = new DialCandidate[_candidates.length];
-			String[] candidateTitles = new String[candidates.length];
 			for(int i = 0; i < _candidates.length; i++) {
 				candidates[i] = (DialCandidate)_candidates[i];
-				candidateTitles[i] = candidates[i].getScheme() + ":" + candidates[i].getAddress() +
-						" (" + candidates[i].getSource() + ")";
 			}
 			MyListener l = new MyListener(candidates);
 			new AlertDialog.Builder(this)
 				.setIcon(R.drawable.icon22)
 				.setTitle(R.string.choose_route)
-				.setItems(candidateTitles, l)
+				.setAdapter(new MyArrayAdapter(this, candidates), l)
 				.setOnCancelListener(new OnCancelListener() {
 					public void onCancel(DialogInterface dialog) {	finish();	} })
 				.show();
