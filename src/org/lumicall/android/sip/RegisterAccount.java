@@ -222,7 +222,8 @@ public class RegisterAccount extends Activity {
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
 		startService(intent);
 		
-		doValidationActivity();
+		//doValidationActivity();  // FIXME - hiding the SMS validation temporarily
+		finish();
 		            
 	}
 
