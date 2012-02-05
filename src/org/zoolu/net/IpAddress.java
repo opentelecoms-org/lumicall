@@ -58,7 +58,7 @@ public class IpAddress {
 	// ********************* Protected *********************
 
 	/** Creates an IpAddress */
-	IpAddress(InetAddress iaddress) {
+	public IpAddress(InetAddress iaddress) {
 		init(null, iaddress);
 	}
 
