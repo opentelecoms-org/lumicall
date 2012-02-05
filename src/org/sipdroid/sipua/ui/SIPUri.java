@@ -67,7 +67,7 @@ public class SIPUri extends Activity {
 	
 	public class MyArrayAdapter extends ArrayAdapter<DialCandidate> {
 		
-		final static int SIP_COLOUR = Color.GREEN;
+		final int SIP_COLOUR = Color.rgb(50, 205, 50);
 		final static int VOIP_CARRIER_COLOUR = Color.BLUE;
 		final static int GSM_COLOUR = Color.RED;
 
