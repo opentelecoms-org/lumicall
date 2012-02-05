@@ -101,5 +101,10 @@ public class DialCandidate implements Parcelable {
 	public String getAddressToDial() {
 		return scheme + ":" + address;
 	}
+	
+	@Override
+	public String toString() {
+		return getAddressToDial() + " (" + getSource() + ")";
+	}
 
 }

@@ -9,6 +9,8 @@ import org.lumicall.android.db.SIPIdentity;
 import android.content.Context;
 
 public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
+	
+	public final static String SOURCE_INFO = "VoIP Carrier";
 
 	@Override
 	public List<DialCandidate> getCandidatesForNumber(Context context,
@@ -36,7 +38,7 @@ public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
 				String sipAddress = (usePrefix ? prefix : "")
 						+ number
 						+ "@" + domain;
-				candidates.add(new DialCandidate("sip", sipAddress, "", "VoIP Carrier", s));
+				candidates.add(new DialCandidate("sip", sipAddress, "", SOURCE_INFO, s));
 			}
 		}
 		
