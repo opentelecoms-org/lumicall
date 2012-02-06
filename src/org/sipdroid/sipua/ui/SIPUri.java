@@ -31,6 +31,7 @@ import org.sipdroid.sipua.SipdroidEngine;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -43,7 +44,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class SIPUri extends Activity {
@@ -97,7 +101,7 @@ public class SIPUri extends Activity {
 		
 	}
 	
-	public class MyListener implements DialogInterface.OnClickListener {
+	public class MyListener implements OnItemClickListener {
 		DialCandidate[] candidates;
 		DialCandidate candidate;
 		public MyListener(DialCandidate[] candidates) {
@@ -105,8 +109,9 @@ public class SIPUri extends Activity {
 			this.candidate = null;
 		}
 		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			candidate = candidates[which];
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			candidate = candidates[position];
 			if(candidate.getScheme().equals("sip")) {
 				Receiver.engine(SIPUri.this).call(candidate, true);
 			} else if(candidate.getScheme().equals("tel")) {
@@ -117,6 +122,38 @@ public class SIPUri extends Activity {
 		public DialCandidate getCandidate() {
 			return candidate;
 		}
+	}
+	
+	protected DialCandidate[] getDialCandidates(Bundle bundle) {
+		Parcelable[] _candidates = bundle.getParcelableArray("dialCandidates");
+		DialCandidate[] candidates = new DialCandidate[_candidates.length];
+		for(int i = 0; i < _candidates.length; i++) {
+			candidates[i] = (DialCandidate)_candidates[i];
+		}
+		return candidates;
+	}
+	
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
+		if(id != 0)
+			return;
+		DialCandidate[] candidates = getDialCandidates(bundle);
+		MyListener l = new MyListener(candidates);
+		AlertDialog _dialog = (AlertDialog)dialog;
+		_dialog.getListView().setAdapter(new MyArrayAdapter(this, candidates));
+		_dialog.getListView().setOnItemClickListener(l);
+	}
+	
+	protected Dialog onCreateDialog(int id) {
+		if(id != 0)
+			return null;
+		Dialog dialog = new AlertDialog.Builder(this)
+			.setIcon(R.drawable.icon22)
+			.setTitle(R.string.choose_route)
+			.setOnCancelListener(new OnCancelListener() {
+				public void onCancel(DialogInterface dialog) {	finish();	} })
+			.setItems(new CharSequence[] {}, null)
+			.create();
+		return dialog;
 	}
 	
 	/* (non-Javadoc)
@@ -131,20 +168,11 @@ public class SIPUri extends Activity {
 
 		Sipdroid.on(this,true);
 		Uri uri = getIntent().getData();
-		if(getIntent().getParcelableArrayExtra("dialCandidates") != null) {
-			Parcelable[] _candidates = getIntent().getParcelableArrayExtra("dialCandidates");
-			DialCandidate[] candidates = new DialCandidate[_candidates.length];
-			for(int i = 0; i < _candidates.length; i++) {
-				candidates[i] = (DialCandidate)_candidates[i];
-			}
-			MyListener l = new MyListener(candidates);
-			new AlertDialog.Builder(this)
-				.setIcon(R.drawable.icon22)
-				.setTitle(R.string.choose_route)
-				.setAdapter(new MyArrayAdapter(this, candidates), l)
-				.setOnCancelListener(new OnCancelListener() {
-					public void onCancel(DialogInterface dialog) {	finish();	} })
-				.show();
+		Parcelable[] _candidates = getIntent().getParcelableArrayExtra("dialCandidates");
+		if(_candidates != null) {
+			Bundle bundle = new Bundle();
+			bundle.putParcelableArray("dialCandidates", _candidates);
+			showDialog(0, bundle);
 			return;
 		}
 		
@@ -201,7 +229,7 @@ public class SIPUri extends Activity {
 	    @Override
 	    public void onPause() {
 	        super.onPause();
-	        finish();
+	        //finish();
 	    }
 	 
 }
