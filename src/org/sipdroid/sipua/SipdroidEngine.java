@@ -96,7 +96,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 		user_profile.reg_server_name = sipIdentity.getRegServerName();
 		user_profile.reg_server_port = sipIdentity.getRegServerPort();
 		user_profile.reg_server_protocol = sipIdentity.getRegServerProtocol();
-		if(user_profile.reg && user_profile.reg_server_name.length() == 0) {
+		if(user_profile.reg && (user_profile.reg_server_name == null || user_profile.reg_server_name.length() == 0)) {
 			user_profile.reg_server_name = user_profile.realm;
 			user_profile.reg_server_port = 5061;
 			user_profile.reg_server_protocol = "tls";
@@ -111,7 +111,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 		user_profile.mwi = sipIdentity.isMwi();
 		
 		user_profile.stun_server_name = sipIdentity.getStunServerName();
-		if(user_profile.stun_server_name.equals("")) {
+		if(user_profile.stun_server_name == null || user_profile.stun_server_name.length() == 0) {
 			user_profile.stun_server_name = user_profile.realm;
 		}
 		user_profile.stun_server_port = sipIdentity.getStunServerPort();
@@ -126,7 +126,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 		user_profile.outbound_server_name = sipIdentity.getOutboundServerName();
 		user_profile.outbound_server_port = sipIdentity.getOutboundServerPort();
 		user_profile.outbound_server_protocol = sipIdentity.getOutboundServerProtocol();
-		if(user_profile.use_outbound && user_profile.outbound_server_name.length() == 0) {
+		if(user_profile.use_outbound && (user_profile.outbound_server_name == null || user_profile.outbound_server_name.length() == 0)) {
 			user_profile.outbound_server_name = user_profile.realm;
 			user_profile.outbound_server_port = 5061;
 			user_profile.outbound_server_protocol = "tls";
