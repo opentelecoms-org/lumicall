@@ -80,12 +80,14 @@ public class SIPUri extends Activity {
 			TextView view = (TextView)super.getView(position, convertView, parent);
 			// Set the colour
 			DialCandidate dc = getDialCandidate(position);
+			int routeColour = SIP_COLOUR;
 			if(dc.getScheme().equals("tel"))
-				view.setTextColor(GSM_COLOUR);
+				routeColour = GSM_COLOUR;
 			else if(dc.getSource().equals(SIPCarrierCandidateHarvester.SOURCE_INFO))
-				view.setTextColor(VOIP_CARRIER_COLOUR);
-			else
-				view.setTextColor(SIP_COLOUR);
+				routeColour = VOIP_CARRIER_COLOUR;
+			// view.setBackgroundColor(routeColour);
+			// view.setTextColor(Color.WHITE);
+			view.setTextColor(routeColour);
 			return view;
 		}
 		
