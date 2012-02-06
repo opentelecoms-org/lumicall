@@ -364,6 +364,8 @@
 <string name="sip_outbound_server_name" >Outbound proxy name</string>
 <string name="sip_outbound_server_port" >Outbound proxy port</string>
 <string name="sip_outbound_server_protocol">Outbound proxy protocol</string>
+<string name="sip_carrier_route">Gateway to PSTN</string>
+<string name="sip_carrier_route2">Offer this identity when dialing PSTN</string>
 <string name="sip_carrier_intl_prefix" >Intl. dialing prefix</string>
 <string name="sip_carrier_intl_prefix2" >E.g. 00 in Europe, 0011 in Australia</string>
 <string name="sip_stun_server_name" >STUN server name</string>

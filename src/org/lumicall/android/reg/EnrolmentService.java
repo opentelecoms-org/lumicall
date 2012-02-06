@@ -425,6 +425,7 @@ public class EnrolmentService extends IntentService {
 		sipIdentity.setOutboundServerName("");
 		sipIdentity.setOutboundServerPort(props.getSipPort());
 		sipIdentity.setOutboundServerProtocol(props.getSipProtocol());
+		sipIdentity.setCarrierRoute(false);
 		//sipIdentity.setStunServerName(props.getStunServer());
 		sipIdentity.setStunServerName("");
 		sipIdentity.setStunServerPort(props.getStunPort());

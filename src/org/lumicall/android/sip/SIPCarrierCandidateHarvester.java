@@ -34,8 +34,8 @@ public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
 			String prefix = s.getCarrierIntlPrefix();
 			String uri = s.getUri();
 			String domain = uri.substring(uri.indexOf('@') + 1);
-			if(prefix != null && prefix.length() > 0) {
-				String sipAddress = (usePrefix ? prefix : "")
+			if(s.isCarrierRoute()) {
+				String sipAddress = ((usePrefix && prefix != null) ? prefix : "")
 						+ number
 						+ "@" + domain;
 				candidates.add(new DialCandidate("sip", sipAddress, "", SOURCE_INFO, s));
