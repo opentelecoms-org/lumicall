@@ -30,6 +30,10 @@ public class HarvestDirector {
 		harvesters.add(new SIPCarrierCandidateHarvester());
 		harvesters.add(new GSMCandidateHarvester());
 		
+		// The dnsjava stuff gives `bad address family' exceptions on the emulator
+		// if IPv6 is preferred (for Android 2.2)
+		System.setProperty("java.net.preferIPv6Addresses", "false");  // FIXME IPv6 support
+		
 	}
 	
 	public List<DialCandidate> getCandidates(Context context, String number, String e164Number) {
