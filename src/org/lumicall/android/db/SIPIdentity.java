@@ -28,6 +28,7 @@ public class SIPIdentity {
 	private final static String COLUMN_OUTBOUND_SERVER_NAME = "outbound_server_name";
 	private final static String COLUMN_OUTBOUND_SERVER_PORT = "outbound_server_port";
 	private final static String COLUMN_OUTBOUND_SERVER_PROTOCOL = "outbound_server_protocol";
+	private final static String COLUMN_CARRIER_ROUTE = "carrier_route";
 	private final static String COLUMN_CARRIER_INTL_PREFIX = "carrier_intl_prefix";
 	private final static String COLUMN_STUN_SERVER_NAME = "stun_server_name";
 	private final static String COLUMN_STUN_SERVER_PORT = "stun_server_port";
@@ -51,6 +52,7 @@ public class SIPIdentity {
 		COLUMN_OUTBOUND_SERVER_NAME,
 		COLUMN_OUTBOUND_SERVER_PORT,
 		COLUMN_OUTBOUND_SERVER_PROTOCOL,
+		COLUMN_CARRIER_ROUTE,
 		COLUMN_CARRIER_INTL_PREFIX,
 		COLUMN_STUN_SERVER_NAME,
 		COLUMN_STUN_SERVER_PORT,
@@ -75,7 +77,8 @@ public class SIPIdentity {
 			COLUMN_OUTBOUND + " int not null, " +
 			COLUMN_OUTBOUND_SERVER_NAME + " text, " + 
 			COLUMN_OUTBOUND_SERVER_PORT + " int, " +
-			COLUMN_OUTBOUND_SERVER_PROTOCOL + " text, " + 
+			COLUMN_OUTBOUND_SERVER_PROTOCOL + " text, " +
+			COLUMN_CARRIER_ROUTE + " int not null, " +
 			COLUMN_CARRIER_INTL_PREFIX + " text, " + 
 			COLUMN_STUN_SERVER_NAME + " text, " + 
 			COLUMN_STUN_SERVER_PORT + " int, " +
@@ -98,6 +101,7 @@ public class SIPIdentity {
 	String outboundServerName = null;
 	int outboundServerPort = 5060;
 	String outboundServerProtocol = "tcp";
+	boolean carrierRoute = true;
 	String carrierIntlPrefix = null;
 	String stunServerName = null;
 	int stunServerPort = 3478;
@@ -167,6 +171,7 @@ public class SIPIdentity {
 		sipIdentity.setOutboundServerName(cursor.getString(i++));
 		sipIdentity.setOutboundServerPort(cursor.getInt(i++));
 		sipIdentity.setOutboundServerProtocol(cursor.getString(i++));
+		sipIdentity.setCarrierRoute(fromBoolean(cursor.getInt(i++)));
 		sipIdentity.setCarrierIntlPrefix(cursor.getString(i++));
 		sipIdentity.setStunServerName(cursor.getString(i++));
 		sipIdentity.setStunServerPort(cursor.getInt(i++));
@@ -194,6 +199,7 @@ public class SIPIdentity {
 		values.put(COLUMN_OUTBOUND_SERVER_NAME, getOutboundServerName());
 		values.put(COLUMN_OUTBOUND_SERVER_PORT, getOutboundServerPort());
 		values.put(COLUMN_OUTBOUND_SERVER_PROTOCOL, getOutboundServerProtocol());
+		values.put(COLUMN_CARRIER_ROUTE, toBoolean(isCarrierRoute()));
 		values.put(COLUMN_CARRIER_INTL_PREFIX, getCarrierIntlPrefix());
 		values.put(COLUMN_STUN_SERVER_NAME, getStunServerName());
 		values.put(COLUMN_STUN_SERVER_PORT, getStunServerPort());
@@ -376,6 +382,16 @@ public class SIPIdentity {
 	public void setOutboundServerProtocol(String outboundServerProtocol) {
 		this.outboundServerProtocol = outboundServerProtocol;
 	}
+	
+	@PreferenceField(fieldName="sip_identity_carrier_route")
+	public boolean isCarrierRoute() {
+		return carrierRoute;
+	}
+
+	@PreferenceField(fieldName="sip_identity_carrier_route")
+	public void setCarrierRoute(boolean carrierRoute) {
+		this.carrierRoute = carrierRoute;
+	}
 
 	@PreferenceField(fieldName="sip_identity_carrier_intl_prefix")
 	public String getCarrierIntlPrefix() {
@@ -446,6 +462,7 @@ public class SIPIdentity {
 		result = prime * result + (mMTel ? 1231 : 1237);
 		result = prime * result + (mwi ? 1231 : 1237);
 		result = prime * result + (outbound ? 1231 : 1237);
+		result = prime * result + (carrierRoute ? 1231 : 1237);
 		result = prime
 				* result
 				+ ((outboundServerName == null) ? 0 : outboundServerName
@@ -498,6 +515,8 @@ public class SIPIdentity {
 			if (other.authUser != null)
 				return false;
 		} else if (!authUser.equals(other.authUser))
+			return false;
+		if (carrierRoute != other.carrierRoute)
 			return false;
 		if (carrierIntlPrefix == null) {
 			if (other.carrierIntlPrefix != null)
