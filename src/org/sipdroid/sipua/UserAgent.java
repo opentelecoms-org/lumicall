@@ -462,32 +462,25 @@ public class UserAgent extends CallListenerAdapter {
 				
 				String _stunServer = sa.getHostName();
 				int _port = sa.getPort();
-        
+				LongTermCredential ltc = longTermCredential;
+				
+				int len = _stunServer.length();
+				if(len > 0 && _stunServer.charAt(len - 1) == '.')
+					_stunServer = _stunServer.substring(0, len - 1);
+				
+				if(_stunServer.equals("stun-test.sip5060.net")) {
+					ltc = new LongTermCredential("test", "notasecret");
+					printLog("*** Using TEST credentials ***");
+				}
+					
+				printLog("Adding TURN server: [" + _stunServer + "]");
+					
 				iceAgent.addCandidateHarvester(
                     new TurnCandidateHarvester(
                             new TransportAddress(_stunServer, _port, Transport.UDP),
-                            longTermCredential));
+                            ltc));
 				
-			}
-            
-            /* This is a temporary facility until we implement a TURN server with
-             * per-user authentication.
-             */
-            Calendar cal = Calendar.getInstance();
-            cal.set(2012, 4, 30);
-            boolean addTestServer = System.currentTimeMillis() < cal.getTime().getTime(); 
-            if(addTestServer) {
-            	printLog("Using test STUN server");
-            	String testStunServer = "test-stun.sip5060.net";
-            	int testPort = 3478;
-            	LongTermCredential ltcTest
-					= new LongTermCredential("test", "notasecret");
-            	iceAgent.addCandidateHarvester(
-                    new TurnCandidateHarvester(
-                            new TransportAddress(testStunServer, testPort, Transport.UDP),  // FIXME stun server name
-                            ltcTest));
-            }
-            
+			}            
 		}
 
         //STREAMS
