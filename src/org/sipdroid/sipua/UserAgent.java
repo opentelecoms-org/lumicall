@@ -727,9 +727,15 @@ public class UserAgent extends CallListenerAdapter {
 			int _remote_audio_port = mediaStreams.get("audio").getRemoteRtpPort();
 			if(_remote_audio_port > 0)
 				remote_audio_port = _remote_audio_port;
+			else {
+				printLog("*** Remote audio port not found, maybe ICE not finished??? ***");
+			}
 			String _remote_media_address = mediaStreams.get("audio").getRemoteRtpAddress();
 			if(_remote_media_address != null)
 				remote_media_address = _remote_media_address;
+			else {
+				printLog("*** Remote audio address not found, maybe ICE not finished??? ***");
+			}
 			socket = mediaStreams.get("audio").getRTPSocket();
 		} else {
 			try {
@@ -1087,6 +1093,9 @@ public class UserAgent extends CallListenerAdapter {
 				if(Receiver.call_state == UA_STATE_IDLE) {
 					// We are the callee - alert the local user, send back 180
 					proceedToRing(caller);
+				} else if(Receiver.call_state == UA_STATE_INCALL) {
+					mediaStreams.get("audio").handleAnswer();
+					launchMediaApplication();
 				} else {
 					// We are the caller - maybe show an ICE completed message?
 				}
@@ -1210,8 +1219,12 @@ public class UserAgent extends CallListenerAdapter {
 			// Update the local SDP along with offer/answer 
 			sessionProduct(remote_sdp);
 		}
-		mediaStreams.get("audio").handleAnswer();
-		launchMediaApplication();
+		if(iceAgent != null && (
+				iceAgent.getState() == IceProcessingState.COMPLETED ||
+				iceAgent.getState() == IceProcessingState.TERMINATED)) {
+			mediaStreams.get("audio").handleAnswer();
+			launchMediaApplication();
+		}
 
 		if (call == call_transfer) 
 		{
