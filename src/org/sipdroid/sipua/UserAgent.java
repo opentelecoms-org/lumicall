@@ -406,6 +406,18 @@ public class UserAgent extends CallListenerAdapter {
 		ConnectionField c = new ConnectionField(addrType,
 				defaultAddress.getHostAddress() );
 		sdp.setConnection(c);
+		
+		MediaDescriptor md = sdp.getMediaDescriptor("audio");
+		Vector<AttributeField> attrs = md.getAttributes();
+		c = md.getConnection();
+		ConnectionField c2 = null;
+		if(c != null) {
+			c = new ConnectionField(addrType, defaultAddress.getHostAddress() );
+		}
+		MediaField mf = md.getMedia();
+		MediaField mf2 = new MediaField(mf.getMedia(), defaultAddress.getPort(), 0, mf.getTransport(), mf.getFormatList());
+		md = new MediaDescriptor(mf2, c2, attrs);
+		sdp.addMediaDescriptor(md);
 
 		local_session = sdp.toString();
 		
@@ -1213,6 +1225,7 @@ public class UserAgent extends CallListenerAdapter {
 			sessionProduct(remote_sdp);
 		}
 		if(iceAgent != null && (
+				iceAgent.getState() == IceProcessingState.WAITING ||
 				iceAgent.getState() == IceProcessingState.COMPLETED ||
 				iceAgent.getState() == IceProcessingState.TERMINATED)) {
 			mediaStreams.get("audio").handleAnswer();
