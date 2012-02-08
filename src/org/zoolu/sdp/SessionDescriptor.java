@@ -354,6 +354,12 @@ public class SessionDescriptor {
 		// media
 		// desc:
 		// "+media_desc,5);
+		int pos = -1;
+		for(int i = 0; i < media.size(); i++)
+			if(media.get(i).getMedia().getMedia().equals(media_desc.getMedia().getMedia()))
+				pos = i;
+		if(pos >= 0)
+			media.remove(pos);  // FIXME - expects only one instance of each media type (no good for stereo)
 		media.addElement(media_desc);
 		return this;
 	}
