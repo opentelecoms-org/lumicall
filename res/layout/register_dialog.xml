@@ -71,6 +71,7 @@
     	android:layout_width="wrap_content">
     </TextView>
     <EditText android:id="@+id/EditText02"
+        android:inputType="textCapWords"
 		android:singleLine="true"
     	android:layout_height="wrap_content"
     	android:layout_width="fill_parent">
@@ -85,6 +86,7 @@
     	android:layout_width="wrap_content">
     </TextView>
     <EditText android:id="@+id/EditText03"
+        android:inputType="textCapWords"
 		android:singleLine="true"
     	android:layout_height="wrap_content"
     	android:layout_width="fill_parent">
