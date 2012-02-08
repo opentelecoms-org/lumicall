@@ -49,6 +49,7 @@ import org.lumicall.android.R;
 import org.lumicall.android.reg.EnrolmentService;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.ui.Settings;
+import org.sipdroid.sipua.ui.Sipdroid;
 import org.xmlpull.v1.XmlSerializer;
 
 import com.uecommerce.util.csv.CSVReader;
@@ -56,6 +57,7 @@ import com.uecommerce.util.csv.CSVReader;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -73,6 +75,8 @@ import android.telephony.TelephonyManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Xml;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -93,6 +97,8 @@ public class RegisterAccount extends Activity {
 	public static final String PREF_LAST_VALIDATION_ATTEMPT = "lastValidationAttempt";
 	
 	private static final String TAG = "EnrolAcct";
+
+	private static final int ABOUT_MENU_ITEM = 1;
 	
 	SharedPreferences settings;
 	String password;
@@ -230,6 +236,8 @@ public class RegisterAccount extends Activity {
 
 	EditText etNum, etFirst, etLast, etEmail;
 	Button buttonOK;
+
+	private Dialog m_AlertDlg;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -274,6 +282,37 @@ public class RegisterAccount extends Activity {
         etNum.setText(settings.getString(PREF_PHONE_NUMBER, myPhoneNumber));
         setAccountDetails(settings);
     }
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		boolean result = super.onCreateOptionsMenu(menu);
+
+		MenuItem m = menu.add(0, ABOUT_MENU_ITEM, 0, R.string.menu_about);
+		m.setIcon(android.R.drawable.ic_menu_info_details);
+		
+		return result;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		boolean result = super.onOptionsItemSelected(item);
+
+		switch (item.getItemId()) {
+		case ABOUT_MENU_ITEM:
+			if (m_AlertDlg != null) 
+			{
+				m_AlertDlg.cancel();
+			}
+			m_AlertDlg = new AlertDialog.Builder(this)
+				.setMessage(getString(R.string.about).replace("\\n","\n").replace("${VERSION}", Sipdroid.getVersion(this)))
+				.setTitle(getString(R.string.menu_about))
+				.setIcon(R.drawable.icon22)
+				.setCancelable(true)
+				.show();
+			break;
+		}
+		return result;
+	}
 	
 	// Requires android.permission.READ_PHONE_STATE
 	private String getMyPhoneNumber() {
