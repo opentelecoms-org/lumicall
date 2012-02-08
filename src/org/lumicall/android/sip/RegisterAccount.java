@@ -43,6 +43,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.opentelecoms.android.PhoneHelper;
 import org.opentelecoms.util.Base64;
 import org.lumicall.android.R;
 import org.lumicall.android.reg.EnrolmentService;
@@ -279,6 +280,12 @@ public class RegisterAccount extends Activity {
 	    TelephonyManager mTelephonyMgr;
 	    mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); 
 	    String num = mTelephonyMgr.getLine1Number();
+	    
+	    /* if(num == null || num.length() == 0) {
+	    	PhoneHelper ph = new PhoneHelper();
+	    	ph.init(this);
+	    	num = ph.getLine1Number();
+	    } */
 	    
 	    if(num == null || num.length() == 0) 
 	    	num = getCountryCode(mTelephonyMgr.getSimCountryIso());
