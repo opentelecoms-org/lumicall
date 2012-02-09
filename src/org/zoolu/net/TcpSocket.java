@@ -168,6 +168,7 @@ public class TcpSocket {
 				Thread.currentThread().getName().equals("main")?1000:10000);
 		} catch (java.io.IOException e) {
 			lock = false;
+			logger.warning("IOException/failure in the connect method: " + e.getMessage());
 			throw e;
 		}
 		if(useTls) {
@@ -177,6 +178,7 @@ public class TcpSocket {
 			if(session.isValid()) {
 				logger.info("Secure connection established");
 			} else {
+				lock = false;
 				logger.warning("Connection NOT secure");
 				throw new IOException("SSLSession NOT valid/secure");
 			}
