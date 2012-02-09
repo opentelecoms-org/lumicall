@@ -341,6 +341,11 @@
 <string name="reg_submit_failed">Failed to submit registration details</string>
 <string name="reg_submitted">Registration requested</string>
 
+<string name="reg_num_invalid_t">Your number is valid?</string>
+<string name="reg_num_invalid_message">The number appears invalid.  Please check that it starts with a + and the country code, and that you haven\'t accidentally added a 0 after the country code.</string>
+<string name="reg_num_invalid_use_anyway">Use anyway</string>
+<string name="reg_num_invalid_edit">Edit number</string>
+
 <string name="activate_instructions">You should receive an SMS text containing an activation code.  Please wait for it to arrive.</string>
 <string name="activate_code">Enter the activation code here (e.g. **ABC123**)</string>
 <string name="activate_proceed">Activate</string>
