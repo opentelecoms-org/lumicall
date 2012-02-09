@@ -469,30 +469,10 @@ public class UserAgent extends CallListenerAdapter {
                 new StunCandidateHarvester(
                         new TransportAddress("stun.lvdx.com", port, Transport.UDP))); */
 			
-			SRVRecordHelper srh = new SRVRecordHelper("stun", "udp", stunServer, port);
-			for(InetSocketAddress sa : srh) {
-				
-				String _stunServer = sa.getHostName();
-				int _port = sa.getPort();
-				LongTermCredential ltc = longTermCredential;
-				
-				int len = _stunServer.length();
-				if(len > 0 && _stunServer.charAt(len - 1) == '.')
-					_stunServer = _stunServer.substring(0, len - 1);
-				
-				if(_stunServer.equals("stun-test.sip5060.net")) {
-					ltc = new LongTermCredential("test", "notasecret");
-					printLog("*** Using TEST credentials ***");
-				}
-					
-				printLog("Adding TURN server: [" + _stunServer + "]");
-					
-				iceAgent.addCandidateHarvester(
-                    new TurnCandidateHarvester(
-                            new TransportAddress(_stunServer, _port, Transport.UDP),
-                            ltc));
-				
-			}            
+			// FIXME - should happen in parallel
+			findStunServers(longTermCredential, stunServer, port, Transport.UDP);
+			findStunServers(longTermCredential, stunServer, port, Transport.TLS);
+			
 		}
 
         //STREAMS
@@ -508,6 +488,42 @@ public class UserAgent extends CallListenerAdapter {
 		// this should be done after we receive/send SIP 1xx status
 		// (depends on whether we are caller/callee)
 		//localAgent.setControlling(true);
+	}
+	
+
+	protected void findStunServers(LongTermCredential ltc, String stunServer, int port, Transport transport) {
+		String querySvc = "stun";
+		String queryProto = "udp";
+		if(transport == Transport.TLS) {
+			querySvc = "stuns";
+			queryProto = "tcp";
+		}
+		
+		SRVRecordHelper srh = new SRVRecordHelper(querySvc, queryProto, stunServer, port);
+		for(InetSocketAddress sa : srh) {
+			
+			String _stunServer = sa.getHostName();
+			int _port = sa.getPort();
+			LongTermCredential _ltc = ltc;
+			
+			int len = _stunServer.length();
+			if(len > 0 && _stunServer.charAt(len - 1) == '.')
+				_stunServer = _stunServer.substring(0, len - 1);
+			
+			if(_stunServer.equals("stun-test.sip5060.net")) {
+				_ltc = new LongTermCredential("test", "notasecret");
+				printLog("*** Using TEST credentials ***");
+			}
+				
+			printLog("Adding TURN server: [" + _stunServer + "]");
+				
+			iceAgent.addCandidateHarvester(
+                new TurnCandidateHarvester(
+                        new TransportAddress(_stunServer, _port, transport),
+                        _ltc));
+			
+		}            
+			
 	}
 	
     /**
