@@ -27,6 +27,8 @@ package org.zoolu.net;
 import java.net.InetSocketAddress;
 import java.net.Socket; // import java.net.InetAddress;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -86,6 +88,63 @@ public class TcpSocket {
 		
 	}
 	
+	public class AppendingTrustManager implements X509TrustManager {
+		
+		X509TrustManager _tm;
+		X509TrustManager _local;
+		
+		public AppendingTrustManager(X509TrustManager tm, KeyStore ks) throws NoSuchAlgorithmException, KeyStoreException {
+			this._tm = tm;
+			
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(ks);
+			TrustManager[] tm2 = tmf.getTrustManagers();
+		    _local = (X509TrustManager)tm2[0];
+		}
+
+		@Override
+		public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+				throws CertificateException {
+			try {
+				_tm.checkClientTrusted(arg0, arg1);
+			} catch (CertificateException ce) {
+				_local.checkClientTrusted(arg0, arg1);
+				logger.info("Trusting a client certificate based on local trust store");
+			}
+		}
+
+		@Override
+		public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+				throws CertificateException {
+			try {
+				_tm.checkServerTrusted(arg0, arg1);
+			} catch (CertificateException ce) {
+				try {
+					_local.checkServerTrusted(arg0, arg1);
+					logger.info("Trusting a server certificate based on local trust store");
+				} catch (CertificateException ce2) {
+					logger.warning("Not trusted locally either: " + ce2.getMessage());
+					throw ce2;
+				}
+			}
+		}
+
+		@Override
+		public X509Certificate[] getAcceptedIssuers() {
+			X509Certificate[] _a1 = _tm.getAcceptedIssuers();
+			X509Certificate[] _a2 = _local.getAcceptedIssuers();
+			int count = _a1.length + _a2.length;
+			X509Certificate[] _all = new X509Certificate[count];
+			for(int i = 0; i < _a1.length; i++)
+				_all[i] = _a1[i];
+			for(int i = 0; i < _a2.length; i++)
+				_all[_a1.length + i] = _a2[i];
+			return _all;
+		}
+		
+	}
+
+	
 	/** Socket */
 	Socket socket;
 
@@ -137,18 +196,19 @@ public class TcpSocket {
 			
 			try {
 				if (sslContext == null) {
-					KeyStore trusted = KeyStore.getInstance("BKS", "BC");
-				    trusted.load(null, "".toCharArray());
-				    TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-				    tmf.init(trusted);
-				    //TrustManager[] tm = tmf.getTrustManagers();
-				    TrustManager[] tm = { new ShoddyTrustManager() };
+					
+				    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				    tmf.init((KeyStore)null);
+				    TrustManager[] tm = tmf.getTrustManagers();
+				    TrustManager[] tm2 = { new AppendingTrustManager(
+				    		(X509TrustManager)tm[0], customKeyStore) };
+				    //TrustManager[] tm = { new ShoddyTrustManager() };
 					//sslContext = SSLContext.getInstance("TLSv1");
 					sslContext = SSLContext.getInstance("TLS");
 					//sslContext = SSLContext.getInstance("TLS");
-					logger.info("Using default trust manager");
-					sslContext.init(null, null, secureRandom);
-					//sslContext.init(null, tm, secureRandom);
+					//logger.info("Using default trust manager");
+					//sslContext.init(null, null, secureRandom);
+					sslContext.init(null, tm2, secureRandom);
 				}
 				SSLSocketFactory socketFactory = sslContext.getSocketFactory();
 				socket = socketFactory.createSocket();
@@ -158,7 +218,8 @@ public class TcpSocket {
 				
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new IOException(e.getMessage());
+				logger.warning("IOException/failure in the SSL init: " + e.getClass().getCanonicalName() + ": " + e.getMessage());
+				throw new IOException(e.getClass().getCanonicalName() + ": " + e.getMessage());
 			}
 		}
 		if (lock) throw new java.io.IOException("lock is set in TcpSocket");
@@ -249,6 +310,12 @@ public class TcpSocket {
 
 	public boolean isTls() {
 		return useTls;
+	}
+
+	static KeyStore customKeyStore = null;
+	public static void setCustomKeyStore(KeyStore trusted) {
+		customKeyStore = trusted;
+		
 	}
 
 }

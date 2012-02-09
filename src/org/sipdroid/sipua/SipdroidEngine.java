@@ -22,7 +22,13 @@
 package org.sipdroid.sipua;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
 import java.util.List;
 
 import org.ice4j.StackProperties;
@@ -38,6 +44,7 @@ import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.net.IpAddress;
 import org.zoolu.net.SocketAddress;
+import org.zoolu.net.TcpSocket;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
@@ -136,12 +143,26 @@ public class SipdroidEngine implements RegisterAgentListener {
 	}
 	
 	int lineCount = 0;
+
+	private String TAG = "SipdroidEngine";
 	public int getLineCount() {
 		return lineCount;
 	}
 
 	public boolean StartEngine() {
 		Context context = getUIContext();
+		
+		KeyStore trusted;
+		try {
+			trusted = KeyStore.getInstance("BKS", "BC");
+			InputStream in = context.getResources().openRawResource(R.raw.mytruststore);
+			trusted.load(in, "".toCharArray());
+			TcpSocket.setCustomKeyStore(trusted);
+		} catch (Exception e) {
+			Log.e(TAG , "Error setting up custom keystore");
+			e.printStackTrace();
+		}
+		
 		
 		LumicallDataSource ds = new LumicallDataSource(context);
 		ds.open();
