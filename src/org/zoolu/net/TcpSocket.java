@@ -161,7 +161,7 @@ public class TcpSocket {
 				throw new IOException(e.getMessage());
 			}
 		}
-		if (lock) throw new java.io.IOException();
+		if (lock) throw new java.io.IOException("lock is set in TcpSocket");
 		lock = true;
 		try {
 			socket.connect(new InetSocketAddress(ipaddr.toString(), port),
