@@ -886,7 +886,7 @@ public class SipProvider implements Configurable, TransportListener,
 					conn = new TcpTransport(dest_ipaddr, dest_port, this, true);
 				} catch (Exception e) {
 					printException(e, LogLevel.HIGH);
-					printLog("connection setup FAILED", LogLevel.HIGH);
+					printLog(conn_id + ": connection setup FAILED: " + e.getClass().getCanonicalName() + ": " + e.getMessage(), LogLevel.HIGH);
 					return null;
 				}
 				printLog("connection " + conn + " opened", LogLevel.HIGH);
