@@ -52,6 +52,10 @@ import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.xmlpull.v1.XmlSerializer;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import com.uecommerce.util.csv.CSVReader;
 
 import android.accounts.Account;
@@ -60,6 +64,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -219,6 +224,43 @@ public class RegisterAccount extends Activity {
 		finish();
 	}
 		
+	
+	void checkAccountDetails() {	
+		// Check the phone number
+		String number = getRegNum();
+		String e164Number = null;
+		PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+		try {
+			// FIXME - should prompt the user to check the number
+			// FIXME - should update the contact DB
+			TelephonyManager mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+			String countryIsoCode = mTelephonyMgr.getSimCountryIso().toUpperCase();
+			Log.v(TAG, "Converting number: " + number + ", country ISO = " + countryIsoCode);
+			PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode);
+			if(phoneUtil.isValidNumber(numberProto))
+				e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
+		} catch (NumberParseException e) {
+			Log.w(TAG, "Error parsing number", e);
+		}
+		if(e164Number == null) {
+			Log.w(TAG, "Unsure about the phone number entered by the user");
+			Dialog dialog = new AlertDialog.Builder(this)
+				.setMessage(R.string.reg_num_invalid_message)
+				.setTitle(R.string.reg_num_invalid_t)
+				.setCancelable(true)
+				.setPositiveButton(R.string.reg_num_invalid_use_anyway, new Dialog.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						enrolAccountNow();
+					}
+				})
+				.setNegativeButton(R.string.reg_num_invalid_edit, null)
+				.show();
+				
+		} else
+			enrolAccountNow();
+	}
+			
 	void enrolAccountNow() {
 		buttonOK.setEnabled(false);
 		//setCancelable(false);
@@ -263,7 +305,7 @@ public class RegisterAccount extends Activity {
         buttonOK = (Button) findViewById(R.id.Button01);
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				enrolAccountNow();
+				checkAccountDetails();
 			}
 		});
         etNum = (EditText) findViewById(R.id.EditText01);
