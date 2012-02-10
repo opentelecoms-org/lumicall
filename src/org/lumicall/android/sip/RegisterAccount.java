@@ -362,6 +362,11 @@ public class RegisterAccount extends Activity {
 	    mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE); 
 	    String num = mTelephonyMgr.getLine1Number();
 	    
+	    // MSISDN should not have a +, but some phones return it with a +
+	    // We want to see a +
+	    if(num.length() > 0 && !(num.charAt(0) == '+'))
+	    	num = "+" + num;
+	    
 	    /* if(num == null || num.length() == 0) {
 	    	PhoneHelper ph = new PhoneHelper();
 	    	ph.init(this);
@@ -369,9 +374,9 @@ public class RegisterAccount extends Activity {
 	    } */
 	    
 	    if(num == null || num.length() == 0) 
-	    	num = getCountryCode(mTelephonyMgr.getSimCountryIso());
+	    	num = "+" + getCountryCode(mTelephonyMgr.getSimCountryIso());
 	    
-	    return "+" + num;
+	    return num;
 	}
 	
 	// TODO: all ISO country codes
