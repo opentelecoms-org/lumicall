@@ -61,7 +61,9 @@
 
 <string name="auto_enabled">Auto-Answer/Speakerphone</string>
 <string name="auto_disabled">Auto-Answer off</string>
-<string name="hint">Called Party Address</string>
+<string name="hint">user@domain</string>
+<string name="instruction_dial_sip">Dial any SIP address here, or use the Android dialer to dial a phone number or contact.  You must have a SIP identity configured with the PSTN option ticked or Lumicall may not offer to route dialed numbers over SIP.</string>
+<string name="field_dial_sip">sip:</string>
 <string name="hint2">Phone Number</string>
 <string name="empty">Please enter called party address as name@domain.com</string>
 <string name="notfast">No suitable data network available</string>
