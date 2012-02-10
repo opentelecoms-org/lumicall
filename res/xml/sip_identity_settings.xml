@@ -9,6 +9,13 @@
         android:persistent="false"
 		android:key="sip_identity_enable"
 		android:title="@string/sip_identity_enable" />
+    <ListPreference
+        		android:persistent="false"
+				android:key="sip_identity_security_mode"
+				android:title="@string/sip_security_mode"
+				android:entries="@array/security_mode_display_values"
+				android:entryValues="@array/security_mode_values"
+				android:dialogTitle="@string/sip_security_mode" />
     <CheckBoxPreference
         android:persistent="false"
 		android:key="sip_identity_carrier_route"

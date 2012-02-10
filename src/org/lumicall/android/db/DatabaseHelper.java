@@ -1,13 +1,17 @@
 package org.lumicall.android.db;
 
+import java.util.logging.Logger;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	
+	private Logger logger = Logger.getLogger(getClass().getName());
+	
 	private final static String DB_NAME = "lumicall";
-	private final static int DB_VERSION = 1;
+	private final static int DB_VERSION = 2;
 	
 	public DatabaseHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
@@ -20,8 +24,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-		// No prior versions currently exist
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		logger.info("Upgrading DB from version " + oldVersion + " to version " + newVersion);
+		SIPIdentity.onUpgrade(db, oldVersion, newVersion);
 	}
 
 }

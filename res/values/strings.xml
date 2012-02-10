@@ -236,6 +236,16 @@
         <item>0.5</item>
         <item>1.0</item>
     </string-array>
+    <string-array name="security_mode_display_values">
+        <item>ZRTP (Encrypt when possible, widest compatibility)</item>
+        <item>SRTP (Encrypt always, for closed systems)</item>
+        <item>None (Not recommended)</item>
+    </string-array>
+    <string-array name="security_mode_values">
+        <item>ZRTP</item>
+        <item>SRTP</item>
+        <item>NONE</item>
+    </string-array>
 
 <string name="settings_pbxes_options">PBXes Features</string>
 <string name="settings_par">Simultaneous Outbound</string>
@@ -378,6 +388,7 @@
 <string name="sip_stun_server_name" >STUN server name</string>
 <string name="sip_stun_server_port" >STUN server port</string>
 <string name="sip_stun_server_protocol">STUN server protocol</string>
+<string name="sip_security_mode">Security mode</string>
 
 <string name="choose_route">Choose destination</string>
 
