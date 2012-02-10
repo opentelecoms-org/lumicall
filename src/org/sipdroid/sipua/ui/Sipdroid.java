@@ -79,7 +79,8 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	public static final int EXIT_MENU_ITEM = FIRST_MENU_ID + 3;
 
 	private static AlertDialog m_AlertDlg;
-	AutoCompleteTextView sip_uri_box,sip_uri_box2;
+	AutoCompleteTextView sip_uri_box;
+	// AutoCompleteTextView sip_uri_box2;
 	
 	@Override
 	public void onStart() {
@@ -90,7 +91,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	            PROJECTION, Calls.NUMBER+" like ?", new String[] { "%@%" }, Calls.DEFAULT_SORT_ORDER);
 	    CallsAdapter adapter = new CallsAdapter(this, cursor);
 	    sip_uri_box.setAdapter(adapter);
-	    sip_uri_box2.setAdapter(adapter);
+	    //sip_uri_box2.setAdapter(adapter);
 	}
 	
 	public static class CallsCursor extends CursorWrapper {
@@ -188,7 +189,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.sipdroid);
 		sip_uri_box = (AutoCompleteTextView) findViewById(R.id.txt_callee);
-		sip_uri_box2 = (AutoCompleteTextView) findViewById(R.id.txt_callee2);
+		//sip_uri_box2 = (AutoCompleteTextView) findViewById(R.id.txt_callee2);
 		sip_uri_box.setOnKeyListener(new OnKeyListener() {
 		    public boolean onKey(View v, int keyCode, KeyEvent event) {
 		        if (event.getAction() == KeyEvent.ACTION_DOWN &&
@@ -205,7 +206,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 				call_menu(sip_uri_box);
 			}
 		});
-		sip_uri_box2.setOnKeyListener(new OnKeyListener() {
+		/* sip_uri_box2.setOnKeyListener(new OnKeyListener() {
 		    public boolean onKey(View v, int keyCode, KeyEvent event) {
 		        if (event.getAction() == KeyEvent.ACTION_DOWN &&
 		        		keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -220,7 +221,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 					long arg3) {
 				call_menu(sip_uri_box2);
 			}
-		});
+		}); */
 		on(this,true);
 
 		Button contactsButton = (Button) findViewById(R.id.contacts_button);

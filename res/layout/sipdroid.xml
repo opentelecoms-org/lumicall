@@ -97,7 +97,7 @@
 			android:layout_height="wrap_content"
 			android:padding="5dip">
 	
-			<org.sipdroid.sipua.ui.InstantAutoCompleteTextView
+			<!-- <org.sipdroid.sipua.ui.InstantAutoCompleteTextView
 				android:id="@+id/txt_callee2"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
@@ -105,7 +105,23 @@
 				android:singleLine="true"
 				android:hint="@string/hint2"
 				android:inputType="phone"
-				android:imeOptions="actionSend"/>
+				android:imeOptions="actionSend"/> -->
+			<TextView
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content"
+        		android:paddingTop="10dip"
+        		android:text="@string/instruction_dial_sip"
+        		android:textColor="#ffffff"
+        		android:textSize="12dip" >
+			</TextView>
+			<TextView
+    			android:layout_height="wrap_content"
+			   	android:text="@string/field_dial_sip"
+    			android:textStyle="bold"
+    			android:paddingTop="10dip"
+    			android:textColor="#ffffff"
+    			android:layout_width="wrap_content">
+    		</TextView>
 			<org.sipdroid.sipua.ui.InstantAutoCompleteTextView
 				android:id="@+id/txt_callee"
 				android:layout_width="fill_parent"
