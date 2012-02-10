@@ -364,7 +364,7 @@ public class RegisterAccount extends Activity {
 	    
 	    // MSISDN should not have a +, but some phones return it with a +
 	    // We want to see a +
-	    if(num.length() > 0 && !(num.charAt(0) == '+'))
+	    if(num != null && num.length() > 0 && !(num.charAt(0) == '+'))
 	    	num = "+" + num;
 	    
 	    /* if(num == null || num.length() == 0) {
