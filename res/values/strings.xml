@@ -124,8 +124,8 @@
 <string name="settings_protocol">Protocol</string>
     <string-array name="protocol_display_values">
         <item>TLS (secure)</item>
-        <item>TCP (longer standby on 3G)</item>
-        <item>UDP (less standby on 3G)</item>        
+        <item>TCP</item>
+        <item>UDP</item>        
     </string-array>
     <string-array name="protocol_values">
         <item>tls</item>
