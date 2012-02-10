@@ -163,6 +163,9 @@ public class SIPIdentitySettings extends PreferenceActivity {
 							&& preferenceField.fieldName().equals(key)) {
 						_changed = setBeanValue(methods[i], preference, newValue);
 					}
+					if(!(preference instanceof CheckBoxPreference)) {
+						preference.setSummary(newValue.toString());
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
