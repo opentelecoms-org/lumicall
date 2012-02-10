@@ -96,7 +96,7 @@ public class SIPIdentity {
 	float q = (float) 1.0;
 	String regServerName = null;
 	int regServerPort = 5060;
-	String regServerProtocol = "tcp";
+	String regServerProtocol = "tls";
 	boolean outbound = true;
 	String outboundServerName = null;
 	int outboundServerPort = 5060;
