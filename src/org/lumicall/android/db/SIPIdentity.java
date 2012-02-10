@@ -95,12 +95,12 @@ public class SIPIdentity {
 	boolean reg = true;
 	float q = (float) 1.0;
 	String regServerName = null;
-	int regServerPort = 5060;
+	int regServerPort = 5061;
 	String regServerProtocol = "tls";
 	boolean outbound = true;
 	String outboundServerName = null;
-	int outboundServerPort = 5060;
-	String outboundServerProtocol = "tcp";
+	int outboundServerPort = 5061;
+	String outboundServerProtocol = "tls";
 	boolean carrierRoute = true;
 	String carrierIntlPrefix = null;
 	String stunServerName = null;
