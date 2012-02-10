@@ -124,7 +124,7 @@ public class SIPIdentitySettings extends PreferenceActivity {
         setListPreference("sip_identity_stun_server_protocol", sipIdentity.getStunServerProtocol()); */
 	}
 	
-	private boolean setBeanValue(Method m, Preference p, Object newValue) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	private boolean setBeanValue(Method m, Preference p, Object newValue) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
 		int hash1 = sipIdentity.hashCode();
 		if(m.getParameterTypes()[0].equals(String.class)) {
 			m.invoke(sipIdentity, newValue);
@@ -132,6 +132,9 @@ public class SIPIdentitySettings extends PreferenceActivity {
 			m.invoke(sipIdentity, new Float(new BigDecimal((String)newValue).floatValue()));
 		} else if(m.getParameterTypes()[0].equals(Boolean.TYPE)) {
 			m.invoke(sipIdentity, newValue);
+		} else if(m.getParameterTypes()[0].isEnum()) {
+			Object _newValue = m.getParameterTypes()[0].getMethod("valueOf", String.class).invoke(null, newValue);
+			m.invoke(sipIdentity, _newValue);
 		} else {
 			Log.e(getClass().getName(), "unhandled type: " + m.getParameterTypes()[0].getName());
 		}
