@@ -22,6 +22,7 @@
 package org.sipdroid.sipua;
 
 import org.lumicall.android.R;
+import org.lumicall.android.db.SecurityMode;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.SipProvider;
@@ -186,6 +187,7 @@ public class UserAgentProfile extends Configure {
 	public String reg_server_protocol;
 	
 	public long sipIdentityId = -1;
+	public SecurityMode security_mode;
 
 	// ************************** Costructors *************************
 
