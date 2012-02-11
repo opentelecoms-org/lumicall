@@ -65,6 +65,8 @@ public class SdpTools {
 				// System.out.print("DEBUG: SDP: sdp_origin:
 				// "+prev_md.toString());
 				if (prev_md != null) {
+					if(!spec_md.getMedia().getTransport().equals(prev_md.getMedia().getTransport()))
+						throw new RuntimeException("Transport mismatch on media: " + spec_md.getMedia().getMedia());
 					Vector<AttributeField> spec_attributes = spec_md
 							.getAttributes();
 					Vector<AttributeField> prev_attributes = prev_md
@@ -96,6 +98,31 @@ public class SdpTools {
 									break;
 								}
 							}
+						}
+						
+						// For SRTP, select the best matching crypto attribute
+						if(spec_md.getMedia().getTransport().equals("RTP/SAVP")) {
+							Vector<AttributeField> spec_crypto = spec_md.getAttributes("crypto");
+							if(spec_crypto.size() == 0)
+								throw new RuntimeException("Peer requests RTP/SAVP but presents no crypto attributes for media: " + spec_md.getMedia().getMedia());
+							CryptoField _spec_cf = null;
+							CryptoField _prev_cf = null;
+							for(AttributeField af : spec_crypto) {
+								CryptoField spec_cf = new CryptoField(af);
+								for(AttributeField prev_af : prev_md.getAttributes("crypto")) {
+									CryptoField prev_cf = new CryptoField(prev_af);
+									if(_spec_cf == null && prev_cf.getSuite().equals(spec_cf.getSuite())) {
+										_spec_cf = spec_cf;
+										_prev_cf = prev_cf;
+									}
+								}
+							}
+							if(_spec_cf == null) {
+								throw new RuntimeException("No matching crypto attributes found");
+							}
+							// Notice we use the peer's value of Seq, but the locally generated key:
+							CryptoField new_cf = new CryptoField(_spec_cf.getSeq(), _spec_cf.getSuite(), _prev_cf.getKey());
+							new_attributes.add(new_cf);
 						}
 						
 						// Copy the ICE candidates as-is

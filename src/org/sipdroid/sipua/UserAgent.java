@@ -50,6 +50,7 @@ import org.ice4j.ice.harvest.TurnCandidateHarvester;
 import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
 import org.lumicall.android.R;
+import org.lumicall.android.db.SecurityMode;
 import org.opentelecoms.dns.SRVRecordHelper;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
@@ -325,7 +326,17 @@ public class UserAgent extends CallListenerAdapter {
 		if(iceAgent != null)
 			addICECandidates(afvec, port, media);
 		
-		sdp.addMedia(new MediaField(media, port, 0, "RTP/AVP", avpvec), afvec);		
+		String mediaProfile = "RTP/AVP";
+		if(user_profile.security_mode == SecurityMode.SRTP) {
+			mediaProfile = "RTP/SAVP";
+			int secItem = 1;
+			String secSuite = "AES_CM_128_HMAC_SHA1_80";
+			String secKey = "FIXME";
+			afvec.add(new AttributeField("crypto",
+					String.format("%d %s inline:%s", secItem, secSuite, secKey)));
+		}
+		
+		sdp.addMedia(new MediaField(media, port, 0, mediaProfile, avpvec), afvec);		
 		local_session = sdp.toString();
 	}
 	
@@ -1609,6 +1620,9 @@ public class UserAgent extends CallListenerAdapter {
 		if (Sipdroid.release) return;
 		if (log != null)
 			log.printException(e, level + SipStack.LOG_LEVEL_UA);
+		else
+			e.printStackTrace();
+			
 	}
 
 }

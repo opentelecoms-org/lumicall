@@ -139,6 +139,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 			user_profile.outbound_server_protocol = "tls";
 		}
 		
+		user_profile.security_mode = sipIdentity.getSecurityMode();
+		
 		return user_profile;
 	}
 	
