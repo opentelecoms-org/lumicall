@@ -59,8 +59,8 @@ public class Codecs {
 			add(new GSM());
 //			add(new Speex());
 //			add(new BV16());
-//			add(new alaw());   // These should be enabled for compatibility reasons,
-//			add(new ulaw());   // but they are currently disabled to reduce load on the TURN relay
+			add(new alaw());   // These should be enabled for compatibility reasons,
+			add(new ulaw());   // but they are currently disabled to reduce load on the TURN relay
 //			add(new G722());   // enable this once we have a way to prevent it being used with our TURN relay
 		}};
 	private static final HashMap<Integer, Codec> codecsNumbers;
