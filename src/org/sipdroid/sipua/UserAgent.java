@@ -141,6 +141,7 @@ public class UserAgent extends CallListenerAdapter {
 	public static final int UA_STATE_HOLD = 4;
 
 	private static final String SUPPORTED_CRYPTO_SUITE = "AES_CM_128_HMAC_SHA1_80";
+	private static final int SUPPORTED_CRYPTO_SUITE_TAG_SIZE = 10;
 
 	int call_state = UA_STATE_IDLE;
 	String remote_media_address;
@@ -801,6 +802,7 @@ public class UserAgent extends CallListenerAdapter {
 			if(!srtp.testReplayCheckVector())
 				throw new RuntimeException("SRTP.testReplayCheckVector() failed, platform not compatible");
 			srtp.setKDR(48);
+			srtp.setAuthTagSize(SUPPORTED_CRYPTO_SUITE_TAG_SIZE);  // FIXME
 			srtp.setFirstRtpSeqNum(RtpStreamSender.FIRST_SEQ_NUM);  // From RTP Sender
 			srtp.setTxMasterKey(txAudioKey.getMaster());
 			srtp.setTxMasterSalt(txAudioKey.getSalt());
