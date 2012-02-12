@@ -44,6 +44,11 @@ public class RtpPacket {
 	public int getLength() {
 		return packet_len;
 	}
+	
+	public void setLength(int length) {
+		this.packet_len = length;
+		
+	}
 
 	/** Gets the RTP header length */
 	public int getHeaderLength() {
@@ -184,9 +189,9 @@ public class RtpPacket {
 	}
 
 	/** Gets the SSCR */
-	public long getSscr() {
+	public int getSscr() {
 		if (packet_len >= 12)
-			return getLong(packet, 8, 12);
+			return getInt(packet, 8, 12);
 		else
 			return 0; // broken packet
 	}
