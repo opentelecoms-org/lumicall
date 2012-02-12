@@ -38,6 +38,8 @@ import org.sipdroid.sipua.ui.Sipdroid;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.codecs.G711;
 
+import zorg.SRTP;
+
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -56,6 +58,8 @@ public class RtpStreamSender extends Thread {
 	
 	private static final Logger logger =
 	        Logger.getLogger(RtpStreamSender.class.getName());
+
+	public static final int FIRST_SEQ_NUM = 1;
 	
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
@@ -115,6 +119,8 @@ public class RtpStreamSender extends Thread {
 	
 	CallRecorder call_recorder = null;
 	
+	SRTP srtp;
+	
 	/**
 	 * Constructs a RtpStreamSender.
 	 * 
@@ -138,14 +144,16 @@ public class RtpStreamSender extends Thread {
 	 *            the destination address
 	 * @param dest_port
 	 *            the destination port
+	 * @param srtp 
 	 */
 	public RtpStreamSender(boolean do_sync, Codecs.Map payload_type,
 			       long frame_rate, int frame_size,
 			       DatagramSocket src_socket, String dest_addr,
-			       int dest_port, CallRecorder rec) {
+			       int dest_port, CallRecorder rec, SRTP srtp) {
 		init(do_sync, payload_type, frame_rate, frame_size,
 				src_socket, dest_addr, dest_port);
 		call_recorder = rec;
+		this.srtp = srtp;
 	}
 
 	/** Inits the RtpStreamSender */
@@ -271,6 +279,14 @@ public class RtpStreamSender extends Thread {
 		}
 	}
 	
+	protected void sendPacket(RtpPacket p) throws IOException {
+		if(srtp != null) {
+			if(srtp.protect(p) == null)
+				throw new RuntimeException("something went wrong in SRTP.protect()");
+		}
+		rtp_socket.send(p);
+	}
+	
 	public static int m;
 	int mu;
 	
@@ -283,7 +299,7 @@ public class RtpStreamSender extends Thread {
 			logger.warning("rtp_socket == null, RtpStreamSender.run aborting");
 			return;
 		}
-		int seqn = 0;
+		int seqn = FIRST_SEQ_NUM;
 		long time = 0;
 		double p = 0;
 		// boolean improve = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_IMPROVE, Settings.DEFAULT_IMPROVE);
@@ -319,7 +335,7 @@ public class RtpStreamSender extends Thread {
 		frame_rate = p_type.codec.samp_rate()/frame_size;
 		long frame_period = 1000 / frame_rate;
 		frame_rate *= 1.5;
-		byte[] buffer = new byte[frame_size + 12];
+		byte[] buffer = new byte[2 * (frame_size + 12 + 4)];  // FIXME - good size for ZRTP packets?
 		RtpPacket rtp_packet = new RtpPacket(buffer, 0);
 		rtp_packet.setPayloadType(p_type.number);
 		if (DEBUG)
@@ -398,7 +414,7 @@ public class RtpStreamSender extends Thread {
 	 				 dtmfbuf[14] = (byte)(duration >> 8);
 	 				 dtmfbuf[15] = (byte)duration;
 	 				 try {
-						rtp_socket.send(dt_packet);
+						sendPacket(dt_packet);
 						sleep(20);
 	 				 } catch (Exception e1) {
 	 				 }
@@ -412,7 +428,7 @@ public class RtpStreamSender extends Thread {
 	 				 dtmfbuf[14] = (byte)(duration >> 8);
 	 				 dtmfbuf[15] = (byte)duration;
 	 				 try {
-						rtp_socket.send(dt_packet);
+						sendPacket(dt_packet);
 	 				 } catch (Exception e1) {
 	 				 }	 			 
 	 			 }
@@ -497,9 +513,9 @@ public class RtpStreamSender extends Thread {
  			 if(true)
 	 			 try {
 	 				 lastsent = now;
-	 				 rtp_socket.send(rtp_packet);
+	 				 sendPacket(rtp_packet);
 	 				 if (m == 2 && RtpStreamReceiver.timeout == 0)
-	 					 rtp_socket.send(rtp_packet);
+	 					 rtp_socket.send(rtp_packet);  // can't use sendPacket here, or double encryption
 	 			 } catch (Exception e) {
 	 				 logger.warning("Exception from rtp_socket.send(): " + e.getClass().getCanonicalName() +
 	 						 ": " + e.getMessage());
