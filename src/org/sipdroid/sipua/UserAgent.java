@@ -57,6 +57,7 @@ import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.JAudioLauncher;
 import org.sipdroid.media.MediaLauncher;
 import org.sipdroid.media.RtpStreamReceiver;
+import org.sipdroid.media.RtpStreamSender;
 import org.sipdroid.net.ICESocketAllocator;
 import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.net.SipdroidSocketAllocator;
@@ -67,9 +68,11 @@ import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.net.IpAddress;
 import org.zoolu.sdp.AttributeField;
 import org.zoolu.sdp.ConnectionField;
+import org.zoolu.sdp.CryptoField;
 import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;
 import org.zoolu.sdp.OriginField;
+import org.zoolu.sdp.SRTPKeySpec;
 import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.sdp.TimeField;
 import org.zoolu.sip.address.NameAddress;
@@ -84,6 +87,8 @@ import org.zoolu.sip.provider.SipStack;
 import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 import org.zoolu.tools.Parser;
+
+import zorg.SRTP;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -134,6 +139,8 @@ public class UserAgent extends CallListenerAdapter {
 	public static final int UA_STATE_OUTGOING_CALL = 2;
 	public static final int UA_STATE_INCALL = 3;
 	public static final int UA_STATE_HOLD = 4;
+
+	private static final String SUPPORTED_CRYPTO_SUITE = "AES_CM_128_HMAC_SHA1_80";
 
 	int call_state = UA_STATE_IDLE;
 	String remote_media_address;
@@ -330,8 +337,8 @@ public class UserAgent extends CallListenerAdapter {
 		if(user_profile.security_mode == SecurityMode.SRTP) {
 			mediaProfile = "RTP/SAVP";
 			int secItem = 1;
-			String secSuite = "AES_CM_128_HMAC_SHA1_80";
-			String secKey = "FIXME";
+			String secSuite = SUPPORTED_CRYPTO_SUITE;
+			String secKey = SRTPKeySpec.generate().toString();
 			afvec.add(new AttributeField("crypto",
 					String.format("%d %s inline:%s", secItem, secSuite, secKey)));
 		}
@@ -745,13 +752,63 @@ public class UserAgent extends CallListenerAdapter {
 				.toString())).skipString().skipString().getString();
 		int remote_audio_port = 0;
 		remote_video_port = 0;
+		
+		// FIXME - we should avoid making excessive copies of the keys in RAM
+		Map<String, SRTPKeySpec> remoteKeys = new HashMap<String, SRTPKeySpec>();
+		boolean mustEncrypt = false;
 		for (Enumeration<MediaDescriptor> e = remote_sdp.getMediaDescriptors()
 				.elements(); e.hasMoreElements();) {
-			MediaField media = e.nextElement().getMedia();
+			MediaDescriptor md = e.nextElement();
+			MediaField media = md.getMedia();
 			if (media.getMedia().equals("audio"))
 				remote_audio_port = media.getPort();
 			if (media.getMedia().equals("video"))
 				remote_video_port = media.getPort();
+			if(media.getTransport().equals("RTP/SAVP")) {
+				mustEncrypt = true;
+				CryptoField cf = new CryptoField(md.getAttribute("crypto"));
+				if(cf.getSuite().equals(SUPPORTED_CRYPTO_SUITE)) {
+					SRTPKeySpec keySpec = new SRTPKeySpec(cf.getKey());
+					remoteKeys.put(media.getMedia(), keySpec);
+				}
+			}
+		}
+		
+		Map<String, SRTPKeySpec> localKeys = new HashMap<String, SRTPKeySpec>();
+		for(MediaDescriptor md : local_sdp.getMediaDescriptors()) {
+			MediaField media = md.getMedia();
+			if(media.getTransport().equals("RTP/SAVP")) {
+				mustEncrypt = true;
+				CryptoField cf = new CryptoField(md.getAttribute("crypto"));
+				if(cf.getSuite().equals(SUPPORTED_CRYPTO_SUITE)) {
+					SRTPKeySpec keySpec = new SRTPKeySpec(cf.getKey());
+					localKeys.put(media.getMedia(), keySpec);
+				}
+			}
+		}
+		
+		SRTP srtp = null;
+		if(mustEncrypt == true) {
+			SRTPKeySpec txAudioKey = localKeys.get("audio");
+			printLog("Using TX key: " + txAudioKey);
+			SRTPKeySpec rxAudioKey = remoteKeys.get("audio");
+			printLog("Using RX key: " + rxAudioKey);
+			if(txAudioKey == null || rxAudioKey == null)
+				throw new RuntimeException("RTP/SAVP detected in SDP, but insufficient crypto keys");
+			srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
+			if(!srtp.testEncryption())
+				throw new RuntimeException("SRTP.testEncryption() failed, platform not compatible");
+			if(!srtp.testReplayCheckVector())
+				throw new RuntimeException("SRTP.testReplayCheckVector() failed, platform not compatible");
+			srtp.setKDR(48);
+			srtp.setFirstRtpSeqNum(RtpStreamSender.FIRST_SEQ_NUM);  // From RTP Sender
+			srtp.setTxMasterKey(txAudioKey.getMaster());
+			srtp.setTxMasterSalt(txAudioKey.getSalt());
+			srtp.setRxMasterKey(rxAudioKey.getMaster());
+			srtp.setRxMasterSalt(rxAudioKey.getSalt());
+			if(srtp.startNewSession() != SRTP.SESSION_OK) {
+				throw new RuntimeException("Failed to start SRTP session");
+			}
 		}
 		
 		DatagramSocket socket = null;
@@ -810,7 +867,7 @@ public class UserAgent extends CallListenerAdapter {
 						remote_media_address, remote_audio_port, dir, audio_in,
 						audio_out, c.codec.samp_rate(),
 						user_profile.audio_sample_size,
-						c.codec.frame_size(), log, c, dtmf_pt);
+						c.codec.frame_size(), log, c, dtmf_pt, srtp);
 			}
 			audio_app.startMedia();
 		}

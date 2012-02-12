@@ -29,6 +29,8 @@ import org.zoolu.sip.provider.SipStack;
 import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 
+import zorg.SRTP;
+
 import android.preference.PreferenceManager;
 
 /** Audio launcher based on javax.sound  */
@@ -67,6 +69,8 @@ public class JAudioLauncher implements MediaLauncher
    RtpStreamSender sender=null;
    RtpStreamReceiver receiver=null;
    
+   SRTP srtp = null;
+   
    //change DTMF
    boolean useDTMF = false;  // zero means not use outband DTMF
    
@@ -77,11 +81,13 @@ public class JAudioLauncher implements MediaLauncher
       receiver=rtp_receiver;
    }
 
-   /** Costructs the audio launcher */
-   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt)
+   /** Costructs the audio launcher 
+ * @param srtp */
+   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt, SRTP srtp)
    {  log=logger;
       frame_rate=sample_rate/frame_size;
       useDTMF = (dtmf_pt != 0);
+      this.srtp = srtp;
       try
       {
     	 CallRecorder call_recorder = null;
@@ -93,7 +99,7 @@ public class JAudioLauncher implements MediaLauncher
          if (dir>=0)
          {  printLog("new audio sender to "+remote_addr+":"+remote_port,LogLevel.MEDIUM);
             //audio_input=new AudioInput();
-            sender=new RtpStreamSender(true,payload_type,frame_rate,frame_size,socket,remote_addr,remote_port,call_recorder);
+            sender=new RtpStreamSender(true,payload_type,frame_rate,frame_size,socket,remote_addr,remote_port,call_recorder,srtp);
             sender.setSyncAdj(2);
             sender.setDTMFpayloadType(dtmf_pt);
          }
@@ -101,7 +107,7 @@ public class JAudioLauncher implements MediaLauncher
          // receiver
          if (dir<=0)
          {  printLog("new audio receiver on "+local_port,LogLevel.MEDIUM);
-            receiver=new RtpStreamReceiver(socket,payload_type,call_recorder);
+            receiver=new RtpStreamReceiver(socket,payload_type,call_recorder,srtp);
          }
       }
       catch (Exception e) {  printException(e,LogLevel.HIGH);  }

@@ -36,6 +36,8 @@ import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.sipdroid.codecs.Codecs;
 
+import zorg.SRTP;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -88,6 +90,8 @@ public class RtpStreamReceiver extends Thread {
 	public static boolean bluetoothmode;
 	CallRecorder call_recorder = null;
 	
+	SRTP srtp;
+	
 	/**
 	 * Constructs a RtpStreamReceiver.
 	 * 
@@ -95,8 +99,10 @@ public class RtpStreamReceiver extends Thread {
 	 *            the stream sink
 	 * @param socket
 	 *            the local receiver UDP datagram socket
+	 * @param srtp 
 	 */
-	public RtpStreamReceiver(DatagramSocket socket, Codecs.Map payload_type, CallRecorder rec) {
+	public RtpStreamReceiver(DatagramSocket socket, Codecs.Map payload_type, CallRecorder rec, SRTP srtp) {
+		this.srtp = srtp;
 		init(socket);
 		p_type = payload_type;
 		call_recorder = rec;
@@ -555,7 +561,7 @@ public class RtpStreamReceiver extends Thread {
 			return;
 		}
 
-		byte[] buffer = new byte[BUFFER_SIZE+12];
+		byte[] buffer = new byte[2 * (BUFFER_SIZE +12 + 4)];  // FIXME - Good size for ZRTP?
 		rtp_packet = new RtpPacket(buffer, 0);
 
 		logger.info("Reading blocks of max " + buffer.length + " bytes");
@@ -605,6 +611,9 @@ public class RtpStreamReceiver extends Thread {
 			}
 			try {
 				rtp_socket.receive(rtp_packet);
+				if(srtp != null)
+					if(srtp.unprotect(rtp_packet) != 0)
+						throw new RuntimeException("Failed to decrypt packet");
 				if (timeout != 0) {
 					tg.stopTone();
 					track.pause();
@@ -615,7 +624,8 @@ public class RtpStreamReceiver extends Thread {
 					empty();
 				}
 				timeout = 0;
-			} catch (IOException e) {
+			} catch (Exception e) {
+				e.printStackTrace();
 				logger.warning("Exception in receive/play block: " + e.getClass().getCanonicalName() + ", " + e.getMessage());
 				if (timeout == 0 && nodata) {
 					tg.startTone(ToneGenerator.TONE_SUP_RINGTONE);
