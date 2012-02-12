@@ -25,6 +25,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.DatagramPacket;
 import java.net.SocketTimeoutException;
+import java.util.logging.Logger;
 import java.io.IOException;
 
 
@@ -36,6 +37,9 @@ import java.io.IOException;
  * receive RtpPackets.
  */
 public class RtpSocket {
+	
+	Logger logger = Logger.getLogger(getClass().getName());
+	
 	/** UDP socket */
 	DatagramSocket socket;
 	DatagramPacket datagram;
@@ -75,16 +79,18 @@ public class RtpSocket {
 		socket.receive(datagram);
 		//if (!socket.isConnected())
 		//	socket.connect(datagram.getAddress(),datagram.getPort());
-		rtpp.packet_len = datagram.getLength();
+		rtpp.setLength(datagram.getLength());
+		//logger.info("====<<<< rx bytes = " + rtpp.packet_len);
 	}
 
 	/** Sends a RTP packet from this socket */
 	public void send(RtpPacket rtpp) throws IOException {
 		datagram.setData(rtpp.packet);
-		datagram.setLength(rtpp.packet_len);
+		datagram.setLength(rtpp.getLength());
 		datagram.setAddress(r_addr);
 		datagram.setPort(r_port);
 		socket.send(datagram);
+		//logger.info("====>>>> tx bytes = " + rtpp.packet_len);
 	}
 
 	/** Closes this socket */
