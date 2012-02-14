@@ -23,12 +23,14 @@ package org.sipdroid.media;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import org.opentelecoms.util.CRC32C;
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
 import org.sipdroid.sipua.UserAgent;
@@ -39,6 +41,7 @@ import org.sipdroid.codecs.Codecs;
 import org.sipdroid.codecs.G711;
 
 import zorg.SRTP;
+import zorg.ZRTP;
 
 import android.content.Context;
 import android.media.AudioFormat;
@@ -60,12 +63,17 @@ public class RtpStreamSender extends Thread {
 	        Logger.getLogger(RtpStreamSender.class.getName());
 
 	public static final int FIRST_SEQ_NUM = 1;
+
+	private static final int BUF_SIZE = 4096;
 	
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
 
 	/** The RtpSocket */
 	RtpSocket rtp_socket = null;
+	
+	byte[] buffer;
+	RtpPacket rtp_packet;
 
 	/** Payload type */
 	Codecs.Map p_type;
@@ -120,6 +128,7 @@ public class RtpStreamSender extends Thread {
 	CallRecorder call_recorder = null;
 	
 	SRTP srtp;
+	ZRTP zrtp;
 	
 	/**
 	 * Constructs a RtpStreamSender.
@@ -145,15 +154,19 @@ public class RtpStreamSender extends Thread {
 	 * @param dest_port
 	 *            the destination port
 	 * @param srtp 
+	 * @param zrtp 
 	 */
 	public RtpStreamSender(boolean do_sync, Codecs.Map payload_type,
 			       long frame_rate, int frame_size,
 			       DatagramSocket src_socket, String dest_addr,
-			       int dest_port, CallRecorder rec, SRTP srtp) {
+			       int dest_port, CallRecorder rec, SRTP srtp, ZRTP zrtp) {
 		init(do_sync, payload_type, frame_rate, frame_size,
 				src_socket, dest_addr, dest_port);
 		call_recorder = rec;
 		this.srtp = srtp;
+		this.zrtp = zrtp;
+		if(zrtp != null)
+			zrtp.setRtpStack(new ZRTPHelper());
 	}
 
 	/** Inits the RtpStreamSender */
@@ -163,6 +176,8 @@ public class RtpStreamSender extends Thread {
 			  int dest_port) {
 		this.p_type = payload_type;
 		this.frame_rate = (int)frame_rate;
+		buffer = new byte[BUF_SIZE];
+		rtp_packet = new RtpPacket(buffer, buffer.length);
 		//boolean isPBXes = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getString(Settings.PREF_SERVER, "").equals(Settings.DEFAULT_SERVER);
 		boolean isPBXes = false;
 		if (isPBXes)
@@ -290,8 +305,14 @@ public class RtpStreamSender extends Thread {
 	public static int m;
 	int mu;
 	
+	int seqn = FIRST_SEQ_NUM;
+	
 	/** Runs it in a new Thread. */
 	public void run() {
+		
+		if(zrtp != null)
+			zrtp.startSession();
+		
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
 		long lastscan = 0,lastsent = 0;
 
@@ -299,7 +320,7 @@ public class RtpStreamSender extends Thread {
 			logger.warning("rtp_socket == null, RtpStreamSender.run aborting");
 			return;
 		}
-		int seqn = FIRST_SEQ_NUM;
+		
 		long time = 0;
 		double p = 0;
 		// boolean improve = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_IMPROVE, Settings.DEFAULT_IMPROVE);
@@ -335,8 +356,7 @@ public class RtpStreamSender extends Thread {
 		frame_rate = p_type.codec.samp_rate()/frame_size;
 		long frame_period = 1000 / frame_rate;
 		frame_rate *= 1.5;
-		byte[] buffer = new byte[2 * (frame_size + 12 + 4)];  // FIXME - good size for ZRTP packets?
-		RtpPacket rtp_packet = new RtpPacket(buffer, 0);
+		//byte[] buffer = new byte[2 * (frame_size + 12 + 4)];  // FIXME - good size for ZRTP packets?
 		rtp_packet.setPayloadType(p_type.number);
 		if (DEBUG)
 			println("Reading blocks of " + buffer.length + " bytes");
@@ -584,4 +604,71 @@ public class RtpStreamSender extends Thread {
 		dtmf = dtmf+c; // will be set to 0 after sending tones
 	}
 	//DTMF change
+	
+	protected int getSscr() {
+		return rtp_packet.getSscr();
+	}
+	
+	public class ZRTPHelper implements zorg.platform.RtpStack {
+		
+		// We could be invoked from a different thread to the main sender,
+		// so keep our own packet buffer
+		RtpPacket zrtp_packet;
+		int seqNo;
+		
+		public ZRTPHelper() {
+			byte[] buf = new byte[BUF_SIZE];
+			zrtp_packet = new RtpPacket(buf, buf.length);
+			zrtp_packet.setTimestamp(ZRTP.ZRTP_MAGIC_COOKIE);
+			zrtp_packet.setSscr(getSscr());
+		}
+
+		@Override
+		public void sendZrtpPacket(byte[] data) {
+			try {
+				zrtp_packet.setPayload(data, data.length);
+				if(seqNo > 0xffff)
+					seqNo = 0;
+				zrtp_packet.setSequenceNumber(seqNo++);
+				appendCrc(zrtp_packet);
+				rtp_socket.send(zrtp_packet);
+			} catch (IOException e) {
+				e.printStackTrace();
+				logger.warning("Error sending ZRTP packet to wire: " + e.getMessage());
+			}
+		}
+		
+		// The ZRTP spec requires us to calculate a CRC32C checksum across
+		// the whole packet (include RTP header section) and append it to
+		// the end of the packet
+		protected void appendCrc(RtpPacket packet) {
+			int originalLength = packet.getLength();
+			byte[] _packet = packet.getPacket();
+			CRC32C delegate = new CRC32C();
+	        delegate.update(_packet, originalLength);
+	        byte[] crc32c = delegate.getCRC32Bytes(); 
+	        packet.setLength(originalLength + 4);
+	        for(int i = 0; i < 4; i++) {
+        		_packet[originalLength + i] = crc32c[i];
+	        }
+		}
+
+		@Override
+		public void setNextZrtpSequenceNumber(int startSeqNum) {
+			seqNo = startSeqNum;
+
+		}
+
+		@Override
+		public void setMasqueradingDual() {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void setMasqueradingActive() {
+			// TODO Auto-generated method stub
+
+		}
+	}
 }

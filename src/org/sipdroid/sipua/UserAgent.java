@@ -89,6 +89,7 @@ import org.zoolu.tools.LogLevel;
 import org.zoolu.tools.Parser;
 
 import zorg.SRTP;
+import zorg.ZRTP;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -789,6 +790,7 @@ public class UserAgent extends CallListenerAdapter {
 		}
 		
 		SRTP srtp = null;
+		ZRTP zrtp = null;
 		if(mustEncrypt == true) {
 			SRTPKeySpec txAudioKey = localKeys.get("audio");
 			printLog("Using TX key: " + txAudioKey);
@@ -811,6 +813,10 @@ public class UserAgent extends CallListenerAdapter {
 			if(srtp.startNewSession() != SRTP.SESSION_OK) {
 				throw new RuntimeException("Failed to start SRTP session");
 			}
+		} else if (user_profile.security_mode.equals(SecurityMode.ZRTP)) {
+			// User wants to try ZRTP
+			zrtp = new ZRTP(new zorg.platform.j2se.PlatformImpl());
+			zrtp.setPhoneNumber("+999999999");  // FIXME ZRTP - E.164 number not in use
 		}
 		
 		DatagramSocket socket = null;
@@ -869,7 +875,7 @@ public class UserAgent extends CallListenerAdapter {
 						remote_media_address, remote_audio_port, dir, audio_in,
 						audio_out, c.codec.samp_rate(),
 						user_profile.audio_sample_size,
-						c.codec.frame_size(), log, c, dtmf_pt, srtp);
+						c.codec.frame_size(), log, c, dtmf_pt, srtp, zrtp);
 			}
 			audio_app.startMedia();
 		}

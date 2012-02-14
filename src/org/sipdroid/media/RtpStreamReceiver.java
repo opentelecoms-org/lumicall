@@ -22,6 +22,7 @@
 package org.sipdroid.media;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.logging.Logger;
@@ -30,6 +31,7 @@ import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
 import org.sipdroid.net.SipdroidSocket;
 import org.lumicall.android.R;
+import org.opentelecoms.util.CRC32C;
 import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.InCallScreen;
 import org.sipdroid.sipua.ui.Receiver;
@@ -37,6 +39,7 @@ import org.sipdroid.sipua.ui.Sipdroid;
 import org.sipdroid.codecs.Codecs;
 
 import zorg.SRTP;
+import zorg.ZRTP;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -71,7 +74,7 @@ public class RtpStreamReceiver extends Thread {
 	static String codec = "";
 
 	/** Size of the read buffer */
-	public static final int BUFFER_SIZE = 1024;
+	public static final int BUFFER_SIZE = 4096;
 
 	/** Maximum blocking time, spent waiting for reading new bytes [milliseconds] */
 	public static final int SO_TIMEOUT = 1000;
@@ -91,6 +94,7 @@ public class RtpStreamReceiver extends Thread {
 	CallRecorder call_recorder = null;
 	
 	SRTP srtp;
+	ZRTP zrtp;
 	
 	/**
 	 * Constructs a RtpStreamReceiver.
@@ -100,9 +104,11 @@ public class RtpStreamReceiver extends Thread {
 	 * @param socket
 	 *            the local receiver UDP datagram socket
 	 * @param srtp 
+	 * @param zrtp 
 	 */
-	public RtpStreamReceiver(DatagramSocket socket, Codecs.Map payload_type, CallRecorder rec, SRTP srtp) {
+	public RtpStreamReceiver(DatagramSocket socket, Codecs.Map payload_type, CallRecorder rec, SRTP srtp, ZRTP zrtp) {
 		this.srtp = srtp;
+		this.zrtp = zrtp;
 		init(socket);
 		p_type = payload_type;
 		call_recorder = rec;
@@ -434,6 +440,34 @@ public class RtpStreamReceiver extends Thread {
 		}
 		restoreMode();
 	}
+	
+	void receive_from_socket() throws IOException {
+		rtp_socket.receive(rtp_packet);
+		if(zrtp != null) {
+			// Don't pass ZRTP packets back to the audio/media code, consume them here
+			while(rtp_packet.getTimestamp() == ZRTP.ZRTP_MAGIC_COOKIE) {
+				if(removeCRC32C(rtp_packet))
+					zrtp.handleIncomingMessage(rtp_packet.getPayload(), 0, rtp_packet.getPayloadLength());
+				else
+					logger.warning("Dropping a ZRTP packet with bad CRC32");
+				rtp_socket.receive(rtp_packet);
+			}
+		}
+	}
+	
+	public boolean removeCRC32C(RtpPacket rtp_packet) {
+		byte[] data = rtp_packet.getPacket();
+		int len = rtp_packet.getLength() - 4;
+		rtp_packet.setLength(len);
+		CRC32C delegate = new CRC32C();
+		delegate.update(data, len);
+		byte[] calcCRC32C = delegate.getCRC32Bytes();
+		for (int i = 0; i < 4; i++) {
+			if(data[len + i] != calcCRC32C[i])
+				return false;
+		}
+		return true;
+	}
 
 	public static float good, late, lost, loss, loss2;
 	double avgheadroom;
@@ -447,7 +481,7 @@ public class RtpStreamReceiver extends Thread {
 				logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT_SHORT);
 				rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT_SHORT);
 				for (;;)
-					rtp_socket.receive(rtp_packet);
+					receive_from_socket();
 			} catch (SocketException e2) {
 				if (!Sipdroid.release)
 					e2.printStackTrace();
@@ -610,7 +644,7 @@ public class RtpStreamReceiver extends Thread {
 				luser = luser2 = -8000*mu;
 			}
 			try {
-				rtp_socket.receive(rtp_packet);
+				receive_from_socket();
 				if(srtp != null)
 					if(srtp.unprotect(rtp_packet) != 0)
 						throw new RuntimeException("Failed to decrypt packet");
