@@ -30,6 +30,7 @@ import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 
 import zorg.SRTP;
+import zorg.ZRTP;
 
 import android.preference.PreferenceManager;
 
@@ -70,6 +71,7 @@ public class JAudioLauncher implements MediaLauncher
    RtpStreamReceiver receiver=null;
    
    SRTP srtp = null;
+   ZRTP zrtp = null;
    
    //change DTMF
    boolean useDTMF = false;  // zero means not use outband DTMF
@@ -82,12 +84,14 @@ public class JAudioLauncher implements MediaLauncher
    }
 
    /** Costructs the audio launcher 
- * @param srtp */
-   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt, SRTP srtp)
+ * @param srtp 
+ * @param zrtp */
+   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt, SRTP srtp, ZRTP zrtp)
    {  log=logger;
       frame_rate=sample_rate/frame_size;
       useDTMF = (dtmf_pt != 0);
       this.srtp = srtp;
+      this.zrtp = zrtp;
       try
       {
     	 CallRecorder call_recorder = null;
@@ -99,7 +103,7 @@ public class JAudioLauncher implements MediaLauncher
          if (dir>=0)
          {  printLog("new audio sender to "+remote_addr+":"+remote_port,LogLevel.MEDIUM);
             //audio_input=new AudioInput();
-            sender=new RtpStreamSender(true,payload_type,frame_rate,frame_size,socket,remote_addr,remote_port,call_recorder,srtp);
+            sender=new RtpStreamSender(true,payload_type,frame_rate,frame_size,socket,remote_addr,remote_port,call_recorder,srtp, zrtp);
             sender.setSyncAdj(2);
             sender.setDTMFpayloadType(dtmf_pt);
          }
@@ -107,8 +111,10 @@ public class JAudioLauncher implements MediaLauncher
          // receiver
          if (dir<=0)
          {  printLog("new audio receiver on "+local_port,LogLevel.MEDIUM);
-            receiver=new RtpStreamReceiver(socket,payload_type,call_recorder,srtp);
+            receiver=new RtpStreamReceiver(socket,payload_type,call_recorder,srtp, zrtp);
          }
+         if(zrtp != null)
+        	 zrtp.setProtocolManager(new ZRTPListener());
       }
       catch (Exception e) {  printException(e,LogLevel.HIGH);  }
    }
@@ -194,6 +200,33 @@ public class JAudioLauncher implements MediaLauncher
 	  if (Sipdroid.release) return;
 	  if (log!=null) log.printException(e,level+SipStack.LOG_LEVEL_UA);
       if (level<=LogLevel.HIGH) e.printStackTrace();
+   }
+   
+   public class ZRTPListener implements zorg.platform.ZrtpListener {
+
+	   @Override
+	   public void sessionNegotiationCompleted(boolean success, String msg) {
+		   if(log != null) {
+			   log.print("*********** Got callback from ZRTP: " + success + ", " + msg);
+			   log.print("*********** Got SaS from ZRTP: " + zrtp.getSasString());
+		   }
+	   }
+
+	   @Override
+	   public void securityWarning(int securityWarningType, String warning) {
+		   if(log != null)
+			   log.print("*********** Got warning from ZRTP: " + securityWarningType + ", " + warning);
+	   }
+
+	   @Override
+	   public boolean keyExchangeCompleted(byte[] txMasterKey,
+			   byte[] txMasterSalt, byte[] rxMasterKey, byte[] rxMasterSalt,
+			   int firstSeqNum) {
+		   if(log != null)
+			   log.print("*********** Got master keys from ZRTP!!!  *******************");
+		   return true;
+	   }
+
    }
 
 }
