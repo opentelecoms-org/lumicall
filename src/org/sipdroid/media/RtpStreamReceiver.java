@@ -82,6 +82,8 @@ public class RtpStreamReceiver extends Thread {
 	/** Max time to block when emptying the receive queue **/
 	private static final int SO_TIMEOUT_SHORT = 3;
 
+	private static final boolean ACCEPT_BAD_ZRTP_CRC32C = true;
+
 	/** The RtpSocket */
 	RtpSocket rtp_socket = null;
 
@@ -93,8 +95,8 @@ public class RtpStreamReceiver extends Thread {
 	public static boolean bluetoothmode;
 	CallRecorder call_recorder = null;
 	
-	SRTP srtp;
-	ZRTP zrtp;
+	volatile SRTP srtp;
+	volatile ZRTP zrtp;
 	
 	/**
 	 * Constructs a RtpStreamReceiver.
@@ -445,12 +447,17 @@ public class RtpStreamReceiver extends Thread {
 		rtp_socket.receive(rtp_packet);
 		if(zrtp != null) {
 			// Don't pass ZRTP packets back to the audio/media code, consume them here
-			while(rtp_packet.getTimestamp() == ZRTP.ZRTP_MAGIC_COOKIE) {
-				if(removeCRC32C(rtp_packet))
+			while(zrtp != null && rtp_packet.getTimestamp() == ZRTP.ZRTP_MAGIC_COOKIE) {
+				logger.info("Handling a ZRTP packet...");
+				if(removeCRC32C(rtp_packet) || ACCEPT_BAD_ZRTP_CRC32C)
 					zrtp.handleIncomingMessage(rtp_packet.getPayload(), 0, rtp_packet.getPayloadLength());
 				else
 					logger.warning("Dropping a ZRTP packet with bad CRC32");
 				rtp_socket.receive(rtp_packet);
+			}
+		} else {
+			if(rtp_packet.getTimestamp() == ZRTP.ZRTP_MAGIC_COOKIE) {
+				logger.info("Received a ZRTP packet, but not listening for ZRTP");
 			}
 		}
 	}
@@ -595,7 +602,7 @@ public class RtpStreamReceiver extends Thread {
 			return;
 		}
 
-		byte[] buffer = new byte[2 * (BUFFER_SIZE +12 + 4)];  // FIXME - Good size for ZRTP?
+		byte[] buffer = new byte[BUFFER_SIZE];  // FIXME - Good size for ZRTP?
 		rtp_packet = new RtpPacket(buffer, 0);
 
 		logger.info("Reading blocks of max " + buffer.length + " bytes");
@@ -645,9 +652,14 @@ public class RtpStreamReceiver extends Thread {
 			}
 			try {
 				receive_from_socket();
-				if(srtp != null)
+				if(srtp != null) {
 					if(srtp.unprotect(rtp_packet) != 0)
 						throw new RuntimeException("Failed to decrypt packet");
+					else {
+						if(zrtp != null && !zrtp.completed())
+							zrtp.successfulSrtpUnprotect();   // Tell ZRTP that we are receiving good SRTP
+					}
+				}
 				if (timeout != 0) {
 					tg.stopTone();
 					track.pause();
@@ -821,4 +833,13 @@ public class RtpStreamReceiver extends Thread {
 	public static String getCodec() {
 		return codec;
 	}
+
+	public void setSRTP(SRTP srtp) {
+		this.srtp = srtp;
+	}
+	
+	public void setZRTP(ZRTP zrtp) {
+		this.zrtp = zrtp;
+	}
+
 }
