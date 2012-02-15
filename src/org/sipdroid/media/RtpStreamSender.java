@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -127,8 +128,9 @@ public class RtpStreamSender extends Thread {
 	
 	CallRecorder call_recorder = null;
 	
-	SRTP srtp;
-	ZRTP zrtp;
+	volatile SRTP srtp;
+	volatile ZRTP zrtp;
+	volatile ZRTPHelper zrtpHelper = null;
 	
 	/**
 	 * Constructs a RtpStreamSender.
@@ -165,8 +167,10 @@ public class RtpStreamSender extends Thread {
 		call_recorder = rec;
 		this.srtp = srtp;
 		this.zrtp = zrtp;
-		if(zrtp != null)
-			zrtp.setRtpStack(new ZRTPHelper());
+		if(zrtp != null) {
+			zrtpHelper = new ZRTPHelper();
+			zrtp.setRtpStack(zrtpHelper);
+		}
 	}
 
 	/** Inits the RtpStreamSender */
@@ -295,11 +299,20 @@ public class RtpStreamSender extends Thread {
 	}
 	
 	protected void sendPacket(RtpPacket p) throws IOException {
+		
+		boolean encrypted = false;
 		if(srtp != null) {
 			if(srtp.protect(p) == null)
 				throw new RuntimeException("something went wrong in SRTP.protect()");
+			encrypted = true;
 		}
-		rtp_socket.send(p);
+		if(zrtp != null) {
+			if(encrypted || !zrtp.isProgressing())
+				rtp_socket.send(p);
+			if(zrtpHelper != null)
+				zrtpHelper.sendPackets();
+		} else
+			rtp_socket.send(p);
 	}
 	
 	public static int m;
@@ -309,10 +322,6 @@ public class RtpStreamSender extends Thread {
 	
 	/** Runs it in a new Thread. */
 	public void run() {
-		
-		if(zrtp != null)
-			zrtp.startSession();
-		
 		WifiManager wm = (WifiManager) Receiver.mContext.getSystemService(Context.WIFI_SERVICE);
 		long lastscan = 0,lastsent = 0;
 
@@ -379,6 +388,10 @@ public class RtpStreamSender extends Thread {
 		long maximumIntervalBetweenTransmissions = frame_period;
 		
 		p_type.codec.init();
+		
+		if(zrtp != null)
+			zrtp.startSession();
+		
 		while (running) {
 			 if (changed || record == null) {
 				if (record != null) {
@@ -613,28 +626,53 @@ public class RtpStreamSender extends Thread {
 		
 		// We could be invoked from a different thread to the main sender,
 		// so keep our own packet buffer
-		RtpPacket zrtp_packet;
+		//RtpPacket zrtp_packet;
 		int seqNo;
+		LinkedList<RtpPacket> pkts;
 		
 		public ZRTPHelper() {
+			pkts = new LinkedList<RtpPacket>();
+		}
+		
+		RtpPacket makePacket() {
 			byte[] buf = new byte[BUF_SIZE];
-			zrtp_packet = new RtpPacket(buf, buf.length);
-			zrtp_packet.setTimestamp(ZRTP.ZRTP_MAGIC_COOKIE);
-			zrtp_packet.setSscr(getSscr());
+			RtpPacket pkt = new RtpPacket(buf, buf.length);
+			pkt.setTimestamp(ZRTP.ZRTP_MAGIC_COOKIE);
+			pkt.setSscr(getSscr());
+			return pkt;
 		}
 
 		@Override
 		public void sendZrtpPacket(byte[] data) {
 			try {
+				RtpPacket zrtp_packet = makePacket();
 				zrtp_packet.setPayload(data, data.length);
 				if(seqNo > 0xffff)
 					seqNo = 0;
 				zrtp_packet.setSequenceNumber(seqNo++);
 				appendCrc(zrtp_packet);
-				rtp_socket.send(zrtp_packet);
-			} catch (IOException e) {
+				sendPacket(zrtp_packet);
+			} catch (Exception e) {
 				e.printStackTrace();
 				logger.warning("Error sending ZRTP packet to wire: " + e.getMessage());
+			}
+		}
+		
+		void sendPacket(RtpPacket pkt) {
+			synchronized(pkts) {
+				pkts.add(pkt);
+			}
+		}
+		
+		synchronized void sendPackets() throws IOException {
+			RtpPacket pkt = null;
+			while(true) {
+				synchronized(pkts) {
+					pkt = pkts.poll();
+				}
+				if(pkt == null)
+					return;
+				rtp_socket.send(pkt);
 			}
 		}
 		
@@ -670,5 +708,19 @@ public class RtpStreamSender extends Thread {
 			// TODO Auto-generated method stub
 
 		}
+	}
+
+	public void setSRTP(SRTP srtp) {
+		this.srtp = srtp;
+	}
+	
+	public void setZRTP(ZRTP zrtp) {
+		this.zrtp = zrtp;
+		if(zrtp == null)
+			zrtpHelper = null;
+	}
+
+	public void setSeqNum(int firstSeqNum) {
+		this.seqn = firstSeqNum;
 	}
 }

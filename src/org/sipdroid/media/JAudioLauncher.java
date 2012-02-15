@@ -23,6 +23,7 @@ import java.net.DatagramSocket;
 
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.net.SipdroidSocket;
+import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.sip.provider.SipStack;
@@ -32,6 +33,7 @@ import org.zoolu.tools.LogLevel;
 import zorg.SRTP;
 import zorg.ZRTP;
 
+import android.net.NetworkInfo.State;
 import android.preference.PreferenceManager;
 
 /** Audio launcher based on javax.sound  */
@@ -145,7 +147,11 @@ public class JAudioLauncher implements MediaLauncher
       if (receiver!=null)
       {  receiver.halt(); receiver=null;
          printLog("receiver halted",LogLevel.LOW);
-      }      
+      }
+      if(zrtp != null) {
+    	  zrtp.stopSession();
+    	  zrtp = null;
+      }
       if (socket != null)
     	  socket.close();
       return true;
@@ -204,11 +210,25 @@ public class JAudioLauncher implements MediaLauncher
    
    public class ZRTPListener implements zorg.platform.ZrtpListener {
 
-	   @Override
+	@Override
 	   public void sessionNegotiationCompleted(boolean success, String msg) {
 		   if(log != null) {
 			   log.print("*********** Got callback from ZRTP: " + success + ", " + msg);
 			   log.print("*********** Got SaS from ZRTP: " + zrtp.getSasString());
+		   }
+		   
+		   if(success) {
+			   if(sender != null) {
+				   sender.setZRTP(null);
+			   }
+			   if(receiver != null) {
+				   receiver.setZRTP(null);
+			   }
+		   } else {
+			   if(log != null)
+				   log.print("*** Stopping call - ZRTP failure ***", LogLevel.HIGH);
+			   stopMedia();
+			   // FIXME: should tell UserAgent layer too?
 		   }
 	   }
 
@@ -224,6 +244,33 @@ public class JAudioLauncher implements MediaLauncher
 			   int firstSeqNum) {
 		   if(log != null)
 			   log.print("*********** Got master keys from ZRTP!!!  *******************");
+		   
+		   srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
+		   srtp.setKDR(48);
+		   int tag_size;
+		   if(zrtp.getAuthenticationMode().equals("HS80"))
+			   tag_size = 10;
+		   else if(zrtp.getAuthenticationMode().equals("HS32"))
+			   tag_size = 4;
+		   else
+			   throw new RuntimeException("Unsupported auth mode: " + zrtp.getAuthenticationMode());
+		   srtp.setAuthTagSize(tag_size);  // FIXME - should negotiate either HS32 or HS80 as per RFC6189
+		   srtp.setTxMasterKey(txMasterKey);
+		   srtp.setTxMasterSalt(txMasterSalt);
+		   srtp.setRxMasterKey(rxMasterKey);
+		   srtp.setRxMasterSalt(rxMasterSalt);
+		   srtp.setFirstRtpSeqNum(firstSeqNum);
+		   sender.setSeqNum(firstSeqNum);
+		   if(srtp.startNewSession() != SRTP.SESSION_OK) {
+			   throw new RuntimeException("Failed to start SRTP session");
+		   }
+		   if(sender != null) {
+			   sender.setSRTP(srtp);
+		   }
+		   if(receiver != null) {
+			   receiver.setSRTP(srtp);
+		   }
+		   
 		   return true;
 	   }
 
