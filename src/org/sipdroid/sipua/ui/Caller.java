@@ -113,6 +113,17 @@ public class Caller extends BroadcastReceiver {
         			return;
         		}
         		
+        		String uriFragment = Uri.parse(
+        	            intent.getStringExtra("android.phone.extra.ORIGINAL_URI")).getFragment();
+        		if(uriFragment != null && uriFragment.contains(PSTN.BYPASS_LUMICALL)) {
+        			// Let the call go through to the next handler/GSM network
+        			Log.i(TAG, "*** Lumicall detected `lumicall-bypass' in URI, letting call go to next handler ***");
+        			setResultData(number);
+        			abortBroadcast();
+        			return;
+	        	}
+        		
+        		
         		// If the user has chosen a GSM route in the chooser, we should
         		// not do anything, just let the next handler deal with it
         		if(number.endsWith("?p")) {
@@ -143,6 +154,7 @@ public class Caller extends BroadcastReceiver {
       	        // Don't redial without required interval between attempts
     	        if (last_number != null && last_number.equals(number) && (SystemClock.elapsedRealtime()-last_time) < REDIAL_MINIMUM_INTERVAL) {
     	        	setResultData(null);
+    	        	abortBroadcast();
     	        	Log.w("SipUA:", "redial was too soon, aborted");
     	        	return;
     	        }
@@ -188,6 +200,7 @@ public class Caller extends BroadcastReceiver {
 				
 				if(candidates.size() == 0) {
 					setResultData(null);
+					abortBroadcast();
 					return;
 				}
 				
@@ -197,13 +210,17 @@ public class Caller extends BroadcastReceiver {
 					
 					(new ChooserThread(context, candidates.toArray(new DialCandidate[] {}))).start();  
 					setResultData(null);
+					abortBroadcast();
 					return;
 				}
 				
 				// Only 1 candidate - so just dial it
 				Receiver.engine(context).call(candidates.get(0),true);
-				if(true)
+				if(true) {
+					setResultData(null);
+					abortBroadcast();
 					return;
+				}
 				
 				/* if(doENUMRouting(context, number)) {
 					setResultData(null);

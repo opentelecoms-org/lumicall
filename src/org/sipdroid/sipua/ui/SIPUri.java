@@ -115,7 +115,7 @@ public class SIPUri extends Activity {
 			if(candidate.getScheme().equals("sip")) {
 				Receiver.engine(SIPUri.this).call(candidate, true);
 			} else if(candidate.getScheme().equals("tel")) {
-				PSTN.callPSTN2("tel:" + candidate.getAddress() + "?bypass-lumicall");
+				PSTN.callPSTN2("tel:" + candidate.getAddress());
 			}
 			finish();
 		}
