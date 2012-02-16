@@ -155,6 +155,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_KEEPON = "keepon";
 	public static final String PREF_SELECTWIFI = "selectwifi";
 	public static final String PREF_ACCOUNT = "account";
+	public static final String PREF_IPV4 = "preferipv4";
 	
 	// Default values of the preferences
 	public static final String	DEFAULT_USERNAME = "";
@@ -210,6 +211,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final boolean DEFAULT_KEEPON = false;
 	public static final boolean DEFAULT_SELECTWIFI = false;
 	public static final int     DEFAULT_ACCOUNT = 0;
+	public static final boolean DEFAULT_IPV4 = false;  // false: allow IPv6 and IPv4, true: IPv4 only
 
 	// An other preference keys (not in the Preferences XML file)
 	public static final String PREF_OLDVALID = "oldvalid";

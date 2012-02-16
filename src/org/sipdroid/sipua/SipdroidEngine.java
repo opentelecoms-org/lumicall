@@ -121,6 +121,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		if(user_profile.stun_server_name == null || user_profile.stun_server_name.length() == 0) {
 			user_profile.stun_server_name = user_profile.realm;
 		}
+		if(!sipIdentity.isStun())
+			user_profile.stun_server_name = null;
 		user_profile.stun_server_port = sipIdentity.getStunServerPort();
 		if(user_profile.stun_server_port < 0) 
 			user_profile.stun_server_port = 3478;

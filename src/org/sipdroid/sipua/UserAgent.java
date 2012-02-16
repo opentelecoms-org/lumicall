@@ -461,17 +461,21 @@ public class UserAgent extends CallListenerAdapter {
 	
 	protected void setupICE(NameAddress caller) {
 		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
+		
 		//DelegatingDatagramSocket.setDefaultDelegateFactory(new SipdroidSocketFactory());
 		SipdroidSocket.enableJNIImpl(false);
 		DelegatingDatagramSocket.setDefaultReceiveBufferSize(DEFAULT_RECEIVE_BUFFER_SIZE);
 		
-        System.setProperty(StackProperties.MAX_CTRAN_RETRANS_TIMER, "400");
-        System.setProperty(StackProperties.MAX_CTRAN_RETRANSMISSIONS, "5");
+		if(sp.getBoolean(Settings.PREF_IPV4, Settings.DEFAULT_IPV4))
+			System.setProperty(StackProperties.ENABLE_IPv6, "false");
+        System.setProperty(StackProperties.MAX_CTRAN_RETRANS_TIMER, "200");
+        System.setProperty(StackProperties.MAX_CTRAN_RETRANSMISSIONS, "10");
 
 		
 		iceAgent = new org.ice4j.ice.Agent();
 		
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
+		
 		
 		String stunServer = user_profile.stun_server_name;
 		int port = user_profile.stun_server_port;

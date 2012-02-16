@@ -293,6 +293,9 @@
 <string name="settings_telroute2">Identity used for calling PSTN numbers</string>
 <string name="settings_telroute_dialog">PSTN carrier</string>
 
+<string name="settings_prefer_ipv4">Prefer IPv4 only</string>
+<string name="settings_prefer_ipv4_info">Some devices have bugs in IPv6 stack</string>
+
 <string name="menu_settings">Settings</string>
 <string name="menu_exit">Exit</string>
 <string name="menu_about">About</string>
@@ -385,6 +388,8 @@
 <string name="sip_carrier_route2">Offer this identity when dialing PSTN</string>
 <string name="sip_carrier_intl_prefix" >Intl. dialing prefix</string>
 <string name="sip_carrier_intl_prefix2" >E.g. 00 in Europe, 0011 in Australia</string>
+<string name="sip_stun_enable">Use STUN/TURN protocols</string>
+<string name="sip_stun_enable_info">Required on many networks</string>
 <string name="sip_stun_server_name" >STUN server name</string>
 <string name="sip_stun_server_port" >STUN server port</string>
 <string name="sip_stun_server_protocol">STUN server protocol</string>
