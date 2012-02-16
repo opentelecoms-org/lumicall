@@ -145,7 +145,19 @@
         android:paddingTop="10dip"
         android:text="@string/reg_privacy"
         android:textColor="#000000"
-        android:textSize="11px" >
+        android:textSize="11dp" >
+		
+    </TextView>
+		
+    <TextView
+        android:id="@+id/AdvancedSetup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:text="@string/reg_advanced"
+        android:textColor="#3366ee"
+        android:textSize="11dp" >
+        
 
     </TextView>	
   </LinearLayout>

@@ -340,7 +340,7 @@
 <string name="toast_progress">ENUM lookup in progress</string>
 <string name="toast_notfound">No ENUM results found</string>
 
-<string name="reg_instructions">Please provide these essential details to enable the ENUM capability of your phone and a world of convenient, free calling</string>
+<string name="reg_instructions">We need to verify your phone number by asking you to send us a missed call.  Once verified, your friends will be able to call you for free.</string>
 
 <string name="reg_phone_num">Phone number (including country code, e.g. +447771234567)</string>
 <string name="reg_first_name">First name</string>
@@ -360,6 +360,8 @@
 <string name="reg_num_invalid_message">The number appears invalid.  Please check that it starts with a + and the country code, and that you haven\'t accidentally added a 0 after the country code.</string>
 <string name="reg_num_invalid_use_anyway">Use anyway</string>
 <string name="reg_num_invalid_edit">Edit number</string>
+
+<string name="reg_advanced"><u>Manual SIP account setup (experts only)</u></string>
 
 <string name="activate_instructions">You should receive an SMS text containing an activation code.  Please wait for it to arrive.</string>
 <string name="activate_code">Enter the activation code here (e.g. **ABC123**)</string>

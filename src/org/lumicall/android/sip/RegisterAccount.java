@@ -80,6 +80,7 @@ import android.telephony.TelephonyManager;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Xml;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -260,6 +261,19 @@ public class RegisterAccount extends Activity {
 		} else
 			enrolAccountNow();
 	}
+	
+	void advancedSetup() {
+
+		settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
+		Editor ed = settings.edit();
+		long ts = new Date().getTime() / 1000;
+		ed.putLong(PREF_LAST_ENROLMENT_ATTEMPT, ts);
+		ed.putLong(PREF_LAST_VALIDATION_ATTEMPT, ts);
+		ed.commit();
+		
+		doMainActivity();
+		
+	}
 			
 	void enrolAccountNow() {
 		buttonOK.setEnabled(false);
@@ -278,6 +292,7 @@ public class RegisterAccount extends Activity {
 
 	EditText etNum, etFirst, etLast, etEmail;
 	Button buttonOK;
+	TextView advancedSettings;
 
 	private Dialog m_AlertDlg;
 	
@@ -306,6 +321,13 @@ public class RegisterAccount extends Activity {
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
 				checkAccountDetails();
+			}
+		});
+		advancedSettings = (TextView) findViewById(R.id.AdvancedSetup);
+		advancedSettings.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				advancedSetup();
 			}
 		});
         etNum = (EditText) findViewById(R.id.EditText01);
