@@ -112,6 +112,7 @@ public class RtpStreamReceiver extends Thread {
 	public RtpStreamReceiver(DatagramSocket socket, Codecs.Map payload_type, CallRecorder rec, SRTP srtp, ZRTP zrtp) {
 		this.srtp = srtp;
 		this.zrtp = zrtp;
+		srtpSecured = (srtp != null);
 		init(socket);
 		p_type = payload_type;
 		call_recorder = rec;
@@ -849,6 +850,11 @@ public class RtpStreamReceiver extends Thread {
 	public static String sas = null;
 	public static String getSaS() {
 		return sas;
+	}
+	
+	public static boolean srtpSecured = false;
+	public static boolean isSRTPSecured() {
+		return srtpSecured;
 	}
 
 }

@@ -399,6 +399,7 @@
 
 <string name="choose_route">Choose destination</string>
 
+<string name="srtp_secure">Call secured by SRTP</string>
 <string name="zrtp_sas">Security/ZRTP SaS:</string>
 <string name="zrtp_no_sas">Call not secured</string>
 

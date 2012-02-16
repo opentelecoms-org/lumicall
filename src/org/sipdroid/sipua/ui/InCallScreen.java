@@ -252,9 +252,17 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     			mCodec.setText(RtpStreamReceiver.getCodec());
     			String sas = RtpStreamReceiver.getSaS();
     			if(sas == null) {
-    				mSaS.setText(R.string.zrtp_no_sas);
-    				mSaS.setBackgroundColor(Color.RED);
-    				mSaS.setTextColor(Color.WHITE);
+    				if(RtpStreamReceiver.isSRTPSecured()) {
+    					mSaS.setText(R.string.srtp_secure);
+        				mSaS.setBackgroundColor(Color.GREEN);
+        				mSaS.setTextColor(Color.BLACK);
+    				} else {
+    					if(RtpStreamReceiver.good != 0) {
+    						mSaS.setText(R.string.zrtp_no_sas);
+    						mSaS.setBackgroundColor(Color.RED);
+    						mSaS.setTextColor(Color.WHITE);
+    					}
+    				}
     			} else {
     				mSaS.setText(getString(R.string.zrtp_sas) + " " + sas);
     				mSaS.setBackgroundColor(Color.GREEN);
