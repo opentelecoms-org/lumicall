@@ -35,6 +35,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -249,6 +250,16 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
     			break;
     		case MSG_TICK:
     			mCodec.setText(RtpStreamReceiver.getCodec());
+    			String sas = RtpStreamReceiver.getSaS();
+    			if(sas == null) {
+    				mSaS.setText(R.string.zrtp_no_sas);
+    				mSaS.setBackgroundColor(Color.RED);
+    				mSaS.setTextColor(Color.WHITE);
+    			} else {
+    				mSaS.setText(getString(R.string.zrtp_sas) + " " + sas);
+    				mSaS.setBackgroundColor(Color.GREEN);
+    				mSaS.setTextColor(Color.BLACK);
+    			}
     			if (RtpStreamReceiver.good != 0) {
     				if (RtpStreamReceiver.timeout != 0)
     					mStats.setText("no data");
@@ -277,6 +288,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 	public static SlidingCardManager mSlidingCardManager;
 	TextView mStats;
 	TextView mCodec;
+	TextView mSaS;
 	
     public void initInCallScreen() {
         mInCallPanel = (ViewGroup) findViewById(R.id.inCallPanel);
@@ -298,6 +310,7 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
 
 	    mStats = (TextView) findViewById(R.id.stats);
 	    mCodec = (TextView) findViewById(R.id.codec);
+	    mSaS = (TextView) findViewById(R.id.sas);
         mDialerDrawer = (SlidingDrawer) findViewById(R.id.dialer_container);
         mCallCard.displayOnHoldCallStatus(ccPhone,null);
         mCallCard.displayOngoingCallStatus(ccPhone,null);
