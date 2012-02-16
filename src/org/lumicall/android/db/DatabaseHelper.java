@@ -11,7 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private Logger logger = Logger.getLogger(getClass().getName());
 	
 	private final static String DB_NAME = "lumicall";
-	private final static int DB_VERSION = 2;
+	private final static int DB_VERSION = 3;
 	
 	public DatabaseHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);

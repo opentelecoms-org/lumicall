@@ -96,6 +96,11 @@
 				android:entries="@array/protocol_display_values"
 				android:entryValues="@array/protocol_values"
 				android:dialogTitle="@string/sip_outbound_server_protocol" />
+    <CheckBoxPreference
+        android:persistent="false"
+		android:key="sip_identity_stun"
+		android:title="@string/sip_stun_enable"
+		android:summary="@string/sip_stun_enable_info" />
     <EditTextPreference
         android:persistent="false"
         android:key="sip_identity_stun_server_name"

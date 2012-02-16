@@ -100,16 +100,20 @@
 	                android:targetClass="org.sipdroid.codecs.Codecs$CodecSettings" />
 
 	</PreferenceScreen>
-<!-- 	<PreferenceScreen android:title="@string/settings_advanced_options">
-			<EditTextPreference
+ 	<PreferenceScreen android:title="@string/settings_advanced_options">
+			<!--  <EditTextPreference
 				android:key="search"
 				android:title="@string/settings_search"
-				android:singleLine="true" />
-			<EditTextPreference
+				android:singleLine="true" /> -->
+			<!--  <EditTextPreference
 				android:key="excludepat"
 				android:title="@string/settings_excludepat"
-				android:singleLine="true" />
-	</PreferenceScreen> -->
+				android:singleLine="true" /> -->
+			<CheckBoxPreference
+				android:key="preferipv4"
+				android:title="@string/settings_prefer_ipv4"
+				android:summary="@string/settings_prefer_ipv4_info" />
+	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_wireless_options">
 			<CheckBoxPreference
 				android:key="ownwifi"

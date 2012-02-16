@@ -35,6 +35,7 @@ public class SIPIdentity {
 	private final static String COLUMN_STUN_SERVER_PROTOCOL = "stun_server_protocol";
 	private final static String COLUMN_RINGTONE = "ringtone";
 	private final static String COLUMN_SECURITY_MODE = "security_mode";
+	private final static String COLUMN_STUN = "stun";
 	
 	private final static String[] ALL_COLUMNS = new String[] {
 		COLUMN_ID,
@@ -59,7 +60,8 @@ public class SIPIdentity {
 		COLUMN_STUN_SERVER_PORT,
 		COLUMN_STUN_SERVER_PROTOCOL,
 		COLUMN_RINGTONE,
-		COLUMN_SECURITY_MODE
+		COLUMN_SECURITY_MODE,
+		COLUMN_STUN
 	};
 	
 	private final static String CREATE_TABLE =
@@ -86,7 +88,8 @@ public class SIPIdentity {
 			COLUMN_STUN_SERVER_PORT + " int, " +
 			COLUMN_STUN_SERVER_PROTOCOL + " text, " +
 			COLUMN_RINGTONE + " text, " +
-			COLUMN_SECURITY_MODE + " text);";
+			COLUMN_SECURITY_MODE + " text, " +
+			COLUMN_STUN + " int not null);";
 	
 	long id = -1;
 	String uri = null;
@@ -106,6 +109,7 @@ public class SIPIdentity {
 	String outboundServerProtocol = "tls";
 	boolean carrierRoute = true;
 	String carrierIntlPrefix = null;
+	boolean stun = true;
 	String stunServerName = null;
 	int stunServerPort = 3478;
 	String stunServerProtocol = "udp";
@@ -122,6 +126,11 @@ public class SIPIdentity {
 			db.execSQL("ALTER TABLE " + DB_TABLE +
 					" ADD COLUMN " + COLUMN_SECURITY_MODE + " TEXT " +
 					" DEFAULT '" + SecurityMode.ZRTP + "' NOT NULL;");
+		}
+		if(oldVersion < 3 && newVersion >= 3) {
+			db.execSQL("ALTER TABLE " + DB_TABLE +
+					" ADD COLUMN " + COLUMN_STUN + " INT " +
+					" DEFAULT '1' NOT NULL;");
 		}
 	}
 	
@@ -191,6 +200,7 @@ public class SIPIdentity {
 		sipIdentity.setStunServerProtocol(cursor.getString(i++));
 		sipIdentity.setRingTone(cursor.getString(i++));
 		sipIdentity.setSecurityMode(SecurityMode.valueOf(cursor.getString(i++)));
+		sipIdentity.setStun(fromBoolean(cursor.getInt(i++)));
 		
 		return sipIdentity;
 	}
@@ -220,6 +230,7 @@ public class SIPIdentity {
 		values.put(COLUMN_STUN_SERVER_PROTOCOL, getStunServerProtocol());
 		values.put(COLUMN_RINGTONE, getRingTone());
 		values.put(COLUMN_SECURITY_MODE, securityMode.toString());
+		values.put(COLUMN_STUN, toBoolean(isStun()));
 
 		if(getId() == -1) {
 			// insert and then setId()
@@ -467,6 +478,16 @@ public class SIPIdentity {
 	public void setSecurityMode(SecurityMode securityMode) {
 		this.securityMode = securityMode;
 	}
+	
+	@PreferenceField(fieldName="sip_identity_stun")
+	public boolean isStun() {
+		return stun;
+	}
+
+	@PreferenceField(fieldName="sip_identity_stun")
+	public void setStun(boolean stun) {
+		this.stun = stun;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -488,6 +509,7 @@ public class SIPIdentity {
 		result = prime * result + (mwi ? 1231 : 1237);
 		result = prime * result + (outbound ? 1231 : 1237);
 		result = prime * result + (carrierRoute ? 1231 : 1237);
+		result = prime * result + (stun ? 1231 : 1237);
 		result = prime
 				* result
 				+ ((outboundServerName == null) ? 0 : outboundServerName
@@ -595,6 +617,8 @@ public class SIPIdentity {
 			if (other.securityMode != null)
 				return false;
 		} else if (!securityMode.equals(other.securityMode))
+			return false;
+		if (stun != other.stun)
 			return false;
 		if (stunServerName == null) {
 			if (other.stunServerName != null)
