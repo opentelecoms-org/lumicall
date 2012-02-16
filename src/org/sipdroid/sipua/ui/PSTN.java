@@ -28,6 +28,8 @@ import android.preference.PreferenceManager;
 
 public class PSTN extends Activity {
 
+	public static final String BYPASS_LUMICALL = "bypassLumicall";
+
 	static void callPSTN(String uri) {
 		String number;
 		
@@ -50,7 +52,7 @@ public class PSTN extends Activity {
 			number = uri.substring(uri.indexOf(":")+1);
 			if (!number.equals("")) {
 		        Intent intent = new Intent(Intent.ACTION_CALL,
-		                Uri.fromParts("tel", Uri.decode(number), "bypass-lumicall"));
+		                Uri.fromParts("tel", Uri.decode(number), BYPASS_LUMICALL));
 		        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		        Receiver.mContext.startActivity(intent);
 			}
