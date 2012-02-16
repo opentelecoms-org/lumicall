@@ -683,8 +683,8 @@ public class RtpStreamSender extends Thread {
 			int originalLength = packet.getLength();
 			byte[] _packet = packet.getPacket();
 			CRC32C delegate = new CRC32C();
-	        delegate.update(_packet, originalLength);
-	        byte[] crc32c = delegate.getCRC32Bytes(); 
+	        delegate.update(_packet, 0, originalLength);
+	        byte[] crc32c = delegate.getValueAsBytes(); 
 	        packet.setLength(originalLength + 4);
 	        for(int i = 0; i < 4; i++) {
         		_packet[originalLength + i] = crc32c[i];

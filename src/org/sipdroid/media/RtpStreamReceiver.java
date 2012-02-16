@@ -82,7 +82,8 @@ public class RtpStreamReceiver extends Thread {
 	/** Max time to block when emptying the receive queue **/
 	private static final int SO_TIMEOUT_SHORT = 3;
 
-	private static final boolean ACCEPT_BAD_ZRTP_CRC32C = true;
+	// Only for troubleshooting
+	private static final boolean ACCEPT_BAD_ZRTP_CRC32C = false;
 
 	/** The RtpSocket */
 	RtpSocket rtp_socket = null;
@@ -467,8 +468,8 @@ public class RtpStreamReceiver extends Thread {
 		int len = rtp_packet.getLength() - 4;
 		rtp_packet.setLength(len);
 		CRC32C delegate = new CRC32C();
-		delegate.update(data, len);
-		byte[] calcCRC32C = delegate.getCRC32Bytes();
+		delegate.update(data, 0, len);
+		byte[] calcCRC32C = delegate.getValueAsBytes();
 		for (int i = 0; i < 4; i++) {
 			if(data[len + i] != calcCRC32C[i])
 				return false;
