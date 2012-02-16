@@ -208,6 +208,10 @@ public class JAudioLauncher implements MediaLauncher
       if (level<=LogLevel.HIGH) e.printStackTrace();
    }
    
+   void callSecured(String sas) {
+	   // FIXME - should pass the SaS up to the User Agent / screen
+   }
+   
    public class ZRTPListener implements zorg.platform.ZrtpListener {
 
 	@Override
@@ -224,6 +228,11 @@ public class JAudioLauncher implements MediaLauncher
 			   if(receiver != null) {
 				   receiver.setZRTP(null);
 			   }
+
+			   String sas = zrtp.getSasString();
+			   callSecured(sas);
+			   
+			   
 		   } else {
 			   if(log != null)
 				   log.print("*** Stopping call - ZRTP failure ***", LogLevel.HIGH);

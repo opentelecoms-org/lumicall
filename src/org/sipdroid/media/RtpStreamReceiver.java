@@ -840,7 +840,15 @@ public class RtpStreamReceiver extends Thread {
 	}
 	
 	public void setZRTP(ZRTP zrtp) {
+		if(zrtp == null && this.zrtp != null)
+			sas = this.zrtp.getSasString();
 		this.zrtp = zrtp;
+	}
+	
+	// FIXME - find a better way to pass this up to the User Agent
+	public static String sas = null;
+	public static String getSaS() {
+		return sas;
 	}
 
 }
