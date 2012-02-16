@@ -30,6 +30,8 @@ import org.zoolu.sip.provider.SipStack;
 import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 
+import zorg.AuthenticationMode;
+import zorg.CipherType;
 import zorg.SRTP;
 import zorg.ZRTP;
 
@@ -256,14 +258,13 @@ public class JAudioLauncher implements MediaLauncher
 		   
 		   srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
 		   srtp.setKDR(48);
-		   int tag_size;
-		   if(zrtp.getAuthenticationMode().equals("HS80"))
-			   tag_size = 10;
-		   else if(zrtp.getAuthenticationMode().equals("HS32"))
-			   tag_size = 4;
-		   else
-			   throw new RuntimeException("Unsupported auth mode: " + zrtp.getAuthenticationMode());
-		   srtp.setAuthTagSize(tag_size);  // FIXME - should negotiate either HS32 or HS80 as per RFC6189
+		   CipherType cipherType = zrtp.getCipherType();
+		   if(cipherType != CipherType.AES1)
+			   throw new RuntimeException("Unsupported cipher type: " + cipherType);
+		   AuthenticationMode authMode = zrtp.getAuthenticationMode();
+		   if(authMode != AuthenticationMode.HS32 && authMode != AuthenticationMode.HS80)
+			   throw new RuntimeException("Unsupported auth mode: " + authMode);
+		   srtp.setAuthTagSize(authMode.getTagBytes());
 		   srtp.setTxMasterKey(txMasterKey);
 		   srtp.setTxMasterSalt(txMasterSalt);
 		   srtp.setRxMasterKey(rxMasterKey);
