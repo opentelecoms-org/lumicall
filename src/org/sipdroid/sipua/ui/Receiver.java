@@ -166,6 +166,7 @@ import org.zoolu.sip.provider.SipProvider;
 					enable_wifi(true);
 					RtpStreamReceiver.good = RtpStreamReceiver.lost = RtpStreamReceiver.loss = RtpStreamReceiver.late = 0;
 					RtpStreamReceiver.sas = null;
+					RtpStreamReceiver.srtpSecured = false;
 					RtpStreamReceiver.speakermode = speakermode();
 					bluetooth = -1;
 					String text = caller.toString();
@@ -216,6 +217,7 @@ import org.zoolu.sip.provider.SipProvider;
 				case UserAgent.UA_STATE_OUTGOING_CALL:
 					RtpStreamReceiver.good = RtpStreamReceiver.lost = RtpStreamReceiver.loss = RtpStreamReceiver.late = 0;
 					RtpStreamReceiver.sas = null;
+					RtpStreamReceiver.srtpSecured = false;
 					RtpStreamReceiver.speakermode = speakermode();
 					bluetooth = -1;
 					onText(MISSED_CALL_NOTIFICATION, null, 0,0);
