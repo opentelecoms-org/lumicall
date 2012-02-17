@@ -39,10 +39,10 @@
 				android:key="auto_headset"
 				android:title="@string/settings_auto_headset"
 				android:summary="@string/settings_auto_headset2" />
-			<CheckBoxPreference
+			<!-- <CheckBoxPreference
 				android:key="callrecord"
 				android:title="@string/settings_callrecord"
-				android:summary="@string/settings_callrecord2" />
+				android:summary="@string/settings_callrecord2" /> -->
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_notifications">
 			<CheckBoxPreference

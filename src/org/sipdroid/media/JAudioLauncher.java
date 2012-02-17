@@ -99,9 +99,9 @@ public class JAudioLauncher implements MediaLauncher
       try
       {
     	 CallRecorder call_recorder = null;
-    	 if (PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_CALLRECORD,
+    	 /* if (PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_CALLRECORD,
 					org.sipdroid.sipua.ui.Settings.DEFAULT_CALLRECORD))
-    		 call_recorder = new CallRecorder(null,payload_type.codec.samp_rate()); // Autogenerate filename from date. 
+    		 call_recorder = new CallRecorder(null,payload_type.codec.samp_rate()); // Autogenerate filename from date. */ 
          dir=direction;
          // sender
          if (dir>=0)
