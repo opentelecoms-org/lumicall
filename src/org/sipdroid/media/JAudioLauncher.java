@@ -237,8 +237,7 @@ public class JAudioLauncher implements MediaLauncher
 			   
 		   } else {
 			   if(log != null)
-				   log.print("*** Stopping call - ZRTP failure ***", LogLevel.HIGH);
-			   stopMedia();
+				   log.print("*** ZRTP failure - call proceeding un-encrypted ***", LogLevel.HIGH);
 			   // FIXME: should tell UserAgent layer too?
 		   }
 	   }
@@ -247,6 +246,7 @@ public class JAudioLauncher implements MediaLauncher
 	   public void securityWarning(int securityWarningType, String warning) {
 		   if(log != null)
 			   log.print("*********** Got warning from ZRTP: " + securityWarningType + ", " + warning);
+		   // FIXME - should use Toast and audible alert to inform user
 	   }
 
 	   @Override
