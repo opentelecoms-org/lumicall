@@ -130,6 +130,8 @@ public class SIPIdentitySettings extends PreferenceActivity {
 			m.invoke(sipIdentity, newValue);
 		} else if(m.getParameterTypes()[0].equals(Float.TYPE)) {
 			m.invoke(sipIdentity, new Float(new BigDecimal((String)newValue).floatValue()));
+		} else if(m.getParameterTypes()[0].equals(Integer.TYPE)) {
+			m.invoke(sipIdentity, new Integer((String)newValue).intValue());	
 		} else if(m.getParameterTypes()[0].equals(Boolean.TYPE)) {
 			m.invoke(sipIdentity, newValue);
 		} else if(m.getParameterTypes()[0].isEnum()) {
