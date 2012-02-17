@@ -138,7 +138,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 //	public static final String PREF_MMTEL_QVALUE = "mmtel_qvalue";
 	
 	// Call recording preferences.
-	public static final String PREF_CALLRECORD = "callrecord";
+	//public static final String PREF_CALLRECORD = "callrecord";
 	
 //	public static final String PREF_PAR = "par";
 //	public static final String PREF_IMPROVE = "improve";
