@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 import java.util.logging.Logger;
 import java.io.IOException;
 import java.io.InputStream;
@@ -160,11 +161,27 @@ public class TcpSocket {
 		socket = sock;
 	}
 
-	static boolean lock;
+	static HashMap<IpAddress,String> inProgress = new HashMap<IpAddress,String>();
+	static void startProgress(IpAddress addr) throws IOException {
+		synchronized (inProgress) {
+			String s = inProgress.get(addr);
+			if(s != null)
+				throw new java.io.IOException("TcpSocket/already inProgress");
+			inProgress.put(addr, "");
+		}
+	}
+	
+	static void finishProgress(IpAddress addr) {
+		synchronized (inProgress) {
+			inProgress.remove(addr);
+		}
+	}
 	
 	/** Creates a new UdpSocket */
 	public TcpSocket(IpAddress ipaddr, int port, boolean _useTls) throws java.io.IOException {
 //		socket = new Socket(ipaddr.getInetAddress(), port); modified
+		
+		startProgress(ipaddr);
 		
 		useTls = _useTls;
 		
@@ -222,13 +239,11 @@ public class TcpSocket {
 				throw new IOException(e.getClass().getCanonicalName() + ": " + e.getMessage());
 			}
 		}
-		if (lock) throw new java.io.IOException("lock is set in TcpSocket");
-		lock = true;
 		try {
 			socket.connect(new InetSocketAddress(ipaddr.toString(), port),
 				Thread.currentThread().getName().equals("main")?1000:10000);
 		} catch (java.io.IOException e) {
-			lock = false;
+			finishProgress(ipaddr);
 			logger.warning("IOException/failure in the connect method: " + e.getMessage());
 			throw e;
 		}
@@ -239,7 +254,7 @@ public class TcpSocket {
 			if(session.isValid()) {
 				logger.info("Secure connection established");
 			} else {
-				lock = false;
+				finishProgress(ipaddr);
 				logger.warning("Connection NOT secure");
 				throw new IOException("SSLSession NOT valid/secure");
 			}
@@ -249,7 +264,7 @@ public class TcpSocket {
 			CertificateVerifyer cv = new AlwaysValidVerifyer();
 			tlsHandler.connect(cv); */
 		}
-		lock = false;
+		finishProgress(ipaddr);
 	}
 
 	/** Closes this socket. */
