@@ -26,6 +26,7 @@ package org.zoolu.net;
 
 import java.net.InetSocketAddress;
 import java.net.Socket; // import java.net.InetAddress;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -98,6 +99,27 @@ public class TcpSocket {
 		}
 	}
 	
+	SSLContext sslContext = null;
+	SSLContext getSSLContext() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+		synchronized(this) {
+			if(sslContext == null) {
+			    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			    tmf.init((KeyStore)null);
+			    TrustManager[] tm = tmf.getTrustManagers();
+			    TrustManager[] tm2 = { new AppendingTrustManager(
+			    		(X509TrustManager)tm[0], customKeyStore) };
+			    //TrustManager[] tm = { new ShoddyTrustManager() };
+				//sslContext = SSLContext.getInstance("TLSv1");
+				sslContext = SSLContext.getInstance("TLS");
+				//sslContext = SSLContext.getInstance("TLS");
+				//logger.info("Using default trust manager");
+				//sslContext.init(null, null, secureRandom);
+				sslContext.init(null, tm2, secureRandom);
+			}
+		}
+		return sslContext;
+	}
+	
 	/** Creates a new UdpSocket */
 	public TcpSocket(IpAddress ipaddr, int port, boolean _useTls) throws java.io.IOException {
 //		socket = new Socket(ipaddr.getInetAddress(), port); modified
@@ -130,30 +152,10 @@ public class TcpSocket {
 			 *   (e.g. a mobile phone company that tries to detect and punish users who
 			 *   use VoIP on mobile broadband)
 			 */
-			SSLContext sslContext = null;
 			
 			try {
-				if (sslContext == null) {
-					
-				    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-				    tmf.init((KeyStore)null);
-				    TrustManager[] tm = tmf.getTrustManagers();
-				    TrustManager[] tm2 = { new AppendingTrustManager(
-				    		(X509TrustManager)tm[0], customKeyStore) };
-				    //TrustManager[] tm = { new ShoddyTrustManager() };
-					//sslContext = SSLContext.getInstance("TLSv1");
-					sslContext = SSLContext.getInstance("TLS");
-					//sslContext = SSLContext.getInstance("TLS");
-					//logger.info("Using default trust manager");
-					//sslContext.init(null, null, secureRandom);
-					sslContext.init(null, tm2, secureRandom);
-				}
-				SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+				SSLSocketFactory socketFactory = getSSLContext().getSocketFactory();
 				socket = socketFactory.createSocket();
-				
-				// socket = new Socket();
-				
-				
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.warning("IOException/failure in the SSL init: " + e.getClass().getCanonicalName() + ": " + e.getMessage());
