@@ -103,7 +103,10 @@ public class IpAddress {
 	}
 
 	/** Wthether it is equal to Object <i>obj</i> */
+	@Override
 	public boolean equals(Object obj) {
+		// FIXME - toString() does a DNS lookup, causing this method
+		// to run slowly
 		try {
 			IpAddress ipaddr = (IpAddress) obj;
 			if (!toString().equals(ipaddr.toString()))
@@ -113,9 +116,20 @@ public class IpAddress {
 			return false;
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		// FIXME - toString() does a DNS lookup, causing this method
+		// to run slowly
+		String s = toString();
+		if(s == null)
+			throw new RuntimeException("Invalid IpAddress/can't resolve toString()");
+		return s.hashCode();
+	}
 
 	/** Gets a String representation of the Object */
 	public String toString() {
+		// FIXME - should not call getHostAddress() in toString()!!!
 		if (address == null && inet_address != null)
 			address = inet_address.getHostAddress();
 		return address;
