@@ -63,32 +63,6 @@ public class TcpSocket {
 	// For testing with BouncyCastle light TLS implementation
 	// TlsProtocolHandler tlsHandler = null;
 	
-	public class ShoddyTrustManager implements X509TrustManager {
-
-		@Override
-		public void checkClientTrusted(X509Certificate[] arg0, String arg1)
-				throws CertificateException {
-			// TODO Auto-generated method stub
-			logger.warning("Trusting a client certificate without verification");
-		}
-
-		@Override
-		public void checkServerTrusted(X509Certificate[] arg0, String arg1)
-				throws CertificateException {
-			// TODO Auto-generated method stub
-			logger.warning("Trusting a server certificate without verification");
-			
-		}
-
-		@Override
-		public X509Certificate[] getAcceptedIssuers() {
-			// TODO Auto-generated method stub
-			logger.warning("Not returning any accepted issuer list");
-			return null;
-		}
-		
-	}
-	
 	public class AppendingTrustManager implements X509TrustManager {
 		
 		X509TrustManager _tm;
