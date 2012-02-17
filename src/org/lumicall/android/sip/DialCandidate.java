@@ -16,14 +16,14 @@ public class DialCandidate implements Parcelable {
 	String displayName;
 	String source;
 	long sipIdentityId;
-	DialCandidate(String scheme, String address, String displayName, String source) {
+	public DialCandidate(String scheme, String address, String displayName, String source) {
 		this.scheme = scheme;
 		this.address = address;
 		this.displayName = displayName;
 		this.source = source;
 		this.sipIdentityId = -1;
 	}
-	DialCandidate(String scheme, String address, String displayName, String source, SIPIdentity sipIdentity) {
+	public DialCandidate(String scheme, String address, String displayName, String source, SIPIdentity sipIdentity) {
 		this.scheme = scheme;
 		this.address = address;
 		this.displayName = displayName;

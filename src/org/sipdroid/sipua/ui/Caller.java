@@ -28,6 +28,8 @@ import java.util.regex.PatternSyntaxException;
 
 import org.sipdroid.media.RtpStreamReceiver;
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.ENUMProviderForSIP;
 import org.lumicall.android.sip.ENUMUtil;
 import org.lumicall.android.sip.EmailCandidateHarvester;
@@ -175,7 +177,29 @@ public class Caller extends BroadcastReceiver {
 				}
 				
 				String e164Number = null;
-				if(number.startsWith("+")) {
+				if (number.indexOf('@') > 0) {
+					// The target contains the @ symbol, treat it as a SIP address
+					String _domain = number.substring(number.indexOf('@') + 1);
+					LumicallDataSource ds = new LumicallDataSource(context);
+					ds.open();
+					
+					List<SIPIdentity> sipIdentities = ds.getSIPIdentities();
+					
+					SIPIdentity sipIdentity = null;
+					for(SIPIdentity s : sipIdentities) {
+						String uri = s.getUri();
+						String domain = uri.substring(uri.indexOf('@') + 1);
+						if(domain.equals(_domain))
+							sipIdentity = s;
+					}
+					
+					ds.close();
+					DialCandidate dc = new DialCandidate("sip", number, "", "Manual dial", sipIdentity);
+					Receiver.engine(context).call(dc, true);
+					setResultData(null);
+					abortBroadcast();
+					return;
+				} else if(number.startsWith("+")) {
 					// Just assume it is an E.164 number already
 					e164Number = number;
 				} else {
