@@ -51,7 +51,7 @@ import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
 import org.lumicall.android.R;
 import org.lumicall.android.db.SecurityMode;
-import org.opentelecoms.dns.SRVRecordHelper;
+import org.opentelecoms.util.dns.SRVRecordHelper;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.JAudioLauncher;
