@@ -67,14 +67,19 @@ public class RtpStreamReceiver extends Thread {
 
 	/** Whether working in debug mode. */
 	public static boolean DEBUG = true;
+	
+	// size in ms
+	private final static int JITTER_BUFFER_SIZE = 120;
 
 	/** Payload type */
 	Codecs.Map p_type;
 
 	static String codec = "";
 
-	/** Size of the read buffer */
-	public static final int BUFFER_SIZE = 4096;
+	/** Size of the audio buffer */
+	public static final int AUDIO_BUFFER_SIZE = 4096;
+	
+	public static final int PACKET_BUFFER_SIZE = 4096;
 
 	/** Maximum blocking time, spent waiting for reading new bytes [milliseconds] */
 	public static final int SO_TIMEOUT = 1000;
@@ -445,7 +450,7 @@ public class RtpStreamReceiver extends Thread {
 		restoreMode();
 	}
 	
-	void receive_from_socket() throws IOException {
+	void receive_from_socket(RtpPacket rtp_packet) throws IOException {
 		rtp_socket.receive(rtp_packet);
 		if(zrtp != null) {
 			// Don't pass ZRTP packets back to the audio/media code, consume them here
@@ -485,12 +490,14 @@ public class RtpStreamReceiver extends Thread {
 	
 	void empty() {
 		if(SipdroidSocket.class.isInstance(rtp_socket.getDatagramSocket())) {
+			byte[] buffer = new byte[PACKET_BUFFER_SIZE];
+			RtpPacket rtp_packet = new RtpPacket(buffer, 0);
 			logger.info("emptying RX buffer");
 			try {
 				logger.fine("setting SO_TIMEOUT" + SO_TIMEOUT_SHORT);
 				rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT_SHORT);
 				for (;;)
-					receive_from_socket();
+					receive_from_socket(rtp_packet);
 			} catch (SocketException e2) {
 				if (!Sipdroid.release)
 					e2.printStackTrace();
@@ -508,7 +515,7 @@ public class RtpStreamReceiver extends Thread {
 		seq = 0;
 	}
 	
-	RtpPacket rtp_packet;
+	//RtpPacket rtp_packet;
 	AudioTrack track;
 	int maxjitter,minjitter,minjitteradjust,minheadroom;
 	int cnt,cnt2,user,luser,luser2,lserver;
@@ -518,14 +525,15 @@ public class RtpStreamReceiver extends Thread {
 		synchronized (this) {
 			AudioTrack oldtrack;
 			
+			jitterBuffer = null;
 			p_type.codec.init();
 			codec = p_type.codec.getTitle();
 			mu = p_type.codec.samp_rate()/8000;
 			maxjitter = AudioTrack.getMinBufferSize(p_type.codec.samp_rate(), 
 					AudioFormat.CHANNEL_CONFIGURATION_MONO, 
 					AudioFormat.ENCODING_PCM_16BIT);
-			if (maxjitter < 2*2*BUFFER_SIZE*3*mu)
-				maxjitter = 2*2*BUFFER_SIZE*3*mu;
+			if (maxjitter < 2*2*AUDIO_BUFFER_SIZE*3*mu)
+				maxjitter = 2*2*AUDIO_BUFFER_SIZE*3*mu;
 			oldtrack = track;
 			track = new AudioTrack(stream(), p_type.codec.samp_rate(), AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
 					maxjitter, AudioTrack.MODE_STREAM);
@@ -540,6 +548,16 @@ public class RtpStreamReceiver extends Thread {
 				oldtrack.stop();
 				oldtrack.release();
 			}
+			
+			
+			int frame_period = (1000 * p_type.codec.frame_size()) / p_type.codec.samp_rate();
+			logger.info("Init jitter buffer: " + JITTER_BUFFER_SIZE + " ms, frame_period = " + frame_period);
+			JitterBuffer _jitterBuffer = new JitterBuffer(JITTER_BUFFER_SIZE, frame_period);
+			RtpClock clock = new AudioClock();
+			clock.setSampleRate(p_type.codec.samp_rate());
+			_jitterBuffer.setClock(clock);
+			jitterBuffer = _jitterBuffer;
+
 		}
 	}
 	
@@ -604,10 +622,10 @@ public class RtpStreamReceiver extends Thread {
 			return;
 		}
 
-		byte[] buffer = new byte[BUFFER_SIZE];  // FIXME - Good size for ZRTP?
-		rtp_packet = new RtpPacket(buffer, 0);
+		//byte[] buffer = new byte[BUFFER_SIZE];  // FIXME - Good size for ZRTP?
+		//rtp_packet = new RtpPacket(buffer, 0);
 
-		logger.info("Reading blocks of max " + buffer.length + " bytes");
+		//logger.info("Reading blocks of max " + buffer.length + " bytes");
 
 		running = true;
 		enableBluetooth(PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_BLUETOOTH,
@@ -624,16 +642,22 @@ public class RtpStreamReceiver extends Thread {
 		if (oldvol == -1) oldvol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 		initMode();
 		setCodec();
-		short lin[] = new short[BUFFER_SIZE];
-		short lin2[] = new short[BUFFER_SIZE];
+		short lin[] = new short[AUDIO_BUFFER_SIZE];
+		short lin2[] = new short[AUDIO_BUFFER_SIZE];
+		for(int i = 0; i < lin2.length; i++)
+			lin2[i] = 0;
 		int server, headroom, todo, len = 0, m = 1, expseq, getseq, vm = 1, gap, gseq;
 		ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL,(int)(ToneGenerator.MAX_VOLUME*2*org.sipdroid.sipua.ui.Settings.getEarGain()));
 		logger.info("starting track player");
 		track.play();
 		logger.info("suggesting garbage collection should run");
 		System.gc();
-		empty();
+		//empty();
 		lockFirst = true;
+		
+		NetworkReceiver rxThread = new NetworkReceiver();
+		new Thread(rxThread).start();
+		
 		while (running) {
 			logger.fine("doing RX loop");
 			lock(true);
@@ -652,9 +676,12 @@ public class RtpStreamReceiver extends Thread {
 				timeout = 1;
 				luser = luser2 = -8000*mu;
 			}
+			RtpPacket rtp_packet = null;
 			try {
-				receive_from_socket();
-				if(srtp != null) {
+				//receive_from_socket();
+				if(jitterBuffer != null)
+					rtp_packet = jitterBuffer.read(System.currentTimeMillis() / 1000);
+				if(rtp_packet != null && srtp != null) {
 					if(srtp.unprotect(rtp_packet) != 0)
 						throw new RuntimeException("Failed to decrypt packet");
 					else {
@@ -662,14 +689,16 @@ public class RtpStreamReceiver extends Thread {
 							zrtp.successfulSrtpUnprotect();   // Tell ZRTP that we are receiving good SRTP
 					}
 				}
-				if (timeout != 0) {
+				if (timeout != 0 && rtp_packet != null) {
 					tg.stopTone();
 					track.pause();
-					for (int i = maxjitter*2; i > 0; i -= BUFFER_SIZE)
-						write(lin2,0,i>BUFFER_SIZE?BUFFER_SIZE:i);
+					logger.info("Filling a gap (1)...");
+					for (int i = maxjitter*2; i > 0; i -= AUDIO_BUFFER_SIZE)
+						write(lin2,0,i>AUDIO_BUFFER_SIZE?AUDIO_BUFFER_SIZE:i);
 					cnt += maxjitter*2;
+					logger.info("Done filling a gap...");
 					track.play();
-					empty();
+					//empty();
 				}
 				timeout = 0;
 			} catch (Exception e) {
@@ -684,7 +713,7 @@ public class RtpStreamReceiver extends Thread {
 					break;
 				}
 			}
-			if (running && timeout == 0) {		
+			if (running && timeout == 0 && rtp_packet != null) {		
 				 gseq = rtp_packet.getSequenceNumber();
 				 if (seq == gseq) {
 					 m++;
@@ -710,7 +739,7 @@ public class RtpStreamReceiver extends Thread {
 						 setCodec();
 						 restoreVolume();
 					 }
-					 len = p_type.codec.decode(buffer, lin, rtp_packet.getPayloadLength());
+					 len = p_type.codec.decode(rtp_packet.getPacket(), lin, rtp_packet.getPayloadLength());
 					 
 					 // Call recording: Save incoming.
 					 // Data is in buffer lin, from 0 to len.
@@ -736,13 +765,17 @@ public class RtpStreamReceiver extends Thread {
 							 minheadroom = maxjitter*2;
 						 }
 					todo = jitter - headroom;
-					write(lin2,0,todo>BUFFER_SIZE?BUFFER_SIZE:todo);
+					logger.info("Filling a gap (2) ...");
+					write(lin2,0,todo>AUDIO_BUFFER_SIZE?AUDIO_BUFFER_SIZE:todo);
+					logger.info("Filling a gap...");
 				 }
 
 				 if (cnt > 500*mu && cnt2 < 2) {
 					 todo = headroom - jitter;
-					 if (todo < len)
+					 if (todo < len) {
+						 logger.info("Playing partial audio frame...");
 						 write(lin,todo,len-todo);
+					 }
 				 } else
 					 write(lin,0,len);
 				 
@@ -796,6 +829,7 @@ public class RtpStreamReceiver extends Thread {
 			}
 		}
 		lock(false);
+		rxThread.running = false;
 		track.stop();
 		track.release();
 		tg.stopTone();
@@ -841,8 +875,9 @@ public class RtpStreamReceiver extends Thread {
 	}
 	
 	public void setZRTP(ZRTP zrtp) {
-		if(zrtp == null && this.zrtp != null)
+		if(zrtp == null && this.zrtp != null) {
 			sas = this.zrtp.getSasString();
+		}
 		this.zrtp = zrtp;
 	}
 	
@@ -855,6 +890,40 @@ public class RtpStreamReceiver extends Thread {
 	public static boolean srtpSecured = false;
 	public static boolean isSRTPSecured() {
 		return srtpSecured;
+	}
+	
+	volatile JitterBuffer jitterBuffer = null;
+	class NetworkReceiver implements Runnable {
+		
+		volatile boolean running = true;
+
+		@Override
+		public void run() {
+			
+			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO);
+			
+			RtpPacket rtp_packet;
+			
+			empty();
+			
+			logger.info("NetworkReceiver thread starting loop");
+			while(running) {
+				byte[] buffer = new byte[PACKET_BUFFER_SIZE];  // FIXME - Good size for ZRTP?
+				rtp_packet = new RtpPacket(buffer, 0);
+				try {
+					receive_from_socket(rtp_packet);
+					if(jitterBuffer != null)
+						jitterBuffer.write(rtp_packet);
+				} catch (IOException e) {
+					// FIXME
+					logger.warning("Exception in receive block: " + e.getClass().getCanonicalName() + ", " + e.getMessage());
+				}
+			}
+			logger.info("NetworkReceiver thread stopping");
+			
+			
+		}
+		
 	}
 
 }
