@@ -25,7 +25,7 @@
 
 package org.zoolu.sip.provider;
 
-import org.opentelecoms.dns.SRVRecordHelper;
+import org.opentelecoms.util.dns.SRVRecordHelper;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.net.*;
