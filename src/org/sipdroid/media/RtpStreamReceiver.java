@@ -31,6 +31,8 @@ import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
 import org.sipdroid.net.SipdroidSocket;
 import org.lumicall.android.R;
+import org.opentelecoms.media.rtp.secure.SRTP;
+import org.opentelecoms.media.rtp.secure.ZRTP;
 import org.opentelecoms.util.CRC32C;
 import org.sipdroid.sipua.UserAgent;
 import org.sipdroid.sipua.ui.InCallScreen;
@@ -38,8 +40,6 @@ import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.sipdroid.codecs.Codecs;
 
-import zorg.SRTP;
-import zorg.ZRTP;
 
 import android.content.ContentResolver;
 import android.content.Context;

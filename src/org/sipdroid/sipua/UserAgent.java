@@ -51,6 +51,8 @@ import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
 import org.lumicall.android.R;
 import org.lumicall.android.db.SecurityMode;
+import org.opentelecoms.media.rtp.secure.SRTP;
+import org.opentelecoms.media.rtp.secure.ZRTP;
 import org.opentelecoms.util.dns.SRVRecordHelper;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
@@ -88,8 +90,6 @@ import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 import org.zoolu.tools.Parser;
 
-import zorg.SRTP;
-import zorg.ZRTP;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -802,7 +802,7 @@ public class UserAgent extends CallListenerAdapter {
 			printLog("Using RX key: " + rxAudioKey);
 			if(txAudioKey == null || rxAudioKey == null)
 				throw new RuntimeException("RTP/SAVP detected in SDP, but insufficient crypto keys");
-			srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
+			srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
 			if(!srtp.testEncryption())
 				throw new RuntimeException("SRTP.testEncryption() failed, platform not compatible");
 			if(!srtp.testReplayCheckVector())
@@ -819,7 +819,7 @@ public class UserAgent extends CallListenerAdapter {
 			}
 		} else if (user_profile.security_mode.equals(SecurityMode.ZRTP)) {
 			// User wants to try ZRTP
-			zrtp = new ZRTP(new zorg.platform.j2se.PlatformImpl());
+			zrtp = new ZRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
 			zrtp.setPhoneNumber("+999999999");  // FIXME ZRTP - E.164 number not in use
 		}
 		
