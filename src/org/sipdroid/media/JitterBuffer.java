@@ -38,16 +38,19 @@ public class JitterBuffer implements Serializable {
 
     private int period;
     private int jitter;
+    private int jitterSamples;
     private BufferConcurrentLinkedQueue<RtpPacket> queue = new BufferConcurrentLinkedQueue<RtpPacket>();
     private volatile boolean ready = false;
     
     private long duration;
-    private long timestamp;
+    private volatile long timestamp;
     //private Format format;
     private int sampleRate;
     private RtpClock clock;
     private Logger logger = Logger.getLogger(getClass().getName());
     private long delta;
+    
+    Object lock = new Object();
     
     /**
      * Creates new instance of jitter.
@@ -59,13 +62,14 @@ public class JitterBuffer implements Serializable {
      */
     public JitterBuffer(int jitter, int period) {
         this.period = period;
-        this.jitter = jitter;
+        setJitter(jitter);
     }
 
     public void setClock(RtpClock clock) {
         this.clock = clock;
         if (sampleRate > 0) {
             clock.setSampleRate(sampleRate);
+            setJitter(jitter);
         }
     }
 
@@ -74,6 +78,12 @@ public class JitterBuffer implements Serializable {
         if (clock != null) {
             clock.setSampleRate(sampleRate);
         }
+    }
+    
+    private void setJitter(int jitter) {
+    	this.jitter = jitter;
+    	if(clock != null)
+    		this.jitterSamples = (int)clock.getTimestamp(jitter); 
     }
 
     public int getJitter() {
@@ -86,6 +96,8 @@ public class JitterBuffer implements Serializable {
 
     public void write(RtpPacket rtpPacket) {
         long t = clock.getTime(rtpPacket.getTimestamp());
+        
+        synchronized(lock) {
 
         //when first packet arrive and timestamp already known
         //we have to determine difference between rtp stream timestamps and local time
@@ -97,10 +109,12 @@ public class JitterBuffer implements Serializable {
         //if buffer's ready flag equals true then it means that reading 
         //starting and we should compare timestamp of arrived packet with time of
         //last reading.
-        if (ready && t > timestamp + jitter) {
+        logger.info("RX packet: rx ts = " + t + ", local ts = " + timestamp + ", diff = " + (t - timestamp));
+        if (ready && t > timestamp + jitterSamples) {
             //silentrly discard otstanding packet
             logger.warning("Packet " + rtpPacket + " is discarded by jitter buffer");
             return;
+        }
         }
     
         //if RTP packet is not outstanding or reading not started yet (ready == false)
@@ -131,8 +145,10 @@ public class JitterBuffer implements Serializable {
             return null;
         }
 
+        synchronized(lock) {
         //remember timestamp
         this.timestamp = timestamp + delta;
+        }
         
         //if packet queue is empty (but was full) we have to returns
         //silence
