@@ -289,7 +289,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		}
 		
 		if(username.length() == 0) {
-			username = "unspecified"; 
+			username = "unspecified";
+		}
 
 		return username + "@" + IpAddress.localIpAddress
 		+ (sip_provider.getPort() != 0?":"+sip_provider.getPort():"")
@@ -644,9 +645,19 @@ public class SipdroidEngine implements RegisterAgentListener {
 		return call(target_url, force, p);
 	}
 	
+	String lastError = null;
+	public String getLastError(boolean clear) {
+		String result = lastError;
+		if(clear)
+			lastError = null;
+		return result;
+	}
+	
 	public boolean call(DialCandidate target, boolean force) {
+		lastError = null;
 		if(!target.getScheme().equals("sip")) {
-			ua.printLog("can't call non-SIP candidate");
+			lastError = "can't call non-SIP candidate";
+			ua.printLog(lastError);
 			return false;
 		}
 		
@@ -654,7 +665,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		
 		SIPIdentity sipIdentity = target.getSIPIdentity(this.getUIContext());
 		if(sipIdentity == null) {
-			ua.printLog("no SIP Identity found to make call");
+			lastError = "no SIP Identity found or no default SIP identity set in preferences";
+			ua.printLog(lastError);
 			return false;
 		}
 		
@@ -664,7 +676,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 				return call(target_url, force, p);
 		}
 		
-		ua.printLog("SIP identity not active, can't make call");
+		lastError = "SIP identity not active, can't make call";
+		ua.printLog(lastError);
 		return false;
 	}
 	

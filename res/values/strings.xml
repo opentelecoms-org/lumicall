@@ -412,4 +412,6 @@
 <string name="zrtp_sas">Security/ZRTP SaS:</string>
 <string name="zrtp_no_sas">Call not secured</string>
 
+<string name="call_unknown_error">Error when dialing (reason unspecified)</string>
+
 </resources>

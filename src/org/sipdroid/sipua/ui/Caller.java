@@ -195,7 +195,10 @@ public class Caller extends BroadcastReceiver {
 					
 					ds.close();
 					DialCandidate dc = new DialCandidate("sip", number, "", "Manual dial", sipIdentity);
-					Receiver.engine(context).call(dc, true);
+					if(!Receiver.engine(context).call(dc, true)) {
+						// something bad happened
+						displayError(context);
+					}
 					setResultData(null);
 					abortBroadcast();
 					return;
@@ -239,7 +242,9 @@ public class Caller extends BroadcastReceiver {
 				}
 				
 				// Only 1 candidate - so just dial it
-				Receiver.engine(context).call(candidates.get(0),true);
+				if(!Receiver.engine(context).call(candidates.get(0),true)) {
+					displayError(context);
+				}
 				if(true) {
 					setResultData(null);
 					abortBroadcast();
@@ -334,6 +339,14 @@ public class Caller extends BroadcastReceiver {
 	        }
 	    }
 		
+		private void displayError(Context context) {
+			String error = Receiver.engine(context).getLastError(true);
+			if(error == null)
+				error = context.getString(R.string.call_unknown_error);
+			Toast toast = Toast.makeText(context, error, Toast.LENGTH_SHORT);
+			toast.show();
+		}
+
 		// Try to set up a call to the number by using ENUM
 		private boolean doENUMRouting(Context context, String number) {
 			
