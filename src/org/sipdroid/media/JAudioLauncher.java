@@ -21,6 +21,10 @@ package org.sipdroid.media;
 
 import java.net.DatagramSocket;
 
+import org.opentelecoms.media.rtp.secure.AuthenticationMode;
+import org.opentelecoms.media.rtp.secure.CipherType;
+import org.opentelecoms.media.rtp.secure.SRTP;
+import org.opentelecoms.media.rtp.secure.ZRTP;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.UserAgent;
@@ -30,10 +34,6 @@ import org.zoolu.sip.provider.SipStack;
 import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 
-import zorg.AuthenticationMode;
-import zorg.CipherType;
-import zorg.SRTP;
-import zorg.ZRTP;
 
 import android.net.NetworkInfo.State;
 import android.preference.PreferenceManager;
@@ -214,7 +214,7 @@ public class JAudioLauncher implements MediaLauncher
 	   // FIXME - should pass the SaS up to the User Agent / screen
    }
    
-   public class ZRTPListener implements zorg.platform.ZrtpListener {
+   public class ZRTPListener implements org.opentelecoms.media.rtp.secure.platform.ZrtpListener {
 
 	@Override
 	   public void sessionNegotiationCompleted(boolean success, String msg) {
@@ -256,7 +256,7 @@ public class JAudioLauncher implements MediaLauncher
 		   if(log != null)
 			   log.print("*********** Got master keys from ZRTP!!!  *******************");
 		   
-		   srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
+		   srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
 		   srtp.setKDR(48);
 		   CipherType cipherType = zrtp.getCipherType();
 		   if(cipherType != CipherType.AES1)

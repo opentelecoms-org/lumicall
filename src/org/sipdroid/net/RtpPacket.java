@@ -26,7 +26,7 @@ import org.zoolu.tools.Random;
 /**
  * RtpPacket implements a RTP packet.
  */
-public class RtpPacket implements zorg.platform.RtpPacket {
+public class RtpPacket implements org.opentelecoms.media.rtp.secure.platform.RtpPacket {
 	/* RTP packet buffer containing both the RTP header and payload */
 	byte[] packet;
 
