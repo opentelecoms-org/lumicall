@@ -662,7 +662,8 @@ import org.zoolu.sip.provider.SipProvider;
 		}
 		
 		public static int speakermode() {
-        		if (docked > 0 && headset <= 0)
+        		if ((docked > 0 && headset <= 0) ||
+        				org.sipdroid.sipua.ui.Settings.getInCallAudioPreference() == InCallAudioPreference.FORCE_SPEAKER)
     				return AudioManager.MODE_NORMAL;
         		else
         			return AudioManager.MODE_IN_CALL;

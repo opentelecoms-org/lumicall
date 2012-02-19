@@ -37,6 +37,7 @@ import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -124,6 +125,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 //	public static final String PREF_SIPRINGTONE = "sipringtone";
 //	public static final String PREF_SEARCH = "search";
 //	public static final String PREF_EXCLUDEPAT = "excludepat";
+	public static final String PREF_AUDIO_MODE = "audio_mode";
 	public static final String PREF_EARGAIN = "eargain";
 	public static final String PREF_MICGAIN = "micgain";
 	public static final String PREF_HEARGAIN = "heargain";
@@ -248,6 +250,20 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String	DEFAULT_COMPRESSION = null;
 	//public static final String	DEFAULT_RINGTONEx = "";
 	//public static final String	DEFAULT_VOLUMEx = "";
+	
+	public static InCallAudioPreference getInCallAudioPreference() {
+		InCallAudioPreference audioPref = null;
+		String _audioPref = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getString(PREF_AUDIO_MODE, "");
+		audioPref = InCallAudioPreference.parseString(_audioPref);
+		if(audioPref == null) {
+			audioPref = InCallAudioPreference.DETECT;
+			// For some devices, e.g. Galaxy Tab, speakerphone is a better default
+			if(Build.MODEL.equals("GT-P7500")) {
+				audioPref = InCallAudioPreference.FORCE_SPEAKER;
+			}
+		}
+		return audioPref;
+	}
 
 	public static float getEarGain() {
 		try {
