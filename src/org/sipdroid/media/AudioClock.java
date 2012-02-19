@@ -10,22 +10,22 @@ package org.sipdroid.media;
 public class AudioClock extends RtpClock {
 
 
-	private double packetPeriod;
+	private double samplesPerMillisecond;
 
 	@Override
 	public void setSampleRate(int sampleRate) {
 		super.setSampleRate(sampleRate);
-		this.packetPeriod = 1000/sampleRate;
+		this.samplesPerMillisecond = sampleRate / 1000;
 	}
 
 	@Override
 	public long getTime(long timestamp) {
-		return (long) (packetPeriod * timestamp);
+		return (long) (samplesPerMillisecond * timestamp);
 	}
 
 	@Override
 	public long getTimestamp(long time) {
-		return (long) (time/packetPeriod);
+		return (long) (time/samplesPerMillisecond);
 	}
 
 }
