@@ -1259,7 +1259,8 @@ public class SipProvider implements Configurable, TransportListener,
 	/** When Transport terminates. */
 	public void onTransportTerminated(Transport transport, Exception error) {
 		printLog("transport " + transport + " terminated", LogLevel.MEDIUM);
-		if (transport.getProtocol().equals(PROTO_TCP)) {
+		if (transport.getProtocol().equals(PROTO_TCP) ||
+				transport.getProtocol().equals(PROTO_TLS)) {
 			ConnectionIdentifier conn_id = new ConnectionIdentifier(
 					(ConnectedTransport) transport);
 			removeConnection(conn_id);
