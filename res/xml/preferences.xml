@@ -55,6 +55,13 @@
 				android:summary="@string/settings_nodata2" />
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_av_options">
+	    	<ListPreference
+				android:key="audio_mode"
+				android:title="@string/settings_audio_mode"
+				android:entries="@array/audio_mode_display_values"
+				android:entryValues="@array/audio_mode_values"
+				android:defaultValue="DETECT"
+				android:dialogTitle="@string/settings_audio_mode" />
 			<ListPreference
 				android:key="eargain"
 				android:title="@string/settings_eargain"

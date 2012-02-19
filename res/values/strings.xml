@@ -220,6 +220,15 @@
 <string name="settings_sipringtone">SIP Ringtone</string>
 <string name="settings_sipringtone2">Set ringtone for incoming SIP call</string>
 <string name="settings_sipringtone_dialog">Ringtones</string>
+<string name="settings_audio_mode">Preferred audio mode</string>
+	<string-array name="audio_mode_display_values">
+	    <item>Detect/speakerphone when docked</item>
+	    <item>Force speakerphone</item>
+	</string-array>
+	<string-array name="audio_mode_values">
+	    <item>DETECT</item>
+	    <item>FORCE_SPEAKER</item>
+	</string-array>
 <string name="settings_eargain">Earpiece Gain</string>
 <string name="settings_micgain">Microphone Gain</string>
 <string name="settings_heargain">Headset Gain</string>
