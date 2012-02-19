@@ -175,7 +175,17 @@ public class SipdroidEngine implements RegisterAgentListener {
 		lineCount = sipIdentities.size();
 		
 			PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-			if (wl == null) {
+			if (wl == null  || lineCount != wl.length) {
+				if(wl != null) {
+					for(int i = 0; i < wl.length; i++) {
+						if(wl[i] != null && wl[i].isHeld())
+							wl[i].release();
+						wl[i] = null;
+						if(pwl[i] != null && pwl[i].isHeld())
+							pwl[i].release();
+						pwl[i] = null;
+					}
+				}
 				if (!PreferenceManager.getDefaultSharedPreferences(getUIContext()).contains(org.sipdroid.sipua.ui.Settings.PREF_KEEPON)) {
 					Editor edit = PreferenceManager.getDefaultSharedPreferences(getUIContext()).edit();
 	
