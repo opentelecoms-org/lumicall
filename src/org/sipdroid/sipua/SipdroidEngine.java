@@ -230,7 +230,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 					System.setProperty(StackProperties.SOFTWARE, context.getString(R.string.app_name));
 						
 					IpAddress.setLocalIpAddress();
-					sip_providers[i] = new SipProvider(IpAddress.localIpAddress, 0);
+					sip_providers[i] = new IntegratedSipProvider(IpAddress.localIpAddress, 0);
 					user_profile.contact_url = getContactURL(user_profile.username,sip_providers[i]);
 					
 					if (user_profile.from_url.indexOf("@") < 0) {

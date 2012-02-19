@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * Transport is a generic transport service for SIP.
  */
-interface Transport {
+public interface Transport {
 	/** Gets protocol type */
 	public String getProtocol();
 

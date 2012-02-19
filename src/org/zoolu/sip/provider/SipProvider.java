@@ -26,8 +26,6 @@
 package org.zoolu.sip.provider;
 
 import org.opentelecoms.util.dns.SRVRecordHelper;
-import org.sipdroid.sipua.ui.Receiver;
-import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.net.*;
 import org.zoolu.sip.header.*;
 import org.zoolu.sip.message.Message;
@@ -44,14 +42,10 @@ import org.zoolu.tools.DateFormat;
 
 import java.util.Hashtable;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.zoolu.tools.HashSet;
 import org.zoolu.tools.Iterator;
-
-import android.content.Context;
-import android.os.PowerManager;
 
 import java.util.Enumeration;
 import java.util.Date;
@@ -852,8 +846,7 @@ public class SipProvider implements Configurable, TransportListener,
 				}
 				printLog("connection " + conn + " opened", LogLevel.HIGH);
 				addConnection(conn);
-				if (!msg.isRegister())
-					Receiver.engine(Receiver.mContext).register(); // modified
+				onReconnected(msg);				
 			} else {
 				printLog("active connection found matching " + conn_id,
 						LogLevel.MEDIUM);
@@ -891,8 +884,7 @@ public class SipProvider implements Configurable, TransportListener,
 				}
 				printLog("connection " + conn + " opened", LogLevel.HIGH);
 				addConnection(conn);
-				if (!msg.isRegister())
-					Receiver.engine(Receiver.mContext).register(); // modified
+				onReconnected(msg);
 			} else {
 				printLog("active connection found matching " + conn_id,
 						LogLevel.MEDIUM);
@@ -923,6 +915,10 @@ public class SipProvider implements Configurable, TransportListener,
 		printMessageLog(proto, dest_addr, dest_port, msg.getLength(), msg,
 				"sent");
 		return conn_id;
+	}
+
+	private void onReconnected(Message msg) {
+		// does nothing - to be used in subclasses
 	}
 
 	/**
@@ -1069,8 +1065,6 @@ public class SipProvider implements Configurable, TransportListener,
 					printLog("NOT a SIP message: discarded\r\n", LogLevel.LOW);
 				return;
 			}
-			if (!Sipdroid.release)
-				printLog("received new SIP message "+msg.getRequestLine()+" "+msg.getStatusLine(), LogLevel.HIGH); // modified
 			printLog("message:\r\n" + msg.toString(), LogLevel.LOWER);
 
 			// if a request, handle "received" and "rport" parameters
@@ -1257,20 +1251,11 @@ public class SipProvider implements Configurable, TransportListener,
 	}
 
 	// ************************* Callback methods *************************
-	PowerManager pm;
-	PowerManager.WakeLock wl;
 	
-	/** When a new SIP message is received. */
 	public void onReceivedMessage(Transport transport, Message msg) {
-		if (pm == null) {
-			pm = (PowerManager) Receiver.mContext.getSystemService(Context.POWER_SERVICE);
-			wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sipdroid.SipProvider");
-		}
-		wl.acquire(); // modified
 		processReceivedMessage(msg);
-		wl.release();
 	}
-
+	
 	/** When Transport terminates. */
 	public void onTransportTerminated(Transport transport, Exception error) {
 		printLog("transport " + transport + " terminated", LogLevel.MEDIUM);
@@ -1278,8 +1263,6 @@ public class SipProvider implements Configurable, TransportListener,
 			ConnectionIdentifier conn_id = new ConnectionIdentifier(
 					(ConnectedTransport) transport);
 			removeConnection(conn_id);
-			if (Sipdroid.on(Receiver.mContext))
-				Receiver.engine(Receiver.mContext).register(); // modified
 		}
 		if (error != null)
 			printException(error, LogLevel.HIGH);
@@ -1443,7 +1426,6 @@ public class SipProvider implements Configurable, TransportListener,
 
 	/** Adds a new string to the default Log */
 	private final void printLog(String str, int level) {
-		if (Sipdroid.release) return;
 		if (event_log != null) {
 			String provider_id = (host_ipaddr == null) ? Integer
 					.toString(host_port) : host_ipaddr.toString() + ":"
