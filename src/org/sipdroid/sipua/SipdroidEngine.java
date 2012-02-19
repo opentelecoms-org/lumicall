@@ -287,6 +287,9 @@ public class SipdroidEngine implements RegisterAgentListener {
 			//strip it and everthing following it
 			username = username.substring(0, i);
 		}
+		
+		if(username.length() == 0) {
+			username = "unspecified"; 
 
 		return username + "@" + IpAddress.localIpAddress
 		+ (sip_provider.getPort() != 0?":"+sip_provider.getPort():"")
