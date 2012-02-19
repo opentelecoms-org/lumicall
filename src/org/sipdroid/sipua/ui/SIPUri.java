@@ -49,6 +49,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SIPUri extends Activity {
 
@@ -113,7 +114,14 @@ public class SIPUri extends Activity {
 				long id) {
 			candidate = candidates[position];
 			if(candidate.getScheme().equals("sip")) {
-				Receiver.engine(SIPUri.this).call(candidate, true);
+				if(!Receiver.engine(SIPUri.this).call(candidate, true)) {
+					String error = Receiver.engine(SIPUri.this).getLastError(true);
+					if(error == null)
+						error = SIPUri.this.getString(R.string.call_unknown_error);
+					Toast toast = Toast.makeText(SIPUri.this, error, Toast.LENGTH_SHORT);
+					toast.show();
+					return;
+				}
 			} else if(candidate.getScheme().equals("tel")) {
 				PSTN.callPSTN2("tel:" + candidate.getAddress());
 			}
