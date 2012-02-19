@@ -33,7 +33,8 @@ public class IntegratedSipProvider extends SipProvider {
 	/** When Transport terminates. */
 	public void onTransportTerminated(Transport transport, Exception error) {
 		super.onTransportTerminated(transport, error);
-		if (transport.getProtocol().equals(PROTO_TCP)) {
+		if (transport.getProtocol().equals(PROTO_TCP) ||
+				transport.getProtocol().equals(PROTO_TLS)) {
 			if (Sipdroid.on(Receiver.mContext))
 				Receiver.engine(Receiver.mContext).register(); // modified
 		}
