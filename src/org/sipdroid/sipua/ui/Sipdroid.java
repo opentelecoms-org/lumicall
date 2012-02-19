@@ -25,22 +25,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIPIdentity;
+import org.lumicall.android.sip.DialCandidate;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.UserAgent;
 import org.zoolu.tools.Random;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -55,6 +62,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
@@ -81,6 +89,8 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	private static AlertDialog m_AlertDlg;
 	AutoCompleteTextView sip_uri_box;
 	// AutoCompleteTextView sip_uri_box2;
+	Button buttonIdentity;
+	SIPIdentity chosenIdentity = null;
 	
 	@Override
 	public void onStart() {
@@ -231,10 +241,101 @@ public class Sipdroid extends Activity implements OnDismissListener {
 				startActivity(myIntent);
 			}
 		});
+		
+		buttonIdentity = (Button) findViewById(R.id.ButtonIdentityMenu);
+		buttonIdentity.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showDialog(0);
+			}
+		});
+
+		setDefaultIdentity();
 
 		final Context mContext = this;
 		final OnDismissListener listener = this;
 		
+	}
+	
+	private void setDefaultIdentity() {
+		// Must use the default SIP identity for SIP-SIP calls
+		SharedPreferences sipSettings = getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
+		long _sipIdentityId = Long.parseLong(sipSettings.getString(Settings.PREF_SIP, "-1"));
+		if(_sipIdentityId >= 0) {
+			LumicallDataSource ds = new LumicallDataSource(this);
+			ds.open();
+			chosenIdentity = ds.getSIPIdentity(_sipIdentityId);
+			ds.close();
+		}
+		if(chosenIdentity != null)
+			buttonIdentity.setText(chosenIdentity.getUri());
+	}
+	
+	protected Dialog onCreateDialog(int id) {
+		if(id != 0)
+			return null;
+		Dialog dialog = new AlertDialog.Builder(this)
+			.setIcon(R.drawable.icon22)
+			.setTitle(R.string.choose_identity)
+			.setItems(new CharSequence[] {}, null)
+			.setCancelable(true)
+			.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface arg0) {
+					dismissDialog(0);
+				}
+			})
+			.create();
+		return dialog;
+	}
+	
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
+		if(id != 0)
+			return;
+		LumicallDataSource ds = new LumicallDataSource(this);
+		ds.open();
+		SIPIdentity[] identities = ds.getSIPIdentities().toArray(new SIPIdentity[] {});
+		ds.close();
+		MyListener l = new MyListener(identities);
+		AlertDialog _dialog = (AlertDialog)dialog;
+		_dialog.getListView().setAdapter(new MyArrayAdapter(this, identities));
+		_dialog.getListView().setOnItemClickListener(l);
+	}
+	
+	public class MyArrayAdapter extends ArrayAdapter<SIPIdentity> {
+	
+		public MyArrayAdapter(Context context, SIPIdentity[] objects) {
+			super(context, R.layout.identity_list_item, objects);
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			TextView view = (TextView)super.getView(position, convertView, parent);
+			SIPIdentity sipIdentity = getSIPIdentity(position);
+			view.setText(sipIdentity.getUri());
+			view.setTextColor(Color.BLACK);
+			return view;
+		}
+		
+		protected SIPIdentity getSIPIdentity(int position) {
+			return getItem(position);
+		}
+		
+	}
+	
+	public class MyListener implements OnItemClickListener {
+		SIPIdentity[] identities;
+		
+		public MyListener(SIPIdentity[] identities) {
+			this.identities = identities;
+		}
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
+			chosenIdentity = identities[position];
+			buttonIdentity.setText(chosenIdentity.getUri());
+			dismissDialog(0);
+		}
 	}
 
 	public static boolean on(Context context) {
@@ -257,6 +358,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			text = null;
 		else
 			text = Integer.parseInt(Build.VERSION.SDK) >= 5?CreateAccount.isPossible(this):null; */
+		setDefaultIdentity();
 	}
 
 	@Override
@@ -287,13 +389,20 @@ public class Sipdroid extends Activity implements OnDismissListener {
 				.setIcon(R.drawable.icon22)
 				.setCancelable(true)
 				.show();
-		else if (!Receiver.engine(this).call(target,true))
-			m_AlertDlg = new AlertDialog.Builder(this)
-				.setMessage(R.string.notfast)
-				.setTitle(R.string.app_name)
-				.setIcon(R.drawable.icon22)
-				.setCancelable(true)
-				.show();
+		else {
+			DialCandidate dc = new DialCandidate("sip", target, "", "Manual", chosenIdentity);
+			if (!Receiver.engine(this).call(dc,true)) {
+				String error = Receiver.engine(this).getLastError(true);
+				if(error == null)
+					error = getString(R.string.call_unknown_error);
+				m_AlertDlg = new AlertDialog.Builder(this)
+					.setMessage(error)
+					.setTitle(R.string.app_name)
+					.setIcon(R.drawable.icon22)
+					.setCancelable(true)
+					.show();
+			}
+		}
 	}
 	
 	@Override
