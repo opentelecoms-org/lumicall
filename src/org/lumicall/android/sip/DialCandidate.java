@@ -1,5 +1,7 @@
 package org.lumicall.android.sip;
 
+import java.util.List;
+
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.sipdroid.sipua.ui.Settings;
@@ -53,7 +55,14 @@ public class DialCandidate implements Parcelable {
 			_sipIdentityId = Long.parseLong(sipSettings.getString(Settings.PREF_SIP, "-1"));
 		}
 		if(_sipIdentityId == -1) {
-			// No default SIP identity selected in the prefs
+			// No default SIP identity selected in the prefs, just use the first one
+			LumicallDataSource ds = new LumicallDataSource(context);
+			ds.open();
+			List<SIPIdentity> identities = ds.getSIPIdentities();
+			ds.close();
+			if(identities.size() > 0)
+				return identities.get(0);
+			// No SIP identities configured at all
 			return null;
 		}
 		LumicallDataSource ds = new LumicallDataSource(context);
