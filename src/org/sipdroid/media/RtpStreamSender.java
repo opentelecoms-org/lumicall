@@ -208,6 +208,7 @@ public class RtpStreamSender extends Thread {
 		} catch (Exception e) {
 			if (!Sipdroid.release) e.printStackTrace();
 		}
+		setForceTX(false);
 	}
 
 	/** Sets the synchronization adjustment time (in milliseconds). */
@@ -313,6 +314,11 @@ public class RtpStreamSender extends Thread {
 				zrtpHelper.sendPackets();
 		} else
 			rtp_socket.send(p);
+	}
+	
+	boolean forceTX = false;
+	public void setForceTX(boolean forceTX) {
+		this.forceTX = forceTX;
 	}
 	
 	public static int m;
@@ -518,7 +524,7 @@ public class RtpStreamSender extends Thread {
  				 calc10(lin,pos,num);
  				 break;
  			 }
-			 if (Receiver.call_state != UserAgent.UA_STATE_INCALL &&
+			 if (!forceTX && Receiver.call_state != UserAgent.UA_STATE_INCALL &&
 					 Receiver.call_state != UserAgent.UA_STATE_OUTGOING_CALL && alerting != null) {
 				 try {
 					if (alerting.available() < num/mu)
