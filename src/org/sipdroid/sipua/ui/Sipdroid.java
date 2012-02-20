@@ -21,15 +21,25 @@
 
 package org.sipdroid.sipua.ui;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
+import org.sipdroid.codecs.Codecs;
+import org.sipdroid.media.RtpStreamReceiver;
+import org.sipdroid.media.RtpStreamSender;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.UserAgent;
+import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.tools.Random;
 
 import android.app.Activity;
@@ -48,6 +58,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -76,6 +88,8 @@ import android.widget.AdapterView.OnItemClickListener;
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
 public class Sipdroid extends Activity implements OnDismissListener {
+	
+	Logger logger = Logger.getLogger(getClass().getName());
 
 	public static final boolean release = false;
 	public static final boolean market = false;
@@ -255,7 +269,134 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		final Context mContext = this;
 		final OnDismissListener listener = this;
 		
+		startRX();
+		
 	}
+	
+	final static String WT_ADDR = "239.255.1.1";
+	final static int WT_PORT = 21108;
+	final static int WT_TTL = 5;
+	RtpStreamSender sender = null;
+	
+    final static String eol = System.getProperty("line.separator"); 
+	final static String offers = "v=0" + eol +
+			"o=root 2019150241 2019150241 IN IP4 127.0.0.1" + eol +
+			"s=Lumicall" + eol +
+			"c=IN IP4 127.0.0.1" + eol +
+			"t=0 0" + eol +
+			"m=audio " + WT_PORT + " RTP/AVP 8" + eol +
+			"a=rtpmap:8 PCMA/8000" + eol +
+			"a=ptime:20" + eol +
+			"a=sendrecv";
+	
+	WifiManager.MulticastLock multicastLock = null;
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode != KeyEvent.KEYCODE_CAMERA) {
+			return super.onKeyDown(keyCode, event);
+		}
+		if(receiver != null) {
+			receiver.halt();
+			receiver = null;
+		}
+		if(sender != null)
+			return true;
+		try {
+			// Start TX
+			if(multicastLock == null) {
+				WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+				multicastLock = wm.createMulticastLock("Lumicall");
+			}
+			if(!multicastLock.isHeld())
+				multicastLock.acquire();
+			if(socket == null) {
+				System.setProperty("java.net.preferIPv4Stack", "true");
+				//SocketAddress addr = new InetSocketAddress(WT_ADDR, WT_PORT);
+				socket = new MulticastSocket(WT_PORT);
+				socket.joinGroup(InetAddress.getByName(WT_ADDR));
+				socket.setTimeToLive(WT_TTL);
+				socket.setLoopbackMode(false);
+				socket.setSendBufferSize(512);
+				socket.setReceiveBufferSize(512);
+			}
+			
+			SessionDescriptor sd = new SessionDescriptor(offers);
+			Codecs.Map cmap = Codecs.getCodec(sd);
+			logger.info("Starting TX with codec: " + cmap.codec.getTitle());
+			int frame_size = cmap.codec.frame_size();
+			int frame_rate = cmap.codec.samp_rate()/frame_size;
+			sender = new RtpStreamSender(false,cmap,frame_rate,frame_size,socket,WT_ADDR,WT_PORT,null,null, null);
+			sender.setSyncAdj(2);
+            sender.setDTMFpayloadType(0);
+            sender.setForceTX(true);
+			sender.start();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			sender = null;
+		}
+		return true;
+	}
+	
+	MulticastSocket socket = null;
+	RtpStreamReceiver receiver = null;
+	
+	/**
+	 * Proposed receiver logic:
+	 * - start a thread to monitor the group
+	 * - when first packet received, start a full receiver
+	 * - receiver stops when audio stops for more than 500ms
+	 */
+	private void startRX() {
+		if(multicastLock == null) {
+			WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+			multicastLock = wm.createMulticastLock("Lumicall");
+		}
+		if(!multicastLock.isHeld()) {
+			multicastLock.acquire();
+		}
+		try {
+			if(socket == null) {
+				AudioManager am = (AudioManager) Receiver.mContext.getSystemService(Context.AUDIO_SERVICE);
+				am.setSpeakerphoneOn(true);
+				socket = new MulticastSocket(WT_PORT);
+				socket.joinGroup(InetAddress.getByName(WT_ADDR));
+				socket.setTimeToLive(WT_TTL);
+				socket.setLoopbackMode(false);
+				socket.setSendBufferSize(512);
+				socket.setReceiveBufferSize(512);
+			}
+		
+			if(receiver == null) {
+				SessionDescriptor sd = new SessionDescriptor(offers);
+				Codecs.Map cmap = Codecs.getCodec(sd);
+				receiver = new RtpStreamReceiver(socket, cmap, null, null, null);
+				receiver.start();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if(keyCode != KeyEvent.KEYCODE_CAMERA) {
+			return super.onKeyDown(keyCode, event);
+		}
+		if(sender != null) {
+			// Stop TX
+			sender.halt();
+			sender = null;
+		}
+		if(multicastLock != null) {
+			//multicastLock.release();
+			//multicastLock = null;
+		}
+		startRX();
+		return true;
+	}
+
+
 	
 	private void setDefaultIdentity() {
 		// Must use the default SIP identity for SIP-SIP calls
