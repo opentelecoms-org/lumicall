@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.PTTChannel;
 import org.lumicall.android.db.SIPIdentity;
 
 import android.content.Context;
@@ -13,24 +14,23 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class SIPIdentityListPreference extends DBObjectListPreference<SIPIdentity> {
+public class PTTChannelListPreference extends DBObjectListPreference<PTTChannel> {
 	
-	public SIPIdentityListPreference(Context context, AttributeSet attrs) {
+	public PTTChannelListPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 	
-	public SIPIdentityListPreference(Context context) {
+	public PTTChannelListPreference(Context context) {
 		super(context);
 	}
 	
 	@Override
-	protected List<SIPIdentity> getObjects(LumicallDataSource ds) {
-		return ds.getSIPIdentities();
+	protected List<PTTChannel> getObjects(LumicallDataSource ds) {
+		return ds.getPTTChannels();
 	}
 
 	@Override
 	protected int getTitleResId() {
-		return R.string.sip_identities;
+		return R.string.ptt_channels;
 	}
-	
 }

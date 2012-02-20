@@ -2,12 +2,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceScreen
 		android:key="sipIdentities"
-		android:title="@string/sipIdentities" >
+		android:title="@string/sip_identities" >
         	<intent
                 	android:action="android.intent.action.MAIN"
 	                android:targetPackage="org.lumicall.android"
 	                android:targetClass="org.lumicall.android.preferences.SIPIdentitiesSettings" />
-
 	</PreferenceScreen>
 	<org.lumicall.android.preferences.SIPIdentityListPreference
 				android:key="sip_pref_sip_identity"
@@ -19,6 +18,14 @@
 				android:title="@string/settings_telroute"
 				android:summary="@string/settings_telroute2"
 				android:dialogTitle="@string/settings_telroute_dialog"/>
+	<PreferenceScreen
+		android:key="pttChannels"
+		android:title="@string/ptt_channels" >
+        	<intent
+                	android:action="android.intent.action.MAIN"
+	                android:targetPackage="org.lumicall.android"
+	                android:targetClass="org.lumicall.android.preferences.PTTChannelsSettings" />
+	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_options">
 			<ListPreference
 				android:key="pref"
