@@ -377,6 +377,10 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			socket.setLoopbackMode(false);
 			socket.setSendBufferSize(512);
 			socket.setReceiveBufferSize(512);
+			
+			//AudioManager am = (AudioManager) Receiver.mContext.getSystemService(Context.AUDIO_SERVICE);
+			//am.setSpeakerphoneOn(true);
+			//am.setMode(AudioManager.MODE_NORMAL);
 		}
 		
 		SessionDescriptor sd = new SessionDescriptor(offers);
@@ -466,9 +470,6 @@ public class Sipdroid extends Activity implements OnDismissListener {
 				sender = null;
 			}
 			
-			AudioManager am = (AudioManager) Receiver.mContext.getSystemService(Context.AUDIO_SERVICE);
-			am.setSpeakerphoneOn(true);
-		
 			if(receiver == null) {
 				receiver = new RtpStreamReceiver(socket, cmap, null, srtp, null);
 				receiver.start();
