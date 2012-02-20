@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference
+        android:persistent="false"
+        android:key="ptt_channel_alias"
+        android:singleLine="true"
+        android:title="@string/ptt_channel_alias" />
+    <EditTextPreference
+        android:persistent="false"
+        android:key="ptt_channel_address"
+        android:singleLine="true"
+        android:title="@string/ptt_channel_address" />
+    <EditTextPreference
+        android:persistent="false"
+        android:key="ptt_channel_port"
+        android:singleLine="true"
+        android:title="@string/ptt_channel_port" />
+    <EditTextPreference
+        android:persistent="false"
+        android:key="ptt_channel_ttl"
+        android:singleLine="true"
+        android:title="@string/ptt_channel_ttl" />
+    <EditTextPreference
+        android:persistent="false"
+        android:key="ptt_channel_key"
+        android:singleLine="true"
+        android:title="@string/ptt_channel_key" />
+</PreferenceScreen>

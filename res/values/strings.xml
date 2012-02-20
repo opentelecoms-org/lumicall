@@ -378,7 +378,7 @@
 <string name="activate_re_reg">Request code again</string>
 <string name="activate_invalid_code">Invalid activation code</string>
 
-<string name="sipIdentities">SIP Identities</string>
+<string name="sip_identities">SIP Identities</string>
 
 <string name="sip_address_uri">SIP address/URI</string>
 <string name="sip_identity_enable">Profile enabled</string>
@@ -405,6 +405,18 @@
 <string name="sip_stun_server_port" >STUN server port</string>
 <string name="sip_stun_server_protocol">STUN server protocol</string>
 <string name="sip_security_mode">Security mode</string>
+
+<string name="ptt_channels">PTT Channels</string>
+<string name="ptt_channel_alias">Alias</string>
+<string name="ptt_channel_address">Multicast address</string>
+<string name="ptt_channel_port">Port</string>
+<string name="ptt_channel_ttl">TTL</string>
+<string name="ptt_channel_key">Encryption key</string>
+<string name="no_ptt_channel_selected">No PTT channel selected/configured</string>
+<string name="ptt_channel_disable">&lt;PTT DISABLED&gt;</string>
+<string name="ptt_channel_key_not_set">Not set</string>
+<string name="ptt_channel_key_set">Encryption enabled, key hidden</string>
+<string name="ptt_send">Send/PTT</string>
 
 <string name="choose_route">Choose destination</string>
 

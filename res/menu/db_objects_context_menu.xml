@@ -2,5 +2,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
     <!-- <item android:id="@+id/clone_sip_identity" android:title="Clone"></item> -->
-	<item android:id="@+id/delete_sip_identity" android:title="Delete"></item>
+	<item android:id="@+id/delete_db_object" android:title="Delete"></item>
 </menu>

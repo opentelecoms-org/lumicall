@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="libs/dnsjava-2.1.3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/zrtp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/opentelecoms.org-util"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/pbkdf2"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

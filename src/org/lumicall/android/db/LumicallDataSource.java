@@ -41,4 +41,20 @@ public class LumicallDataSource {
 		sipIdentity.delete(db);
 	}
 
+	public List<PTTChannel> getPTTChannels() {
+		return PTTChannel.loadFromDatabase(db);
+	}
+
+	public void deletePTTChannel(PTTChannel object) {
+		object.delete(db);
+	}
+
+	public void persistPTTChannel(PTTChannel object) {
+		object.commit(db);
+	}
+
+	public PTTChannel getPTTChannel(long id) {
+		return PTTChannel.loadFromDatabase(db, id);
+	}
+
 }

@@ -9,10 +9,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class SIPIdentity {
+public class SIPIdentity extends DBObject {
 	
 	private final static String DB_TABLE = "SIPIdentity";
-	private final static String COLUMN_ID = "_id";
+	//private final static String COLUMN_ID = "_id";
 	private final static String COLUMN_URI = "uri";
 	private final static String COLUMN_ENABLE = "enable";
 	private final static String COLUMN_AUTH_USER = "auth_user";
@@ -91,7 +91,7 @@ public class SIPIdentity {
 			COLUMN_SECURITY_MODE + " text, " +
 			COLUMN_STUN + " int not null);";
 	
-	long id = -1;
+	//long id = -1;
 	String uri = null;
 	boolean enable = true;
 	String authUser = null;
@@ -163,14 +163,6 @@ public class SIPIdentity {
 		return sipIdentity;
 	}
 	
-	private static boolean fromBoolean(int b) {
-		return b == 1;
-	}
-	
-	private static int toBoolean(boolean b) {
-		return b ? 1 : 0;
-	}
-	
 	private static SIPIdentity fromCursor(Cursor cursor) {
 		
 		SIPIdentity sipIdentity = new SIPIdentity();
@@ -205,9 +197,15 @@ public class SIPIdentity {
 		return sipIdentity;
 	}
 	
-	public void commit(SQLiteDatabase db) {
-		
-		ContentValues values = new ContentValues();
+	public final static String SIP_IDENTITY_ID = "sipIdentityId";
+	
+	@Override
+	protected String getTableName() {
+		return DB_TABLE;
+	}
+	
+	@Override
+	protected void putValues(ContentValues values) {
 		values.put(COLUMN_URI, getUri());
 		values.put(COLUMN_ENABLE, toBoolean(isEnable()));
 		values.put(COLUMN_AUTH_USER, getAuthUser());
@@ -231,34 +229,8 @@ public class SIPIdentity {
 		values.put(COLUMN_RINGTONE, getRingTone());
 		values.put(COLUMN_SECURITY_MODE, securityMode.toString());
 		values.put(COLUMN_STUN, toBoolean(isStun()));
-
-		if(getId() == -1) {
-			// insert and then setId()
-			setId(db.insert(DB_TABLE, null, values));
-		} else {
-			// update
-			values.put(COLUMN_ID, getId());
-			db.replace(DB_TABLE, null, values);
-		}
 	}
 	
-	public void delete(SQLiteDatabase db) {
-		if(getId() != -1) {
-			db.execSQL("DELETE FROM " + DB_TABLE +
-				" WHERE " + COLUMN_ID + " = " + getId() +
-				";");
-		}
-		setId(-1);		
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
 	@PreferenceField(fieldName="sip_identity_uri")
 	public String getUri() {
 		return uri;
@@ -638,6 +610,16 @@ public class SIPIdentity {
 		} else if (!uri.equals(other.uri))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String getTitleForMenu() {
+		return getUri();
+	}
+
+	@Override
+	public String getKeyForIntent() {
+		return SIP_IDENTITY_ID;
 	}
 
 }

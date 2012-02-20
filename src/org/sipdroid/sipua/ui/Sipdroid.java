@@ -21,6 +21,7 @@
 
 package org.sipdroid.sipua.ui;
 
+import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -31,14 +32,18 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.lumicall.android.R;
+import org.lumicall.android.db.DBObject;
 import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.PTTChannel;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
+import org.opentelecoms.media.rtp.secure.SRTP;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.UserAgent;
+import org.zoolu.sdp.SRTPKeySpec;
 import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.tools.Random;
 
@@ -69,6 +74,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -79,6 +85,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.Filterable;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -99,12 +106,20 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	public static final int CONFIGURE_MENU_ITEM = FIRST_MENU_ID + 1;
 	public static final int ABOUT_MENU_ITEM = FIRST_MENU_ID + 2;
 	public static final int EXIT_MENU_ITEM = FIRST_MENU_ID + 3;
+	
+	private static final int DLG_IDENTITY_ID = 1;
+	private static final int DLG_PTT_CHANNEL_ID = 2;
 
 	private static AlertDialog m_AlertDlg;
 	AutoCompleteTextView sip_uri_box;
 	// AutoCompleteTextView sip_uri_box2;
 	Button buttonIdentity;
 	SIPIdentity chosenIdentity = null;
+	
+	Button buttonPTTChannel;
+	PTTChannel chosenPTTChannel = null;
+	
+	Button buttonPTTSend;
 	
 	@Override
 	public void onStart() {
@@ -260,23 +275,51 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		buttonIdentity.setOnClickListener(new Button.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showDialog(0);
+				showDialog(DLG_IDENTITY_ID);
 			}
 		});
 
 		setDefaultIdentity();
+		
+		buttonPTTChannel = (Button) findViewById(R.id.ButtonPTTChannelMenu);
+		buttonPTTChannel.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showDialog(DLG_PTT_CHANNEL_ID);
+			}
+		});
+		
+		buttonPTTSend = (Button) findViewById(R.id.ButtonPTTSend);
+		buttonPTTSend.setOnTouchListener(new Button.OnTouchListener() {
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				logger.info("Got motion event: " + arg1);
+				if((arg1.getActionMasked() == MotionEvent.ACTION_DOWN ||
+						arg1.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN)) {
+					logger.info("Got motion event for TX: " + arg1);
+					if(chosenPTTChannel != null)
+						startTX();
+				} else if((arg1.getActionMasked() == MotionEvent.ACTION_UP) ||
+						(arg1.getActionMasked() == MotionEvent.ACTION_POINTER_UP) ||
+						(arg1.getActionMasked() == MotionEvent.ACTION_CANCEL)) {
+					logger.info("Got motion event for RX: " + arg1);
+					if(chosenPTTChannel != null)
+						startRX();
+				}
+				return false;
+			}
+		});
 
 		final Context mContext = this;
 		final OnDismissListener listener = this;
 		
-		startRX();
+		updatePTTChannel();
 		
 	}
 	
-	final static String WT_ADDR = "239.255.1.1";
-	final static int WT_PORT = 21108;
-	final static int WT_TTL = 5;
 	RtpStreamSender sender = null;
+	Codecs.Map cmap = null;
+	SRTP srtp = null;
 	
     final static String eol = System.getProperty("line.separator"); 
 	final static String offers = "v=0" + eol +
@@ -284,49 +327,114 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			"s=Lumicall" + eol +
 			"c=IN IP4 127.0.0.1" + eol +
 			"t=0 0" + eol +
-			"m=audio " + WT_PORT + " RTP/AVP 8" + eol +
+			"m=audio 5004 RTP/AVP 8" + eol +
 			"a=rtpmap:8 PCMA/8000" + eol +
 			"a=ptime:20" + eol +
 			"a=sendrecv";
-	
 	WifiManager.MulticastLock multicastLock = null;
+	
+	private void updatePTTChannel() {
+		if(receiver != null) {
+			receiver.halt();
+			receiver = null;
+		}
+		if(sender != null) {
+			sender.halt();
+			sender = null;
+		}
+		if(srtp != null) {
+			srtp.endSession();
+			srtp = null;
+		}
+		if(socket != null) {
+			socket.close();
+			socket = null;
+		}
+		if(multicastLock != null) {
+			if(multicastLock.isHeld())
+				multicastLock.release();
+			multicastLock = null;
+		}
+		
+		
+		startRX();
+	}
+	
+	protected void prepareMulticastSocket() throws IOException {
+		if(multicastLock == null) {
+			WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+			multicastLock = wm.createMulticastLock("Lumicall");
+		}
+		
+		if(!multicastLock.isHeld())
+			multicastLock.acquire();
+		
+		if(socket == null) {
+			System.setProperty("java.net.preferIPv4Stack", "true");
+			socket = new MulticastSocket(chosenPTTChannel.getPort());
+			socket.joinGroup(InetAddress.getByName(chosenPTTChannel.getAddress()));
+			socket.setTimeToLive(chosenPTTChannel.getTtl());
+			socket.setLoopbackMode(false);
+			socket.setSendBufferSize(512);
+			socket.setReceiveBufferSize(512);
+		}
+		
+		SessionDescriptor sd = new SessionDescriptor(offers);
+		cmap = Codecs.getCodec(sd);
+		
+		String _key = chosenPTTChannel.getKey();
+		if(srtp == null && _key != null && _key.length() == 40) {
+			logger.info("Setting up SRTP");
+			SRTPKeySpec key = new SRTPKeySpec(_key);
+			srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
+			srtp.setKDR(48);
+			srtp.setAuthTagSize(UserAgent.SUPPORTED_CRYPTO_SUITE_TAG_SIZE);  // FIXME
+			srtp.setTxMasterKey(key.getMaster());
+			srtp.setTxMasterSalt(key.getSalt());
+			srtp.setRxMasterKey(key.getMaster());
+			srtp.setRxMasterSalt(key.getSalt());
+			srtp.setReplayProtection(false);
+			if(srtp.startNewSession() != SRTP.SESSION_OK) {
+				throw new RuntimeException("Failed to start SRTP session");
+			}
+		}
+	}
+	
+
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode != KeyEvent.KEYCODE_CAMERA) {
 			return super.onKeyDown(keyCode, event);
 		}
+		startTX();
+		return true;
+	}
+	
+	public void startTX() {
+		if(chosenPTTChannel == null)
+			return;
 		if(receiver != null) {
 			receiver.halt();
 			receiver = null;
 		}
 		if(sender != null)
-			return true;
+			return;
 		try {
+			prepareMulticastSocket();
 			// Start TX
-			if(multicastLock == null) {
-				WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-				multicastLock = wm.createMulticastLock("Lumicall");
-			}
-			if(!multicastLock.isHeld())
-				multicastLock.acquire();
-			if(socket == null) {
-				System.setProperty("java.net.preferIPv4Stack", "true");
-				//SocketAddress addr = new InetSocketAddress(WT_ADDR, WT_PORT);
-				socket = new MulticastSocket(WT_PORT);
-				socket.joinGroup(InetAddress.getByName(WT_ADDR));
-				socket.setTimeToLive(WT_TTL);
-				socket.setLoopbackMode(false);
-				socket.setSendBufferSize(512);
-				socket.setReceiveBufferSize(512);
-			}
-			
-			SessionDescriptor sd = new SessionDescriptor(offers);
-			Codecs.Map cmap = Codecs.getCodec(sd);
 			logger.info("Starting TX with codec: " + cmap.codec.getTitle());
 			int frame_size = cmap.codec.frame_size();
 			int frame_rate = cmap.codec.samp_rate()/frame_size;
-			sender = new RtpStreamSender(false,cmap,frame_rate,frame_size,socket,WT_ADDR,WT_PORT,null,null, null);
+			sender = new RtpStreamSender(
+					false,
+					cmap,
+					frame_rate,
+					frame_size,
+					socket,
+					chosenPTTChannel.getAddress(),
+					chosenPTTChannel.getPort(),
+					null,srtp, null);
 			sender.setSyncAdj(2);
             sender.setDTMFpayloadType(0);
             sender.setForceTX(true);
@@ -335,7 +443,6 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			ex.printStackTrace();
 			sender = null;
 		}
-		return true;
 	}
 	
 	MulticastSocket socket = null;
@@ -348,29 +455,22 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	 * - receiver stops when audio stops for more than 500ms
 	 */
 	private void startRX() {
-		if(multicastLock == null) {
-			WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-			multicastLock = wm.createMulticastLock("Lumicall");
-		}
-		if(!multicastLock.isHeld()) {
-			multicastLock.acquire();
-		}
+		if(chosenPTTChannel == null)
+			return;
 		try {
-			if(socket == null) {
-				AudioManager am = (AudioManager) Receiver.mContext.getSystemService(Context.AUDIO_SERVICE);
-				am.setSpeakerphoneOn(true);
-				socket = new MulticastSocket(WT_PORT);
-				socket.joinGroup(InetAddress.getByName(WT_ADDR));
-				socket.setTimeToLive(WT_TTL);
-				socket.setLoopbackMode(false);
-				socket.setSendBufferSize(512);
-				socket.setReceiveBufferSize(512);
+			prepareMulticastSocket();
+			
+			if(sender != null) {
+				// Stop TX
+				sender.halt();
+				sender = null;
 			}
+			
+			AudioManager am = (AudioManager) Receiver.mContext.getSystemService(Context.AUDIO_SERVICE);
+			am.setSpeakerphoneOn(true);
 		
 			if(receiver == null) {
-				SessionDescriptor sd = new SessionDescriptor(offers);
-				Codecs.Map cmap = Codecs.getCodec(sd);
-				receiver = new RtpStreamReceiver(socket, cmap, null, null, null);
+				receiver = new RtpStreamReceiver(socket, cmap, null, srtp, null);
 				receiver.start();
 			}
 		} catch (Exception ex) {
@@ -383,20 +483,9 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		if(keyCode != KeyEvent.KEYCODE_CAMERA) {
 			return super.onKeyDown(keyCode, event);
 		}
-		if(sender != null) {
-			// Stop TX
-			sender.halt();
-			sender = null;
-		}
-		if(multicastLock != null) {
-			//multicastLock.release();
-			//multicastLock = null;
-		}
 		startRX();
 		return true;
 	}
-
-
 	
 	private void setDefaultIdentity() {
 		// Must use the default SIP identity for SIP-SIP calls
@@ -413,70 +502,127 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	}
 	
 	protected Dialog onCreateDialog(int id) {
-		if(id != 0)
+		Dialog dialog = null;
+		switch(id) {
+		case DLG_IDENTITY_ID:
+			dialog = new AlertDialog.Builder(this)
+				.setIcon(R.drawable.icon22)
+				.setTitle(R.string.choose_identity)
+				.setItems(new CharSequence[] {}, null)
+				.setCancelable(true)
+				.setOnCancelListener(new OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface arg0) {
+						dismissDialog(DLG_IDENTITY_ID);
+					}
+				})
+				.create();
+			break;
+		case DLG_PTT_CHANNEL_ID:
+			dialog = new AlertDialog.Builder(this)
+				.setIcon(R.drawable.icon22)
+				.setTitle(R.string.ptt_channels)
+				.setItems(new CharSequence[] {}, null)
+				.setCancelable(true)
+				.setOnCancelListener(new OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface arg0) {
+						dismissDialog(DLG_PTT_CHANNEL_ID);
+					}
+				})
+				.create();
+			break;
+		default:
 			return null;
-		Dialog dialog = new AlertDialog.Builder(this)
-			.setIcon(R.drawable.icon22)
-			.setTitle(R.string.choose_identity)
-			.setItems(new CharSequence[] {}, null)
-			.setCancelable(true)
-			.setOnCancelListener(new OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface arg0) {
-					dismissDialog(0);
-				}
-			})
-			.create();
+		}
 		return dialog;
 	}
 	
 	protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
-		if(id != 0)
+		if(id != DLG_IDENTITY_ID && id != DLG_PTT_CHANNEL_ID)
 			return;
 		LumicallDataSource ds = new LumicallDataSource(this);
 		ds.open();
-		SIPIdentity[] identities = ds.getSIPIdentities().toArray(new SIPIdentity[] {});
-		ds.close();
-		MyListener l = new MyListener(identities);
 		AlertDialog _dialog = (AlertDialog)dialog;
-		_dialog.getListView().setAdapter(new MyArrayAdapter(this, identities));
-		_dialog.getListView().setOnItemClickListener(l);
+		ListView lv = _dialog.getListView();
+		MyListener l = null;
+		MyArrayAdapter a = null;
+		switch(id) {
+		case DLG_IDENTITY_ID:
+			SIPIdentity[] identities = ds.getSIPIdentities().toArray(new SIPIdentity[] {});
+			l = new MyListener<SIPIdentity>(identities, DLG_IDENTITY_ID) {
+				@Override
+				protected void handleChosen(SIPIdentity object) {
+					buttonIdentity.setText(object.getUri());
+					chosenIdentity = object;
+				}
+			};
+			a = new MyArrayAdapter<SIPIdentity>(this, identities);
+			break;
+		case DLG_PTT_CHANNEL_ID:
+			List<PTTChannel> _pttChannels = ds.getPTTChannels();
+			PTTChannel disablePTT = new PTTChannel();
+			disablePTT.setAlias(getString(R.string.ptt_channel_disable));
+			_pttChannels.add(0, disablePTT);
+			PTTChannel[] pttChannels = _pttChannels.toArray(new PTTChannel[] {});
+			l = new MyListener<PTTChannel>(pttChannels, DLG_PTT_CHANNEL_ID) {
+				@Override
+				protected void handleChosen(PTTChannel object) {
+					buttonPTTChannel.setText(object.getAlias());
+					if(object.getId() >= 0)
+						chosenPTTChannel = object;
+					else
+						chosenPTTChannel = null;
+					updatePTTChannel();
+				}
+			};
+			a = new MyArrayAdapter<PTTChannel>(this, pttChannels);
+			break;
+		default:
+			// should never get here
+			throw new RuntimeException("Unexpected !!!");
+		}
+		lv.setAdapter(a);
+		lv.setOnItemClickListener(l);
+		ds.close();
 	}
 	
-	public class MyArrayAdapter extends ArrayAdapter<SIPIdentity> {
+	public class MyArrayAdapter<T extends DBObject> extends ArrayAdapter<T> {
 	
-		public MyArrayAdapter(Context context, SIPIdentity[] objects) {
+		public MyArrayAdapter(Context context, T[] objects) {
 			super(context, R.layout.identity_list_item, objects);
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			TextView view = (TextView)super.getView(position, convertView, parent);
-			SIPIdentity sipIdentity = getSIPIdentity(position);
-			view.setText(sipIdentity.getUri());
+			T object = getObject(position);
+			view.setText(object.getTitleForMenu());
 			view.setTextColor(Color.BLACK);
 			return view;
 		}
 		
-		protected SIPIdentity getSIPIdentity(int position) {
+		protected T getObject(int position) {
 			return getItem(position);
 		}
 		
 	}
 	
-	public class MyListener implements OnItemClickListener {
-		SIPIdentity[] identities;
+	public abstract class MyListener<T extends DBObject> implements OnItemClickListener {
+		T[] objects;
+		int dlgId;
 		
-		public MyListener(SIPIdentity[] identities) {
-			this.identities = identities;
+		public MyListener(T[] objects, int dlgId) {
+			this.objects = objects;
+			this.dlgId = dlgId;
 		}
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
-			chosenIdentity = identities[position];
-			buttonIdentity.setText(chosenIdentity.getUri());
-			dismissDialog(0);
+			handleChosen(objects[position]);
+			dismissDialog(dlgId);
 		}
+		protected abstract void handleChosen(T object);
 	}
 
 	public static boolean on(Context context) {

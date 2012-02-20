@@ -655,13 +655,20 @@ public class RtpStreamReceiver extends Thread {
 				luser = luser2 = -8000*mu;
 			}
 			try {
-				receive_from_socket();
-				if(srtp != null) {
-					if(srtp.unprotect(rtp_packet) != 0)
-						throw new RuntimeException("Failed to decrypt packet");
-					else {
-						if(zrtp != null && !zrtp.completed())
-							zrtp.successfulSrtpUnprotect();   // Tell ZRTP that we are receiving good SRTP
+				boolean goodPacket = false;
+				while(!goodPacket) {
+					receive_from_socket();
+					if(srtp != null) {
+						if(srtp.unprotect(rtp_packet) != 0)
+							//throw new RuntimeException("Failed to decrypt packet");
+							logger.warning("Failed to decrypt an SRTP packet");
+						else {
+							goodPacket = true;
+							if(zrtp != null && !zrtp.completed())
+								zrtp.successfulSrtpUnprotect();   // Tell ZRTP that we are receiving good SRTP
+						}
+					} else {
+						goodPacket = true;
 					}
 				}
 				if (timeout != 0) {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.PTTChannel;
 import org.lumicall.android.db.SIPIdentity;
 
 import android.content.Context;
@@ -22,25 +23,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class SIPIdentitiesSettings extends DBObjectsSettings<SIPIdentity> {
+public class PTTChannelsSettings extends DBObjectsSettings<PTTChannel> {
 
 	@Override
-	protected List<SIPIdentity> getObjects(LumicallDataSource ds) {
-		return ds.getSIPIdentities();
+	protected List<PTTChannel> getObjects(LumicallDataSource ds) {
+		return ds.getPTTChannels();
 	}
 
 	@Override
 	protected String getKeyForIntent() {
-		return SIPIdentity.SIP_IDENTITY_ID;
+		return PTTChannel.PTT_CHANNEL_ID;
 	}
 
 	@Override
-	protected void deleteObject(LumicallDataSource ds, SIPIdentity object) {
-		ds.deleteSIPIdentity(object);
+	protected void deleteObject(LumicallDataSource ds, PTTChannel object) {
+		ds.deletePTTChannel(object);
 	}
 
 	@Override
 	protected Class getEditorActivity() {
-		return SIPIdentitySettings.class;
+		return PTTChannelSettings.class;
 	}
 }

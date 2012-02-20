@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
-	<item android:id="@+id/add_sip_identity" android:title="Add"></item>
+	<item android:id="@+id/add_db_object" android:title="Add"></item>
 </menu>
