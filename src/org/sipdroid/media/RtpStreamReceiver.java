@@ -74,7 +74,9 @@ public class RtpStreamReceiver extends Thread {
 	static String codec = "";
 
 	/** Size of the read buffer */
-	public static final int BUFFER_SIZE = 4096;
+	public static final int PACKET_BUFFER_SIZE = 2048;
+	
+	public static final int AUDIO_BUFFER_SIZE = 1024;
 
 	/** Maximum blocking time, spent waiting for reading new bytes [milliseconds] */
 	public static final int SO_TIMEOUT = 1000;
@@ -524,8 +526,8 @@ public class RtpStreamReceiver extends Thread {
 			maxjitter = AudioTrack.getMinBufferSize(p_type.codec.samp_rate(), 
 					AudioFormat.CHANNEL_CONFIGURATION_MONO, 
 					AudioFormat.ENCODING_PCM_16BIT);
-			if (maxjitter < 2*2*BUFFER_SIZE*3*mu)
-				maxjitter = 2*2*BUFFER_SIZE*3*mu;
+			if (maxjitter < 2*2*AUDIO_BUFFER_SIZE*3*mu)
+				maxjitter = 2*2*AUDIO_BUFFER_SIZE*3*mu;
 			oldtrack = track;
 			track = new AudioTrack(stream(), p_type.codec.samp_rate(), AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
 					maxjitter, AudioTrack.MODE_STREAM);
@@ -604,7 +606,7 @@ public class RtpStreamReceiver extends Thread {
 			return;
 		}
 
-		byte[] buffer = new byte[BUFFER_SIZE];  // FIXME - Good size for ZRTP?
+		byte[] buffer = new byte[PACKET_BUFFER_SIZE];  // FIXME - Good size for ZRTP?
 		rtp_packet = new RtpPacket(buffer, 0);
 
 		logger.info("Reading blocks of max " + buffer.length + " bytes");
@@ -624,8 +626,8 @@ public class RtpStreamReceiver extends Thread {
 		if (oldvol == -1) oldvol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
 		initMode();
 		setCodec();
-		short lin[] = new short[BUFFER_SIZE];
-		short lin2[] = new short[BUFFER_SIZE];
+		short lin[] = new short[AUDIO_BUFFER_SIZE];
+		short lin2[] = new short[AUDIO_BUFFER_SIZE];
 		int server, headroom, todo, len = 0, m = 1, expseq, getseq, vm = 1, gap, gseq;
 		ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_VOICE_CALL,(int)(ToneGenerator.MAX_VOLUME*2*org.sipdroid.sipua.ui.Settings.getEarGain()));
 		logger.info("starting track player");
@@ -665,8 +667,8 @@ public class RtpStreamReceiver extends Thread {
 				if (timeout != 0) {
 					tg.stopTone();
 					track.pause();
-					for (int i = maxjitter*2; i > 0; i -= BUFFER_SIZE)
-						write(lin2,0,i>BUFFER_SIZE?BUFFER_SIZE:i);
+					for (int i = maxjitter*2; i > 0; i -= AUDIO_BUFFER_SIZE)
+						write(lin2,0,i>AUDIO_BUFFER_SIZE?AUDIO_BUFFER_SIZE:i);
 					cnt += maxjitter*2;
 					track.play();
 					empty();
@@ -736,7 +738,7 @@ public class RtpStreamReceiver extends Thread {
 							 minheadroom = maxjitter*2;
 						 }
 					todo = jitter - headroom;
-					write(lin2,0,todo>BUFFER_SIZE?BUFFER_SIZE:todo);
+					write(lin2,0,todo>AUDIO_BUFFER_SIZE?AUDIO_BUFFER_SIZE:todo);
 				 }
 
 				 if (cnt > 500*mu && cnt2 < 2) {
