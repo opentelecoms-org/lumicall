@@ -28,7 +28,7 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 
-class CodecBase implements Preference.OnPreferenceChangeListener {
+abstract class CodecBase implements Preference.OnPreferenceChangeListener, Codec {
 	protected String CODEC_NAME;
 	protected String CODEC_USER_NAME;
 	protected int CODEC_NUMBER;
@@ -176,5 +176,12 @@ class CodecBase implements Preference.OnPreferenceChangeListener {
 
 	public String toString() {
 		return "CODEC{ " + CODEC_NUMBER + ": " + getTitle() + "}";
+	}
+
+	@Override
+	public boolean isLicensed() {
+		// Most codecs are free and don't need a license
+		// codecs that do need a license should override this method
+		return true;
 	}
 }

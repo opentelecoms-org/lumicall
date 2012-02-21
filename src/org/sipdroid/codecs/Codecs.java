@@ -101,7 +101,10 @@ public class Codecs {
 			}
 			orderedCodecs.addAll(codecs);
 			codecs.clear();
-			codecs.addAll(orderedCodecs);
+			for(Codec c : orderedCodecs) {
+				if(c.isLicensed())
+					codecs.add(c);
+			}
 			saveCodecPrefs(sp);
 		}
 	}
