@@ -143,4 +143,6 @@ public interface Codec {
 	 * the codec parameters accordingly.
 	 */
 	void setListPreference(ListPreference l);
+
+	boolean isLicensed();
 }

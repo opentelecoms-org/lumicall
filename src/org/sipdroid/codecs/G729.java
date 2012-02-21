@@ -19,7 +19,15 @@
  */
 package org.sipdroid.codecs;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
+import org.zoolu.tools.Base64;
+
+import android.content.Context;
+import android.telephony.TelephonyManager;
 
 class G729 extends CodecBase implements Codec {
 
@@ -55,5 +63,45 @@ class G729 extends CodecBase implements Codec {
 			load();
 		if (isLoaded())
 			open();
+	}
+	
+	final static String hexChars = "0123456789abcdef";
+	public String byteToHexString(byte[] buffer, int offset, int length) {
+		if(buffer == null)
+			return "<null buffer>";
+		// FIXME - performance
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < length; i++) {
+			byte b = buffer[offset + i];
+			sb.append(hexChars.charAt((b & 0xf0) >> 4));
+			sb.append(hexChars.charAt(b&0xf));
+		}
+		return sb.toString();
+	}
+	
+	String[] LICENSED_USERS = new String[] {
+		"b0f5a5550dced1f6e0fd6899ade48b4f"
+	};
+	
+	public boolean isLicensed() {
+		TelephonyManager telephonyManager = (TelephonyManager)Receiver.mContext.getSystemService(Context.TELEPHONY_SERVICE);
+		String devId = telephonyManager.getDeviceId();
+		String key = devId.substring(devId.length() - 6);
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(key.getBytes());
+			byte[] _hash = md.digest();
+			String hash = byteToHexString(_hash, 0, _hash.length);
+			for(String u : LICENSED_USERS) {
+				if(u.toLowerCase().equals(hash.toLowerCase()))
+					return true;
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return false;
 	}
 }
