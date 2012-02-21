@@ -113,6 +113,8 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	private static AlertDialog m_AlertDlg;
 	AutoCompleteTextView sip_uri_box;
 	// AutoCompleteTextView sip_uri_box2;
+	Button buttonSend = null;
+	
 	Button buttonIdentity;
 	SIPIdentity chosenIdentity = null;
 	
@@ -268,6 +270,14 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			public void onClick(View v) {
 				Intent myIntent = new Intent(Intent.ACTION_DIAL);
 				startActivity(myIntent);
+			}
+		});
+		
+		buttonSend = (Button) findViewById(R.id.ButtonCallSend);
+		buttonSend.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				call_menu(sip_uri_box);
 			}
 		});
 		
