@@ -80,7 +80,8 @@ class G729 extends CodecBase implements Codec {
 	}
 	
 	String[] LICENSED_USERS = new String[] {
-		"b0f5a5550dced1f6e0fd6899ade48b4f"
+		"b0f5a5550dced1f6e0fd6899ade48b4f",
+		"530fae97f6417063954078d89ed5e2d1"
 	};
 	
 	public boolean isLicensed() {
@@ -96,7 +97,7 @@ class G729 extends CodecBase implements Codec {
 				if(u.toLowerCase().equals(hash.toLowerCase()))
 					return true;
 			}
-		} catch (NoSuchAlgorithmException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
