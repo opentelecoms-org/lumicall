@@ -158,7 +158,9 @@ public class SIPIdentity extends DBObject {
 				ALL_COLUMNS, COLUMN_ID + " = " + id,
 				null, null, null, null);
 		cursor.moveToFirst();
-		SIPIdentity sipIdentity = fromCursor(cursor);
+		SIPIdentity sipIdentity = null;
+		if(!cursor.isAfterLast())
+			 sipIdentity = fromCursor(cursor);
 		cursor.close();
 		return sipIdentity;
 	}

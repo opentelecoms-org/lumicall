@@ -36,7 +36,10 @@ public class DialCandidate implements Parcelable {
 		this.address = address;
 		this.displayName = displayName;
 		this.source = source;
-		this.sipIdentityId = sipIdentity.getId();
+		if(sipIdentity != null)
+			this.sipIdentityId = sipIdentity.getId();
+		else
+			this.sipIdentityId = -1;
 	}
 	public String getScheme() {
 		return scheme;
