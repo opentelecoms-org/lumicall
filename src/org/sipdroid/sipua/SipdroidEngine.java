@@ -657,7 +657,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		lastError = null;
 		if(!target.getScheme().equals("sip")) {
 			lastError = "can't call non-SIP candidate";
-			ua.printLog(lastError);
+			if(ua != null)
+				ua.printLog(lastError);
 			return false;
 		}
 		
@@ -666,7 +667,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		SIPIdentity sipIdentity = target.getSIPIdentity(this.getUIContext());
 		if(sipIdentity == null) {
 			lastError = "no SIP Identity found or no default SIP identity set in preferences";
-			ua.printLog(lastError);
+			if(ua != null)
+				ua.printLog(lastError);
 			return false;
 		}
 		
@@ -677,7 +679,8 @@ public class SipdroidEngine implements RegisterAgentListener {
 		}
 		
 		lastError = "SIP identity not active, can't make call";
-		ua.printLog(lastError);
+		if(ua != null)
+			ua.printLog(lastError);
 		return false;
 	}
 	
