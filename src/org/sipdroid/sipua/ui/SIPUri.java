@@ -113,17 +113,8 @@ public class SIPUri extends Activity {
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
 			candidate = candidates[position];
-			if(candidate.getScheme().equals("sip")) {
-				if(!Receiver.engine(SIPUri.this).call(candidate, true)) {
-					String error = Receiver.engine(SIPUri.this).getLastError(true);
-					if(error == null)
-						error = SIPUri.this.getString(R.string.call_unknown_error);
-					Toast toast = Toast.makeText(SIPUri.this, error, Toast.LENGTH_SHORT);
-					toast.show();
-					return;
-				}
-			} else if(candidate.getScheme().equals("tel")) {
-				PSTN.callPSTN2("tel:" + candidate.getAddress());
+			if(!candidate.call(SIPUri.this)) {
+				// ignoring error
 			}
 			finish();
 		}

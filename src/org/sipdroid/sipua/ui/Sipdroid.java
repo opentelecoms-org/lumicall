@@ -689,16 +689,8 @@ public class Sipdroid extends Activity implements OnDismissListener {
 				.show();
 		else {
 			DialCandidate dc = new DialCandidate("sip", target, "", "Manual", chosenIdentity);
-			if (!Receiver.engine(this).call(dc,true)) {
-				String error = Receiver.engine(this).getLastError(true);
-				if(error == null)
-					error = getString(R.string.call_unknown_error);
-				m_AlertDlg = new AlertDialog.Builder(this)
-					.setMessage(error)
-					.setTitle(R.string.app_name)
-					.setIcon(R.drawable.icon22)
-					.setCancelable(true)
-					.show();
+			if (!dc.call(this)) {
+				// ignoring error
 			}
 		}
 	}
