@@ -2,15 +2,21 @@ package org.lumicall.android.sip;
 
 import java.util.List;
 
+import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
+import org.sipdroid.sipua.ui.PSTN;
+import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.Toast;
 
 public class DialCandidate implements Parcelable {
 	String scheme;
@@ -114,6 +120,29 @@ public class DialCandidate implements Parcelable {
 	@Override
 	public String toString() {
 		return getAddressToDial() + " (" + getSource() + ")";
+	}
+	
+	public boolean call(Context context) {
+		if(getScheme().equals("sip")) {
+			if(!Receiver.engine(context).call(this, true)) {
+				String error = Receiver.engine(context).getLastError(true);
+				if(error == null)
+					error = context.getString(R.string.call_unknown_error);
+				new AlertDialog.Builder(context)
+					.setMessage(error)
+					.setTitle(R.string.app_name)
+					.setIcon(R.drawable.icon22)
+					.setCancelable(true)
+					.show();
+				return false;
+			} else {
+				return true;
+			}
+		} else if(getScheme().equals("tel")) {
+			PSTN.callPSTN2("tel:" + getAddress());
+			return true;
+		}
+		return false;
 	}
 
 }

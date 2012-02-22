@@ -45,7 +45,7 @@ public class PSTN extends Activity {
 		}
 	}
 	
-	static void callPSTN2(String uri) {
+	public static void callPSTN2(String uri) {
 		String number;
 		
 		if (uri.indexOf(":") >= 0) {
