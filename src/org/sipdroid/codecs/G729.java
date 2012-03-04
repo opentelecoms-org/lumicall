@@ -79,9 +79,20 @@ class G729 extends CodecBase implements Codec {
 		return sb.toString();
 	}
 	
+	/*
+	 * When a user is licensed, add them here:
+	 * a) get the last 6 digits of their IMEI
+	 * b) get the MD5sum:
+	 *       echo -n 123456 | md5sum
+	 * c) add the value to LICENSED_USERS
+	 * d) user must go into codec settings
+	 *    and enable the codec
+	 */
 	String[] LICENSED_USERS = new String[] {
 		"b0f5a5550dced1f6e0fd6899ade48b4f",
-		"530fae97f6417063954078d89ed5e2d1"
+		"530fae97f6417063954078d89ed5e2d1",
+		"ab2500c3f2814b1beb80d90a4b8478d2",
+		"69f14a3f1edd3f7831fb03dec2073e24"
 	};
 	
 	public boolean isLicensed() {
