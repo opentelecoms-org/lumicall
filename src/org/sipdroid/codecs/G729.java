@@ -21,6 +21,7 @@ package org.sipdroid.codecs;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Logger;
 
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
@@ -41,6 +42,8 @@ class G729 extends CodecBase implements Codec {
 		CODEC_FRAMES_PER_PACKET = 2;
 		super.update();
 	}
+	
+	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
 
 	void load() {
@@ -97,7 +100,15 @@ class G729 extends CodecBase implements Codec {
 	
 	public boolean isLicensed() {
 		TelephonyManager telephonyManager = (TelephonyManager)Receiver.mContext.getSystemService(Context.TELEPHONY_SERVICE);
+		if(telephonyManager == null) {
+			logger.warning("Can't check G.729 license: telephonyManager == null");
+			return false;
+		}
 		String devId = telephonyManager.getDeviceId();
+		if(devId == null) {
+			logger.warning("Can't check G.729 license: devId == null");
+			return false;
+		}
 		String key = devId.substring(devId.length() - 6);
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
@@ -112,7 +123,6 @@ class G729 extends CodecBase implements Codec {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		
 		return false;
 	}
