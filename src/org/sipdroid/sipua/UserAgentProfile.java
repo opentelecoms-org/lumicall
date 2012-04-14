@@ -188,6 +188,7 @@ public class UserAgentProfile extends Configure {
 	
 	public long sipIdentityId = -1;
 	public SecurityMode security_mode;
+	public String sipInstanceURN;
 
 	// ************************** Costructors *************************
 

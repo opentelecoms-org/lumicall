@@ -143,6 +143,10 @@ public class SipdroidEngine implements RegisterAgentListener {
 		
 		user_profile.security_mode = sipIdentity.getSecurityMode();
 		
+		user_profile.sipInstanceURN = "\"<urn:uuid:" + 
+				org.sipdroid.sipua.ui.Settings.getSIPInstanceId() +
+				">\"";
+		
 		return user_profile;
 	}
 	
