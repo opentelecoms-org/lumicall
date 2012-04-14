@@ -234,6 +234,27 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		
 		req.setExpiresHeader(new ExpiresHeader(String.valueOf(expire_time)));
 		
+		ContactHeader ch = req.getContactHeader();
+		// FIXME, there are cases when this value should not be reg-id=1, see RFC 5626
+		ch.setParameter("reg-id", "1");
+		ch.setParameter("+sip.instance", user_profile.sipInstanceURN);
+		req.setContactHeader(ch);
+		
+		Header supported = req.getHeader("Supported");
+		if(supported == null) {
+			supported = new Header("Supported", "path, outbound");
+		} else {
+			// FIXME: should really scan the header to see if either
+			// `path' or `outbound' is already present
+			String v = supported.getValue();
+			if(v.length() == 0)
+				v = "path, outbound";
+			else
+				v = v + ", path, outbound";
+			supported = new Header("Supported", v);
+		}
+		req.setHeader(supported);
+		
 		//create and fill the authentication params this is done when
 		//the UA has been challenged by the registrar or intermediate UA
 		if (next_nonce != null) 

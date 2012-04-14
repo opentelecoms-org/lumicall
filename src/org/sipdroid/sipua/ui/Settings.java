@@ -23,6 +23,7 @@ package org.sipdroid.sipua.ui;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.UUID;
 
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.RtpStreamReceiver;
@@ -158,6 +159,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_SELECTWIFI = "selectwifi";
 	public static final String PREF_ACCOUNT = "account";
 	public static final String PREF_IPV4 = "preferipv4";
+	
+	public static final String PREF_SIP_INSTANCE_ID = "sip.instance.id";
 	
 	// Default values of the preferences
 	public static final String	DEFAULT_USERNAME = "";
@@ -556,5 +559,21 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		Editor edit = settings.edit();
  		edit.putString(mKey, transferText.getText().toString());
 		edit.commit();
+	}
+
+	public static String getSIPInstanceId() {
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
+		
+		String instanceId = 
+				sp.getString(PREF_SIP_INSTANCE_ID, "");
+		if(instanceId.equals("")) {
+			// Create and persist an instance ID for SIP
+			instanceId = UUID.randomUUID().toString();
+			Editor edit = sp.edit();
+			edit.putString(PREF_SIP_INSTANCE_ID, instanceId);
+			edit.commit();
+		}
+		
+		return instanceId;
 	}
 }
