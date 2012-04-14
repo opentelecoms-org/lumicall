@@ -355,9 +355,12 @@ public class SessionDescriptor {
 		// desc:
 		// "+media_desc,5);
 		int pos = -1;
-		for(int i = 0; i < media.size(); i++)
-			if(media.get(i).getMedia().getMedia().equals(media_desc.getMedia().getMedia()))
+		for(int i = 0; i < media.size(); i++) {
+			MediaField _mf = media.get(i).getMedia();
+			if(_mf.getMedia().equals(media_desc.getMedia().getMedia()) &&
+					_mf.getTransport().equals(media_desc.getMedia().getTransport()))
 				pos = i;
+		}
 		if(pos >= 0)
 			media.remove(pos);  // FIXME - expects only one instance of each media type (no good for stereo)
 		media.addElement(media_desc);
@@ -415,6 +418,24 @@ public class SessionDescriptor {
 		}
 		return null;
 	}
+	
+	/**
+	 * Gets the first MediaDescriptor of a particular media.
+	 * 
+	 * @param media_type the media type
+	 * @param transport the transport (e.g. RTP/AVP)
+	 * @return the MediaDescriptor
+	 */
+	public MediaDescriptor getMediaDescriptor(String media_type, String transport) {
+		for (int i = 0; i < media.size(); i++) {
+			MediaDescriptor md = (MediaDescriptor) media.elementAt(i);
+			if (md.getMedia().getMedia().equals(media_type) &&
+					md.getMedia().getTransport().equals(transport))
+				return md;
+		}
+		return null;
+	}
+
 
 	/**
 	 * Adds a Vector of session attributes.
