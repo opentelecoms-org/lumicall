@@ -20,7 +20,10 @@
 
 package org.sipdroid.sipua.ui;
 
+import java.util.logging.Logger;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,6 +32,8 @@ import android.preference.PreferenceManager;
 public class PSTN extends Activity {
 
 	public static final String BYPASS_LUMICALL = "bypassLumicall";
+	
+	static Logger logger = Logger.getLogger(PSTN.class.getCanonicalName());
 
 	static void callPSTN(String uri) {
 		String number;
@@ -51,10 +56,16 @@ public class PSTN extends Activity {
 		if (uri.indexOf(":") >= 0) {
 			number = uri.substring(uri.indexOf(":")+1);
 			if (!number.equals("")) {
-		        Intent intent = new Intent(Intent.ACTION_CALL,
+				Context context = Receiver.mContext;
+				if(context != null) {
+					Intent intent = new Intent(Intent.ACTION_CALL,
 		                Uri.fromParts("tel", Uri.decode(number), BYPASS_LUMICALL));
-		        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		        Receiver.mContext.startActivity(intent);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					context.startActivity(intent);
+				} else {
+					// FIXME: we may need to display a popup for the user
+					logger.warning("callPSTN2: can't get context to sent intent, Receiver.mContext == null");
+				}
 			}
 		}
 	}
