@@ -61,7 +61,8 @@ public class SdpTools {
 				// System.out.print("DEBUG: SDP: sdp_select:
 				// "+spec_md.toString());
 				MediaDescriptor prev_md = sdp.getMediaDescriptor(spec_md
-						.getMedia().getMedia());
+						.getMedia().getMedia(),
+						spec_md.getMedia().getTransport());
 				// System.out.print("DEBUG: SDP: sdp_origin:
 				// "+prev_md.toString());
 				if (prev_md != null) {
