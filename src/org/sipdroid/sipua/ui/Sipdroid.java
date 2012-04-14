@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -502,12 +503,17 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		// Must use the default SIP identity for SIP-SIP calls
 		SharedPreferences sipSettings = getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
 		long _sipIdentityId = Long.parseLong(sipSettings.getString(Settings.PREF_SIP, "-1"));
-		if(_sipIdentityId >= 0) {
-			LumicallDataSource ds = new LumicallDataSource(this);
-			ds.open();
+		LumicallDataSource ds = new LumicallDataSource(this);
+		ds.open();
+		if(_sipIdentityId >= 0)
 			chosenIdentity = ds.getSIPIdentity(_sipIdentityId);
-			ds.close();
+		if(chosenIdentity == null) {
+			Iterator<SIPIdentity> iterator = ds.getSIPIdentities().iterator();
+			if(iterator.hasNext()) {
+				chosenIdentity = iterator.next();
+			}
 		}
+		ds.close();
 		if(chosenIdentity != null)
 			buttonIdentity.setText(chosenIdentity.getUri());
 	}
