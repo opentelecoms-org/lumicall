@@ -63,21 +63,24 @@ public class DialCandidate implements Parcelable {
 			SharedPreferences sipSettings = context.getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
 			_sipIdentityId = Long.parseLong(sipSettings.getString(Settings.PREF_SIP, "-1"));
 		}
-		if(_sipIdentityId == -1) {
-			// No default SIP identity selected in the prefs, just use the first one
-			LumicallDataSource ds = new LumicallDataSource(context);
-			ds.open();
-			List<SIPIdentity> identities = ds.getSIPIdentities();
-			ds.close();
-			if(identities.size() > 0)
-				return identities.get(0);
-			// No SIP identities configured at all
-			return null;
-		}
 		LumicallDataSource ds = new LumicallDataSource(context);
 		ds.open();
-		SIPIdentity sipIdentity = ds.getSIPIdentity(_sipIdentityId);
+		SIPIdentity sipIdentity = null;
+		if(_sipIdentityId >= 0) {
+			sipIdentity = ds.getSIPIdentity(_sipIdentityId);
+		}
+		if(sipIdentity == null) {
+			// No default SIP identity selected in the prefs, just use the first one
+			for(SIPIdentity _sipIdentity : ds.getSIPIdentities()) {
+				if(_sipIdentity.isEnable()) {
+					sipIdentity = _sipIdentity;
+					break;
+				}
+			}
+		}
 		ds.close();
+		if(!sipIdentity.isEnable())
+			return null;
 		return sipIdentity;
 	}
 	public String getDomain() {
