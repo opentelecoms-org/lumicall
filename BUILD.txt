@@ -1,4 +1,11 @@
-Building sipdroid from the command line
+
+
+Building with Eclipse:
+
+   http://www.lumicall.org/source-code-and-build-instructions
+
+
+Building lumicall from the command line (legacy instructions)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To build the project from the command line, run:
@@ -8,3 +15,5 @@ android update project -p . -t android-8
 Then you can use ant to make the binaries.
 
 ant debug
+
+

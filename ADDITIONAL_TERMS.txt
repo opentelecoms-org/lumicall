@@ -1,3 +1,90 @@
+
+Additional terms added by i-p-tel GmbH in conflict with the GPL
+===============================================================
+
+The original works (e.g. MjSIP) are licensed for public use under the
+terms of the GNU General Public License (GPL).
+
+Sipdroid is a derivative of MjSIP, and Lumicall is a derivative of Sipdroid.
+Therefore, each project inherits the GNU GPL of the work it is based on.
+
+Section 7 of the GPL allows the author of a piece of work to create
+`additional permissions' in their license.  i-p-tel have
+mis-interpreted this and asserted that section 7 allows them to create
+additional restrictions on the use of the code.  Such restrictions are
+clearly not `permissions' as they limit the freedom of developers extending
+this work, so it would therefore no longer be compatible with the
+GPL of MjSIP and therefore the restrictions are not entirely valid.
+
+The first restriction contains two parts:
+
+1.a) Displaying copyright/license text in the About box and
+     ensuring the box is easily accessible.
+     
+     Comment:
+     - in principal, this is compatible with 7(b) of the GPL,
+       and the GPL already specifies in general terms that
+       copyright/license text must be available in an appropriate
+       manner.
+     - for an Android application, an About box seems like a
+       reasonable way to represent the copyright/license text
+     
+1.b) Not displaying any activity other than the Sipdroid main
+     Activity when the user enters the application.  In
+     particular, a prohibition on the creation of any
+     startup activity to facilitate rapid/convenient
+     registration with a SIP provider.
+     
+     Comment:
+     - this term appears to be intended to ensure that the
+       user is not prevented from accessing the
+       copyright/license text
+     - nonetheless, it restricts usage of the software in a
+       way that means the license is no longer `free' and
+       it is not compatible with the original GPL license
+       of MjSIP
+     - the developer of a derivative work who adds a
+       registration screen is not necessarily doing so in
+       order to make the copyright/license text
+       inaccessible
+     - the developer of a derivative work can potentially
+       provide a link from their new startup activity
+       to the existing copyright/license text (this is
+       what Lumicall does, to remain consistent
+       with the principle of the license)
+     - this particular license term is not exactly
+       practical anyway: consider the case of a user who
+       enters the application as a consequence of the alert
+       activity that appears for incoming calls.  This
+       activity has bypassed the main activity.  To remain
+       truly consistent with the license, the user would
+       have to have access to the license text every
+       time their phone receives a SIP call.
+       
+2)   Modified versions may not use the package name
+     `org.sipdroid.sipua'
+     
+     Comment:
+     - This appears to refer to the package name
+       in the context of Android, rather than the
+       Java package name.
+     - for practical reasons, an end user would
+       have trouble installing two applications on
+       their phone if both have the same Android
+       package name.  Therefore, anyone making a
+       derivative work should consider the use
+       of an appropriate package name.
+     - as the package name contains the name of the
+       project (sipdroid), this term may be
+       compatible with s7(c) of the GPL,
+       requiring the producer of a derivative work
+       to ensure their work is marked in such a way
+       to distinguish it from the original work
+     - therefore, users of Lumicall are strongly
+       encouraged to use a distinct package name
+       for any derivative work they publish to the
+       Android Market or Google Play
+
 Additional Terms according to GPL, Section 7
 ============================================
 
