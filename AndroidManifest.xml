@@ -210,5 +210,7 @@
                 <action android:name="org.lumicall.android.extra.VALIDATION_ATTEMPTED" />
             </intent-filter> -->
     	</service>
+    	<service android:name="org.lumicall.android.ganglia.GMonitorService" android:enabled="true">
+    	</service>
     </application>
 </manifest> 

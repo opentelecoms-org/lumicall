@@ -45,6 +45,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.util.Base64;
 import org.lumicall.android.R;
+import org.lumicall.android.ganglia.GMonitorService;
 import org.lumicall.android.reg.EnrolmentService;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.ui.Settings;
@@ -298,6 +299,8 @@ public class RegisterAccount extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        startService(new Intent(this, GMonitorService.class));
         
         // Has user already done registration or activation?
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
