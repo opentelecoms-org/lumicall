@@ -33,6 +33,7 @@ import org.zoolu.sip.provider.SipStack;
 
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
@@ -562,7 +563,11 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	}
 
 	public static String getSIPInstanceId() {
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
+		return getSIPInstanceId(Receiver.mContext);
+	}
+		
+	public static String getSIPInstanceId(Context context) {
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		String instanceId = 
 				sp.getString(PREF_SIP_INSTANCE_ID, "");
