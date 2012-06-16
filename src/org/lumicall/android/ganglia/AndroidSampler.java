@@ -23,10 +23,12 @@ public class AndroidSampler extends GSampler {
 	private static Logger log =
 	        Logger.getLogger(AndroidSampler.class.getName());
 	private Context context;
+	private int interval;
 
-	public AndroidSampler(Context context) {
-		super(0, 5, "lumicall");
+	public AndroidSampler(Context context, int interval) {
+		super(0, interval, "lumicall");
 		this.context = context;
+		this.interval = interval;
 	}
 
 	@Override

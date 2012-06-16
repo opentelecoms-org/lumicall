@@ -428,4 +428,14 @@
 <string name="no_identity_configured">Please setup a SIP identity in settings</string>
 <string name="choose_identity">Your identity?</string>
 
+<string name="settings_ganglia_options">Monitoring (Ganglia)</string>
+<string name="settings_ganglia_enable">Enable Ganglia</string>
+<string name="settings_ganglia_enable2">Enable embedded Ganglia agent</string>
+<string name="settings_ganglia_heartbeat">Enable heartbeat</string>
+<string name="settings_ganglia_heartbeat2">Send heartbeat from this app</string>
+<string name="settings_ganglia_dest">Destination host/group</string>
+<string name="settings_ganglia_port">Destination port</string>
+<string name="settings_ganglia_ttl">Multicast TTL</string>
+<string name="settings_ganglia_interval">Transmit interval</string>
+
 </resources>
