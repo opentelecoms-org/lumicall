@@ -163,6 +163,13 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	
 	public static final String PREF_SIP_INSTANCE_ID = "sip.instance.id";
 	
+	public static final String PREF_GANGLIA_ENABLE = "ganglia_enable";
+	public static final String PREF_GANGLIA_HEARTBEAT = "ganglia_heartbeat";
+	public static final String PREF_GANGLIA_DEST = "ganglia_dest";
+	public static final String PREF_GANGLIA_PORT = "ganglia_port";
+	public static final String PREF_GANGLIA_TTL = "ganglia_ttl";
+	public static final String PREF_GANGLIA_INTERVAL = "ganglia_interval";
+	
 	// Default values of the preferences
 	public static final String	DEFAULT_USERNAME = "";
 	public static final String	DEFAULT_PASSWORD = "";
@@ -218,6 +225,13 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final boolean DEFAULT_SELECTWIFI = false;
 	public static final int     DEFAULT_ACCOUNT = 0;
 	public static final boolean DEFAULT_IPV4 = false;  // false: allow IPv6 and IPv4, true: IPv4 only
+	
+	public static final boolean DEFAULT_GANGLIA_ENABLE = false;
+	public static final boolean DEFAULT_GANGLIA_HEARTBEAT = true;
+	public static final String DEFAULT_GANGLIA_DEST = "239.2.11.71";
+	public static final int DEFAULT_GANGLIA_PORT = 8649;
+	public static final int DEFAULT_GANGLIA_TTL = 15; // hops
+	public static final int DEFAULT_GANGLIA_INTERVAL = 5;  // seconds
 
 	// An other preference keys (not in the Preferences XML file)
 	public static final String PREF_OLDVALID = "oldvalid";
@@ -553,6 +567,13 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
     	fill(PREF_VQUALITY,      DEFAULT_VQUALITY, R.array.vquality_values,R.array.vquality_display_values);
     	
     	getPreferenceScreen().findPreference(PREF_BLUETOOTH).setEnabled(RtpStreamReceiver.isBluetoothSupported());
+    	
+    	getPreferenceScreen().findPreference(PREF_GANGLIA_ENABLE).setDefaultValue(settings.getBoolean(Settings.PREF_GANGLIA_ENABLE, Settings.DEFAULT_GANGLIA_ENABLE));
+    	getPreferenceScreen().findPreference(PREF_GANGLIA_HEARTBEAT).setDefaultValue(settings.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT));
+    	getPreferenceScreen().findPreference(PREF_GANGLIA_DEST).setSummary(settings.getString(Settings.PREF_GANGLIA_DEST, Settings.DEFAULT_GANGLIA_DEST));
+    	getPreferenceScreen().findPreference(PREF_GANGLIA_PORT).setSummary("" + settings.getInt(Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT));
+    	getPreferenceScreen().findPreference(PREF_GANGLIA_TTL).setSummary("" + settings.getInt(Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL));
+    	getPreferenceScreen().findPreference(PREF_GANGLIA_INTERVAL).setSummary("" + settings.getInt(Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL));
     }
 
     @Override

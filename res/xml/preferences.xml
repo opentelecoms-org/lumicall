@@ -146,6 +146,33 @@
 				android:title="@string/menu_bluetooth"
 				android:summary="@string/settings_bluetooth" />
 	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/settings_ganglia_options">
+			<CheckBoxPreference
+				android:key="ganglia_enable"
+				android:title="@string/settings_ganglia_enable"
+				android:summary="@string/settings_ganglia_enable2" />
+			<CheckBoxPreference
+				android:key="ganglia_heartbeat"
+				android:title="@string/settings_ganglia_heartbeat"
+				android:summary="@string/settings_ganglia_heartbeat2" />
+			<EditTextPreference
+				android:key="ganglia_dest"
+				android:persistent="true"
+				android:title="@string/settings_ganglia_dest"
+				android:singleLine="true" />
+			<EditTextPreference
+				android:key="ganglia_port"
+				android:title="@string/settings_ganglia_port"
+				android:singleLine="true" />
+			<EditTextPreference
+				android:key="ganglia_ttl"
+				android:title="@string/settings_ganglia_ttl"
+				android:singleLine="true" />
+			<EditTextPreference
+				android:key="ganglia_interval"
+				android:title="@string/settings_ganglia_interval"
+				android:singleLine="true" />
+	</PreferenceScreen>	
 <!-- 	<PreferenceScreen android:title="@string/settings_pbxes_options">
 			<CheckBoxPreference
 				android:key="par"
