@@ -43,7 +43,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.opentelecoms.android.PhoneHelper;
 import org.opentelecoms.util.Base64;
 import org.lumicall.android.R;
 import org.lumicall.android.reg.EnrolmentService;
