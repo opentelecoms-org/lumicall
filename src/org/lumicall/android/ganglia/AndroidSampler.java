@@ -61,11 +61,11 @@ public class AndroidSampler extends GSampler {
 	    				loss_pct = Math.round(RtpStreamReceiver.loss/RtpStreamReceiver.good*100);
     					lost_pct = Math.round(RtpStreamReceiver.lost/RtpStreamReceiver.good*100);
 	    				late_pct = Math.round(RtpStreamReceiver.late/RtpStreamReceiver.good*100);
-	    				late_delay = ((RtpStreamReceiver.jitter-250*RtpStreamReceiver.mu)/8/RtpStreamReceiver.mu)/1000;
+	    				late_delay = ((RtpStreamReceiver.jitter-250*RtpStreamReceiver.mu)/8/RtpStreamReceiver.mu)/1000.0f;
     				} else {
     					lost_pct = Math.round(RtpStreamReceiver.lost/RtpStreamReceiver.good*100);
 	    				late_pct = Math.round(RtpStreamReceiver.late/RtpStreamReceiver.good*100);
-	    				late_delay = ((RtpStreamReceiver.jitter-250*RtpStreamReceiver.mu)/8/RtpStreamReceiver.mu)/1000;
+	    				late_delay = ((RtpStreamReceiver.jitter-250*RtpStreamReceiver.mu)/8/RtpStreamReceiver.mu)/1000.0f;
     				}
     				
     			}
