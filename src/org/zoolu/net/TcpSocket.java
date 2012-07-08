@@ -107,15 +107,22 @@ public class TcpSocket {
 			    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			    tmf.init((KeyStore)null);
 			    TrustManager[] tm = tmf.getTrustManagers();
-			    TrustManager[] tm2 = { new AppendingTrustManager(
+			    TrustManager[] _tm = tm;
+			    if(customKeyStore != null) {
+			    	logger.info("Adding the customKeyStore to trust manager for SSLContext");
+			    	TrustManager[] __tm = { new AppendingTrustManager(
 			    		(X509TrustManager)tm[0], customKeyStore) };
+			    	_tm = __tm;
+			    } else {
+			    	logger.info("No customKeyStore for trust manager for SSLContext");
+			    }
 			    //TrustManager[] tm = { new ShoddyTrustManager() };
 				//sslContext = SSLContext.getInstance("TLSv1");
 				sslContext = SSLContext.getInstance("TLS");
 				//sslContext = SSLContext.getInstance("TLS");
 				//logger.info("Using default trust manager");
 				//sslContext.init(null, null, secureRandom);
-				sslContext.init(null, tm2, secureRandom);
+				sslContext.init(null, _tm, secureRandom);
 			}
 		}
 		return sslContext;
@@ -168,6 +175,7 @@ public class TcpSocket {
 			logger.info("Connecting socket to " + ipaddr.toString() + ", port " + port);
 			socket.connect(new InetSocketAddress(ipaddr.toString(), port),
 				Thread.currentThread().getName().equals("main")?1000:10000);
+			logger.info("Local address is: " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 		} catch (java.io.IOException e) {
 			finishProgress(sockAddr);
 			logger.warning("IOException/failure in the connect method: " + e.getMessage());
