@@ -23,6 +23,9 @@
 
 package org.zoolu.sip.transaction;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.zoolu.sip.provider.*;
 import org.zoolu.sip.message.*;
 import org.zoolu.tools.Timer;
@@ -83,7 +86,7 @@ public abstract class Transaction implements SipProviderListener, TimerListener 
 	int transaction_sqn;
 
 	/** Event logger. */
-	Log log;
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	/**
 	 * Lower layer dispatcher that sends and receive messages. The messages
@@ -107,7 +110,6 @@ public abstract class Transaction implements SipProviderListener, TimerListener 
 	/** Costructs a new Transaction */
 	protected Transaction(SipProvider sip_provider) {
 		this.sip_provider = sip_provider;
-		log = sip_provider.getLog();
 		this.transaction_id = null;
 		this.request = null;
 		this.connection_id = null;
@@ -180,9 +182,8 @@ public abstract class Transaction implements SipProviderListener, TimerListener 
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("Transaction#" + transaction_sqn + ": " + str, level
-					+ SipStack.LOG_LEVEL_TRANSACTION);
+		if (logger != null)
+			logger.info("Transaction#" + transaction_sqn + ": " + str);
 	}
 
 	/** Adds a WARNING to the default Log */
@@ -192,8 +193,8 @@ public abstract class Transaction implements SipProviderListener, TimerListener 
 
 	/** Adds the Exception to the log file */
 	protected void printException(Exception e, int level) {
-		if (log != null)
-			log.printException(e, level + SipStack.LOG_LEVEL_TRANSACTION);
+		if (logger != null)
+			logger.log(Level.SEVERE, "exception", e);
 	}
 
 }

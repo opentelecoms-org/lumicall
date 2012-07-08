@@ -176,7 +176,6 @@ public class InviteDialog extends Dialog implements TransactionClientListener,
 
 	/** Inits the InviteDialog. */
 	private void init(InviteDialogListener listener) {
-		log = sip_provider.getLog();
 		this.listener = listener;
 		this.invite_req = null;
 		this.ack_req = null;
@@ -894,8 +893,7 @@ public class InviteDialog extends Dialog implements TransactionClientListener,
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("InviteDialog#" + dialog_sqn + ": " + str, level
+		super.printLog("InviteDialog#" + dialog_sqn + ": " + str, level
 					+ SipStack.LOG_LEVEL_DIALOG);
 	}
 

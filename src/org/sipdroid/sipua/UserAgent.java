@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.ice4j.StackProperties;
 import org.ice4j.Transport;
@@ -102,7 +104,7 @@ import android.preference.PreferenceManager;
  */
 public class UserAgent extends CallListenerAdapter {
 	/** Event logger. */
-	Log log;
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 	
 	/** Factory/caching system for UDP sockets */
 	final static int DEFAULT_RECEIVE_BUFFER_SIZE = 2048;
@@ -449,7 +451,6 @@ public class UserAgent extends CallListenerAdapter {
 	/** Costructs a UA with a default media port */
 	public UserAgent(SipProvider sip_provider, UserAgentProfile user_profile) {
 		this.sip_provider = sip_provider;
-		log = sip_provider.getLog();
 		this.user_profile = user_profile;
 		realm = user_profile.realm;
 		
@@ -879,7 +880,7 @@ public class UserAgent extends CallListenerAdapter {
 						remote_media_address, remote_audio_port, dir, audio_in,
 						audio_out, c.codec.samp_rate(),
 						user_profile.audio_sample_size,
-						c.codec.frame_size(), log, c, dtmf_pt, srtp, zrtp);
+						c.codec.frame_size(), c, dtmf_pt, srtp, zrtp);
 			}
 			audio_app.startMedia();
 		}
@@ -1676,19 +1677,15 @@ public class UserAgent extends CallListenerAdapter {
 
 	/** Adds a new string to the default Log */
 	void printLog(String str, int level) {
-		if (Sipdroid.release) return;
-		if (log != null)
-			log.println("UA: " + str, level + SipStack.LOG_LEVEL_UA);
-		if ((user_profile == null || !user_profile.no_prompt)
-				&& level <= LogLevel.HIGH)
-			System.out.println("UA: " + str);
+		if (logger != null)
+			logger.info("UA: " + str);
 	}
 
 	/** Adds the Exception message to the default Log */
 	void printException(Exception e, int level) {
 		if (Sipdroid.release) return;
-		if (log != null)
-			log.printException(e, level + SipStack.LOG_LEVEL_UA);
+		if (logger != null)
+			logger.log(Level.SEVERE, "exception", e);
 		else
 			e.printStackTrace();
 			
