@@ -99,10 +99,11 @@ public class TcpSocket {
 		}
 	}
 	
-	SSLContext sslContext = null;
+    volatile SSLContext sslContext = null;
 	SSLContext getSSLContext() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 		synchronized(this) {
 			if(sslContext == null) {
+				logger.info("Initializing SSLContext for first use");
 			    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			    tmf.init((KeyStore)null);
 			    TrustManager[] tm = tmf.getTrustManagers();
@@ -164,6 +165,7 @@ public class TcpSocket {
 			}
 		}
 		try {
+			logger.info("Connecting socket to " + ipaddr.toString() + ", port " + port);
 			socket.connect(new InetSocketAddress(ipaddr.toString(), port),
 				Thread.currentThread().getName().equals("main")?1000:10000);
 		} catch (java.io.IOException e) {
@@ -172,12 +174,16 @@ public class TcpSocket {
 			throw e;
 		}
 		if(useTls) {
-			logger.info("Checking SSL session validity");
 			SSLSocket _socket;
 			SSLSession session;
 					
 			try {
 				_socket = (SSLSocket)socket;
+				_socket.setUseClientMode(true);
+				_socket.setEnableSessionCreation(true);
+				logger.info("Starting SSL handshake");
+				_socket.startHandshake();
+				logger.info("Getting SSL session");
 				session = _socket.getSession();
 			} catch (Exception ex) {
 				finishProgress(sockAddr);
@@ -185,6 +191,7 @@ public class TcpSocket {
 				throw new IOException("Failed to handshake SSL" + ex.toString() + ", " + ex.getMessage());
 			}
 			
+			logger.info("Checking SSL session validity");
 			if(session.isValid()) {
 				logger.info("Secure connection established");
 			} else {
@@ -199,6 +206,7 @@ public class TcpSocket {
 			tlsHandler.connect(cv); */
 		}
 		finishProgress(sockAddr);
+		logger.info("TcpSocket now ready");
 	}
 
 	/** Closes this socket. */
