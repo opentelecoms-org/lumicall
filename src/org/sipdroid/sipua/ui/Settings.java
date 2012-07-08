@@ -571,10 +571,14 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
     	getPreferenceScreen().findPreference(PREF_GANGLIA_ENABLE).setDefaultValue(settings.getBoolean(Settings.PREF_GANGLIA_ENABLE, Settings.DEFAULT_GANGLIA_ENABLE));
     	getPreferenceScreen().findPreference(PREF_GANGLIA_HEARTBEAT).setDefaultValue(settings.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT));
     	getPreferenceScreen().findPreference(PREF_GANGLIA_DEST).setSummary(settings.getString(Settings.PREF_GANGLIA_DEST, Settings.DEFAULT_GANGLIA_DEST));
-    	getPreferenceScreen().findPreference(PREF_GANGLIA_PORT).setSummary("" + settings.getInt(Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT));
-    	getPreferenceScreen().findPreference(PREF_GANGLIA_TTL).setSummary("" + settings.getInt(Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL));
-    	getPreferenceScreen().findPreference(PREF_GANGLIA_INTERVAL).setSummary("" + settings.getInt(Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL));
+        getPreferenceScreen().findPreference(PREF_GANGLIA_PORT).setSummary("" + getStringAsInt(settings, Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT));
+        getPreferenceScreen().findPreference(PREF_GANGLIA_TTL).setSummary("" + getStringAsInt(settings, Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL));
+        getPreferenceScreen().findPreference(PREF_GANGLIA_INTERVAL).setSummary("" + getStringAsInt(settings, Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL));
     }
+
+	public static int getStringAsInt(SharedPreferences settings, String pref, int defaultValue) {
+		return Integer.parseInt(settings.getString(pref, "" + defaultValue));
+	}
 
     @Override
 	public void onClick(DialogInterface arg0, int arg1) {
