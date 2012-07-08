@@ -243,9 +243,7 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener {
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log
-					.println("ExtendedCall: " + str, level
+		super.printLog("ExtendedCall: " + str, level
 							+ SipStack.LOG_LEVEL_CALL);
 	}
 }

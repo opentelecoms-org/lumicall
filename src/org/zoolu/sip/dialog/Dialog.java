@@ -25,6 +25,9 @@
 package org.zoolu.sip.dialog;
 
 import java.util.Vector; /* HSC CHANGES START */
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.header.FromHeader;
 import org.zoolu.sip.header.Header;
@@ -72,7 +75,7 @@ public abstract class Dialog extends DialogInfo implements SipProviderListener {
 	protected int dialog_sqn;
 
 	/** Event logger. */
-	protected Log log;
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	/** SipProvider */
 	protected SipProvider sip_provider;
@@ -108,7 +111,6 @@ public abstract class Dialog extends DialogInfo implements SipProviderListener {
 	protected Dialog(SipProvider provider) {
 		super();
 		this.sip_provider = provider;
-		this.log = sip_provider.getLog();
 		this.dialog_sqn = dialog_counter++;
 		this.status = 0;
 		this.dialog_id = null;
@@ -287,9 +289,8 @@ public abstract class Dialog extends DialogInfo implements SipProviderListener {
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("Dialog#" + dialog_sqn + ": " + str, level
-					+ SipStack.LOG_LEVEL_DIALOG);
+		if (logger != null)
+			logger.warning("Dialog#" + dialog_sqn + ": " + str);
 	}
 
 	/** Adds a Warning message to the default Log */
@@ -299,8 +300,8 @@ public abstract class Dialog extends DialogInfo implements SipProviderListener {
 
 	/** Adds the Exception message to the default Log */
 	protected final void printException(Exception e, int level) {
-		if (log != null)
-			log.printException(e, level + SipStack.LOG_LEVEL_DIALOG);
+		if (logger != null)
+			logger.log(Level.SEVERE, "exception", e);
 	}
 
 	/** Verifies the correct status; if not logs the event. */

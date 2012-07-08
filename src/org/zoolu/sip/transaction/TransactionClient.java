@@ -203,8 +203,7 @@ public class TransactionClient extends Transaction {
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("TransactionClient#" + transaction_sqn + ": " + str,
+		super.printLog("TransactionClient#" + transaction_sqn + ": " + str,
 					level + SipStack.LOG_LEVEL_TRANSACTION);
 	}
 

@@ -20,6 +20,8 @@
 package org.sipdroid.media;
 
 import java.net.DatagramSocket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.opentelecoms.media.rtp.secure.AuthenticationMode;
 import org.opentelecoms.media.rtp.secure.CipherType;
@@ -42,7 +44,7 @@ import android.preference.PreferenceManager;
 public class JAudioLauncher implements MediaLauncher
 {  
    /** Event logger. */
-   Log log=null;
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
    /** Sample rate [bytes] */
    int sample_rate=8000;
@@ -81,8 +83,8 @@ public class JAudioLauncher implements MediaLauncher
    boolean useDTMF = false;  // zero means not use outband DTMF
    
    /** Costructs the audio launcher */
-   public JAudioLauncher(RtpStreamSender rtp_sender, RtpStreamReceiver rtp_receiver, Log logger)
-   {  log=logger;
+   public JAudioLauncher(RtpStreamSender rtp_sender, RtpStreamReceiver rtp_receiver)
+   {
       sender=rtp_sender;
       receiver=rtp_receiver;
    }
@@ -90,8 +92,8 @@ public class JAudioLauncher implements MediaLauncher
    /** Costructs the audio launcher 
  * @param srtp 
  * @param zrtp */
-   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Log logger, Codecs.Map payload_type, int dtmf_pt, SRTP srtp, ZRTP zrtp)
-   {  log=logger;
+   public JAudioLauncher(DatagramSocket socket, int local_port, String remote_addr, int remote_port, int direction, String audiofile_in, String audiofile_out, int sample_rate, int sample_size, int frame_size, Codecs.Map payload_type, int dtmf_pt, SRTP srtp, ZRTP zrtp)
+   {
       frame_rate=sample_rate/frame_size;
       useDTMF = (dtmf_pt != 0);
       this.srtp = srtp;
@@ -198,15 +200,14 @@ public class JAudioLauncher implements MediaLauncher
    private void printLog(String str, int level)
    {
 	  if (Sipdroid.release) return;
-	  if (log!=null) log.println("AudioLauncher: "+str,level+SipStack.LOG_LEVEL_UA);  
-      if (level<=LogLevel.HIGH) System.out.println("AudioLauncher: "+str);
+	  if (logger!=null) logger.info("AudioLauncher: "+str);
    }
 
    /** Adds the Exception message to the default Log */
    void printException(Exception e,int level)
    { 
 	  if (Sipdroid.release) return;
-	  if (log!=null) log.printException(e,level+SipStack.LOG_LEVEL_UA);
+	  if (logger!=null) logger.log(Level.SEVERE,"exception", e);
       if (level<=LogLevel.HIGH) e.printStackTrace();
    }
    
@@ -218,10 +219,8 @@ public class JAudioLauncher implements MediaLauncher
 
 	@Override
 	   public void sessionNegotiationCompleted(boolean success, String msg) {
-		   if(log != null) {
-			   log.print("*********** Got callback from ZRTP: " + success + ", " + msg);
-			   log.print("*********** Got SaS from ZRTP: " + zrtp.getSasString());
-		   }
+		   logger.info("*********** Got callback from ZRTP: " + success + ", " + msg);
+		   logger.info("*********** Got SaS from ZRTP: " + zrtp.getSasString());
 		   
 		   if(success) {
 			   if(sender != null) {
@@ -236,16 +235,14 @@ public class JAudioLauncher implements MediaLauncher
 			   
 			   
 		   } else {
-			   if(log != null)
-				   log.print("*** ZRTP failure - call proceeding un-encrypted ***", LogLevel.HIGH);
+			   logger.info("*** ZRTP failure - call proceeding un-encrypted ***");
 			   // FIXME: should tell UserAgent layer too?
 		   }
 	   }
 
 	   @Override
 	   public void securityWarning(int securityWarningType, String warning) {
-		   if(log != null)
-			   log.print("*********** Got warning from ZRTP: " + securityWarningType + ", " + warning);
+		   logger.info("*********** Got warning from ZRTP: " + securityWarningType + ", " + warning);
 		   // FIXME - should use Toast and audible alert to inform user
 	   }
 
@@ -253,8 +250,7 @@ public class JAudioLauncher implements MediaLauncher
 	   public boolean keyExchangeCompleted(byte[] txMasterKey,
 			   byte[] txMasterSalt, byte[] rxMasterKey, byte[] rxMasterSalt,
 			   int firstSeqNum) {
-		   if(log != null)
-			   log.print("*********** Got master keys from ZRTP!!!  *******************");
+		   logger.info("*********** Got master keys from ZRTP!!!  *******************");
 		   
 		   srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
 		   srtp.setKDR(48);

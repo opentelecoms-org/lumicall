@@ -407,8 +407,7 @@ public class NotifierDialog extends Dialog implements TransactionClientListener/
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("NotifierDialog#" + dialog_sqn + ": " + str, level
+		super.printLog("NotifierDialog#" + dialog_sqn + ": " + str, level
 					+ SipStack.LOG_LEVEL_DIALOG);
 	}
 
