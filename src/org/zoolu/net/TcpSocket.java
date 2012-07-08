@@ -83,8 +83,8 @@ public class TcpSocket {
 		socket = sock;
 	}
 
-	static HashMap<IpAddress,String> inProgress = new HashMap<IpAddress,String>();
-	static void startProgress(IpAddress addr) throws IOException {
+	static HashMap<SocketAddress,String> inProgress = new HashMap<SocketAddress,String>();
+	static void startProgress(SocketAddress addr) throws IOException {
 		synchronized (inProgress) {
 			String s = inProgress.get(addr);
 			if(s != null)
@@ -93,7 +93,7 @@ public class TcpSocket {
 		}
 	}
 	
-	static void finishProgress(IpAddress addr) {
+	static void finishProgress(SocketAddress addr) {
 		synchronized (inProgress) {
 			inProgress.remove(addr);
 		}
@@ -124,7 +124,8 @@ public class TcpSocket {
 	public TcpSocket(IpAddress ipaddr, int port, boolean _useTls) throws java.io.IOException {
 //		socket = new Socket(ipaddr.getInetAddress(), port); modified
 		
-		startProgress(ipaddr);
+		SocketAddress sockAddr = new SocketAddress(ipaddr, port);
+		startProgress(sockAddr);
 		
 		useTls = _useTls;
 		
@@ -166,18 +167,28 @@ public class TcpSocket {
 			socket.connect(new InetSocketAddress(ipaddr.toString(), port),
 				Thread.currentThread().getName().equals("main")?1000:10000);
 		} catch (java.io.IOException e) {
-			finishProgress(ipaddr);
+			finishProgress(sockAddr);
 			logger.warning("IOException/failure in the connect method: " + e.getMessage());
 			throw e;
 		}
 		if(useTls) {
 			logger.info("Checking SSL session validity");
-			SSLSocket _socket = (SSLSocket)socket;
-			SSLSession session = _socket.getSession();
+			SSLSocket _socket;
+			SSLSession session;
+					
+			try {
+				_socket = (SSLSocket)socket;
+				session = _socket.getSession();
+			} catch (Exception ex) {
+				finishProgress(sockAddr);
+				logger.warning("Exception while getting session/starting handshake");
+				throw new IOException("Failed to handshake SSL" + ex.toString() + ", " + ex.getMessage());
+			}
+			
 			if(session.isValid()) {
 				logger.info("Secure connection established");
 			} else {
-				finishProgress(ipaddr);
+				finishProgress(sockAddr);
 				logger.warning("Connection NOT secure");
 				throw new IOException("SSLSession NOT valid/secure");
 			}
@@ -187,7 +198,7 @@ public class TcpSocket {
 			CertificateVerifyer cv = new AlwaysValidVerifyer();
 			tlsHandler.connect(cv); */
 		}
-		finishProgress(ipaddr);
+		finishProgress(sockAddr);
 	}
 
 	/** Closes this socket. */
