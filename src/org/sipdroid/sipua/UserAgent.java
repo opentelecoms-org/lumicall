@@ -469,7 +469,7 @@ public class UserAgent extends CallListenerAdapter {
 		DelegatingDatagramSocket.setDefaultReceiveBufferSize(DEFAULT_RECEIVE_BUFFER_SIZE);
 		
 		if(sp.getBoolean(Settings.PREF_IPV4, Settings.DEFAULT_IPV4))
-			System.setProperty(StackProperties.ENABLE_IPv6, "false");
+			System.setProperty(StackProperties.DISABLE_IPv6, "true");
         System.setProperty(StackProperties.MAX_CTRAN_RETRANS_TIMER, "200");
         System.setProperty(StackProperties.MAX_CTRAN_RETRANSMISSIONS, "10");
 
