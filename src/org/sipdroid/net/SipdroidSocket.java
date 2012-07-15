@@ -85,6 +85,18 @@ public class SipdroidSocket extends DatagramSocket {
 		}
 	}
 	
+	@Override
+	public void bind(SocketAddress sa) throws SocketException {
+		if(impl != null) {
+			if(sa.getClass().isInstance(InetSocketAddress.class)) {
+				InetSocketAddress _sa = (InetSocketAddress)sa;
+				impl.bind(_sa.getPort(), _sa.getAddress());
+			} else
+				throw new SocketException("sa must be an instance of InetSocketAddress");
+		} else
+			super.bind(sa);
+	}
+	
 	public void close() {
 		super.close();
 		if (impl != null) impl.close();
