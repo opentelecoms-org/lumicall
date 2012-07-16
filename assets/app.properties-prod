@@ -6,4 +6,3 @@ sipProtocol=tls
 sipPort=5061
 stunServer=stun-server.sip5060.net
 stunPort=3478
-enumSuffixes=e164.arpa;e164-addr.sip5060.net;e164.org

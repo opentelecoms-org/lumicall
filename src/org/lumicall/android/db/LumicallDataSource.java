@@ -56,5 +56,9 @@ public class LumicallDataSource {
 	public PTTChannel getPTTChannel(long id) {
 		return PTTChannel.loadFromDatabase(db, id);
 	}
+	
+	public List<ENUMSuffix> getENUMSuffixes() {
+		return ENUMSuffix.loadFromDatabase(db);
+	}
 
 }
