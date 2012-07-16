@@ -36,7 +36,6 @@ public class PTTChannel extends DBObject {
 			COLUMN_TTL + " int not null, " +
 			COLUMN_KEY + " text);";
 	
-	long id = -1;
 	String alias = "Test channel";
 	String address = "224.0.224.1";
 	int port = 5004;
@@ -199,13 +198,10 @@ public class PTTChannel extends DBObject {
 		this.key = key;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((address == null) ? 0 : address.hashCode());
 		result = prime * result + ((alias == null) ? 0 : alias.hashCode());
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
@@ -214,16 +210,13 @@ public class PTTChannel extends DBObject {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
-		if (!(obj instanceof PTTChannel))
+		if (getClass() != obj.getClass())
 			return false;
 		PTTChannel other = (PTTChannel) obj;
 		if (address == null) {
