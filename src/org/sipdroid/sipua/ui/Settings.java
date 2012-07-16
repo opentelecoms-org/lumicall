@@ -221,7 +221,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String  DEFAULT_VQUALITY = "low";
 	public static final boolean DEFAULT_MESSAGE = false;
 	public static final boolean DEFAULT_BLUETOOTH = false;
-	public static final boolean DEFAULT_KEEPON = false;
+	public static final boolean DEFAULT_KEEPON = true;
 	public static final boolean DEFAULT_SELECTWIFI = false;
 	public static final int     DEFAULT_ACCOUNT = 0;
 	public static final boolean DEFAULT_IPV4 = false;  // false: allow IPv6 and IPv4, true: IPv4 only
