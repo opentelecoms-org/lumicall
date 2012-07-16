@@ -82,48 +82,11 @@ class G729 extends CodecBase implements Codec {
 		return sb.toString();
 	}
 	
-	/*
-	 * When a user is licensed, add them here:
-	 * a) get the last 6 digits of their IMEI
-	 * b) get the MD5sum:
-	 *       echo -n 123456 | md5sum
-	 * c) add the value to LICENSED_USERS
-	 * d) user must go into codec settings
-	 *    and enable the codec
-	 */
-	String[] LICENSED_USERS = new String[] {
-		"b0f5a5550dced1f6e0fd6899ade48b4f",
-		"530fae97f6417063954078d89ed5e2d1",
-		"ab2500c3f2814b1beb80d90a4b8478d2",
-		"69f14a3f1edd3f7831fb03dec2073e24"
-	};
-	
 	public boolean isLicensed() {
-		TelephonyManager telephonyManager = (TelephonyManager)Receiver.mContext.getSystemService(Context.TELEPHONY_SERVICE);
-		if(telephonyManager == null) {
-			logger.warning("Can't check G.729 license: telephonyManager == null");
-			return false;
-		}
-		String devId = telephonyManager.getDeviceId();
-		if(devId == null) {
-			logger.warning("Can't check G.729 license: devId == null");
-			return false;
-		}
-		String key = devId.substring(devId.length() - 6);
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(key.getBytes());
-			byte[] _hash = md.digest();
-			String hash = byteToHexString(_hash, 0, _hash.length);
-			for(String u : LICENSED_USERS) {
-				if(u.toLowerCase().equals(hash.toLowerCase()))
-					return true;
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		return false;
+		// FIXME: Must find a way to identify which manufacturers have licensed G.729
+		// for their handsets
+		
+		return true;
 	}
 }
