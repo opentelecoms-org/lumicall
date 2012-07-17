@@ -30,8 +30,7 @@ public class ENUMSuffixesSettings extends DBObjectsSettings<ENUMSuffix> {
 
 	@Override
 	protected List<ENUMSuffix> getObjects(LumicallDataSource ds) {
-		Set<ENUMSuffix> suffixes = new TreeSet<ENUMSuffix>(ds.getENUMSuffixes());
-		return new Vector<ENUMSuffix>(suffixes);
+		return ds.getENUMSuffixes();
 	}
 
 	@Override

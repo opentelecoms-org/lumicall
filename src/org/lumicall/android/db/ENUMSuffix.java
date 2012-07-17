@@ -1,5 +1,6 @@
 package org.lumicall.android.db;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -82,6 +83,11 @@ public class ENUMSuffix extends DBObject implements Comparable<ENUMSuffix> {
 			cursor.moveToNext();
 		}
 		cursor.close();
+		ENUMSuffix[] _r = v.toArray(new ENUMSuffix[] {});
+		v.clear();
+		Arrays.sort(_r);
+		for(ENUMSuffix e : _r)
+			v.add(e);
 		return v;
 	}
 	
