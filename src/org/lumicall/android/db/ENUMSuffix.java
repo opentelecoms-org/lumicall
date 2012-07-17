@@ -131,6 +131,7 @@ public class ENUMSuffix extends DBObject implements Comparable<ENUMSuffix> {
 		return alias;
 	}
 
+	@PreferenceField(fieldName="enum_suffix_alias")
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
@@ -140,6 +141,7 @@ public class ENUMSuffix extends DBObject implements Comparable<ENUMSuffix> {
 		return suffix;
 	}
 
+	@PreferenceField(fieldName="enum_suffix_suffix")
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
 	}
@@ -149,6 +151,7 @@ public class ENUMSuffix extends DBObject implements Comparable<ENUMSuffix> {
 		return priority;
 	}
 
+	@PreferenceField(fieldName="enum_suffix_priority")
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
@@ -199,7 +202,7 @@ public class ENUMSuffix extends DBObject implements Comparable<ENUMSuffix> {
 
 	@Override
 	public int compareTo(ENUMSuffix arg0) {
-		return getPriority() - arg0.getPriority();
+		return arg0.getPriority() - getPriority(); 
 	}
 
 }
