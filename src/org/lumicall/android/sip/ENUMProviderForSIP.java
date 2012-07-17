@@ -150,7 +150,7 @@ public class ENUMProviderForSIP extends ContentProvider {
 		try {
 			LumicallDataSource ds = new LumicallDataSource(getContext());
 			ds.open();
-			Set<ENUMSuffix> _suffixes = new TreeSet<ENUMSuffix>(ds.getENUMSuffixes());
+			List<ENUMSuffix> _suffixes = ds.getENUMSuffixes();
 			ds.close();
 			for(ENUMSuffix s : _suffixes) {
 				suffixes.add(s.getSuffix());
