@@ -10,3 +10,6 @@
 [submodule "gmetric4j"]
 	path = gmetric4j
 	url = git://github.com/ganglia/gmetric4j.git
+[submodule "ice4j"]
+	path = ice4j
+	url = git://github.com/opentelecoms-org/ice4j.git
