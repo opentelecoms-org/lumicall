@@ -19,6 +19,14 @@
 				android:summary="@string/settings_telroute2"
 				android:dialogTitle="@string/settings_telroute_dialog"/>
 	<PreferenceScreen
+		android:key="enumSuffixes"
+		android:title="@string/enum_suffixes" >
+        	<intent
+                	android:action="android.intent.action.MAIN"
+	                android:targetPackage="org.lumicall.android"
+	                android:targetClass="org.lumicall.android.preferences.ENUMSuffixesSettings" />
+	</PreferenceScreen>
+	<PreferenceScreen
 		android:key="pttChannels"
 		android:title="@string/ptt_channels" >
         	<intent

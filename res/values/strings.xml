@@ -418,6 +418,11 @@
 <string name="ptt_channel_key_set">Encryption enabled, key hidden</string>
 <string name="ptt_send">Send/PTT</string>
 
+<string name="enum_suffixes">ENUM Providers</string>
+<string name="enum_suffix_alias">Alias</string>
+<string name="enum_suffix_suffix">Search suffix</string>
+<string name="enum_suffix_priority">Priority</string>
+
 <string name="choose_route">Choose destination</string>
 
 <string name="srtp_secure">Call secured by SRTP</string>

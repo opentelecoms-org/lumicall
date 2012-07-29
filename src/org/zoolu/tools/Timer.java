@@ -24,12 +24,17 @@
 
 package org.zoolu.tools;
 
+import java.util.logging.Logger;
+
 /**
  * A Timer is a simple object that fires an onTimeout() method to its
  * TimerListener when the time expires. A Timer have to be started and can be
  * halted before expired.
  */
 public class Timer implements InnerTimerListener {
+	
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
+	
 	/** Whether using single thread for all timer instances. */
 	public static boolean SINGLE_THREAD = true;
 
@@ -80,6 +85,7 @@ public class Timer implements InnerTimerListener {
 	 */
 	public Timer(long t_msec, String t_label, TimerListener t_listener) {
 		init(t_msec, t_label, t_listener);
+		logger.info("Created Timer: " + t_label + ", timeout = " + t_msec + "ms");
 	}
 
 	/** Gets the Timer label. */

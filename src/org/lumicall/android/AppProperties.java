@@ -22,7 +22,8 @@ public class AppProperties extends Properties {
 	protected final static String SIP_PORT = "sipPort";
 	protected final static String STUN_SERVER = "stunServer";
 	protected final static String STUN_PORT = "stunPort";
-	protected final static String ENUM_SUFFIXES = "enumSuffixes";
+	// Default ENUM suffixes are now defined in the db.ENUMSuffix class
+	//protected final static String ENUM_SUFFIXES = "enumSuffixes";
 
 	public AppProperties(Context context) throws IOException {
 		Resources resources = context.getResources();
@@ -62,13 +63,13 @@ public class AppProperties extends Properties {
 		return Integer.parseInt(getProperty(STUN_PORT));
 	}
 	
-	public List<String> getEnumSuffixes() {
+/*	public List<String> getEnumSuffixes() {
 		Vector<String> v = new Vector<String>();
 		String s = getProperty(ENUM_SUFFIXES);
 		StringTokenizer st = new StringTokenizer(s, ";");
 		while(st.hasMoreTokens())
 			v.add(st.nextToken());
 		return v;
-	}
+	} */
 
 }

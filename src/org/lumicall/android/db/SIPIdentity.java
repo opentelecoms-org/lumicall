@@ -463,13 +463,10 @@ public class SIPIdentity extends DBObject {
 		this.stun = stun;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result
 				+ ((authPassword == null) ? 0 : authPassword.hashCode());
 		result = prime * result
@@ -478,12 +475,11 @@ public class SIPIdentity extends DBObject {
 				* result
 				+ ((carrierIntlPrefix == null) ? 0 : carrierIntlPrefix
 						.hashCode());
+		result = prime * result + (carrierRoute ? 1231 : 1237);
 		result = prime * result + (enable ? 1231 : 1237);
 		result = prime * result + (mMTel ? 1231 : 1237);
 		result = prime * result + (mwi ? 1231 : 1237);
 		result = prime * result + (outbound ? 1231 : 1237);
-		result = prime * result + (carrierRoute ? 1231 : 1237);
-		result = prime * result + (stun ? 1231 : 1237);
 		result = prime
 				* result
 				+ ((outboundServerName == null) ? 0 : outboundServerName
@@ -506,6 +502,7 @@ public class SIPIdentity extends DBObject {
 				+ ((ringTone == null) ? 0 : ringTone.hashCode());
 		result = prime * result
 				+ ((securityMode == null) ? 0 : securityMode.hashCode());
+		result = prime * result + (stun ? 1231 : 1237);
 		result = prime * result
 				+ ((stunServerName == null) ? 0 : stunServerName.hashCode());
 		result = prime * result + stunServerPort;
@@ -517,16 +514,13 @@ public class SIPIdentity extends DBObject {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
-		if (!(obj instanceof SIPIdentity))
+		if (getClass() != obj.getClass())
 			return false;
 		SIPIdentity other = (SIPIdentity) obj;
 		if (authPassword == null) {
@@ -539,12 +533,12 @@ public class SIPIdentity extends DBObject {
 				return false;
 		} else if (!authUser.equals(other.authUser))
 			return false;
-		if (carrierRoute != other.carrierRoute)
-			return false;
 		if (carrierIntlPrefix == null) {
 			if (other.carrierIntlPrefix != null)
 				return false;
 		} else if (!carrierIntlPrefix.equals(other.carrierIntlPrefix))
+			return false;
+		if (carrierRoute != other.carrierRoute)
 			return false;
 		if (enable != other.enable)
 			return false;
@@ -587,10 +581,7 @@ public class SIPIdentity extends DBObject {
 				return false;
 		} else if (!ringTone.equals(other.ringTone))
 			return false;
-		if (securityMode == null) {
-			if (other.securityMode != null)
-				return false;
-		} else if (!securityMode.equals(other.securityMode))
+		if (securityMode != other.securityMode)
 			return false;
 		if (stun != other.stun)
 			return false;

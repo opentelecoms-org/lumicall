@@ -83,8 +83,8 @@ public class TcpSocket {
 		socket = sock;
 	}
 
-	static HashMap<IpAddress,String> inProgress = new HashMap<IpAddress,String>();
-	static void startProgress(IpAddress addr) throws IOException {
+	static HashMap<SocketAddress,String> inProgress = new HashMap<SocketAddress,String>();
+	static void startProgress(SocketAddress addr) throws IOException {
 		synchronized (inProgress) {
 			String s = inProgress.get(addr);
 			if(s != null)
@@ -93,28 +93,36 @@ public class TcpSocket {
 		}
 	}
 	
-	static void finishProgress(IpAddress addr) {
+	static void finishProgress(SocketAddress addr) {
 		synchronized (inProgress) {
 			inProgress.remove(addr);
 		}
 	}
 	
-	SSLContext sslContext = null;
+    volatile SSLContext sslContext = null;
 	SSLContext getSSLContext() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 		synchronized(this) {
 			if(sslContext == null) {
+				logger.info("Initializing SSLContext for first use");
 			    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			    tmf.init((KeyStore)null);
 			    TrustManager[] tm = tmf.getTrustManagers();
-			    TrustManager[] tm2 = { new AppendingTrustManager(
+			    TrustManager[] _tm = tm;
+			    if(customKeyStore != null) {
+			    	logger.info("Adding the customKeyStore to trust manager for SSLContext");
+			    	TrustManager[] __tm = { new AppendingTrustManager(
 			    		(X509TrustManager)tm[0], customKeyStore) };
+			    	_tm = __tm;
+			    } else {
+			    	logger.info("No customKeyStore for trust manager for SSLContext");
+			    }
 			    //TrustManager[] tm = { new ShoddyTrustManager() };
 				//sslContext = SSLContext.getInstance("TLSv1");
 				sslContext = SSLContext.getInstance("TLS");
 				//sslContext = SSLContext.getInstance("TLS");
 				//logger.info("Using default trust manager");
 				//sslContext.init(null, null, secureRandom);
-				sslContext.init(null, tm2, secureRandom);
+				sslContext.init(null, _tm, secureRandom);
 			}
 		}
 		return sslContext;
@@ -124,7 +132,8 @@ public class TcpSocket {
 	public TcpSocket(IpAddress ipaddr, int port, boolean _useTls) throws java.io.IOException {
 //		socket = new Socket(ipaddr.getInetAddress(), port); modified
 		
-		startProgress(ipaddr);
+		SocketAddress sockAddr = new SocketAddress(ipaddr, port);
+		startProgress(sockAddr);
 		
 		useTls = _useTls;
 		
@@ -163,21 +172,38 @@ public class TcpSocket {
 			}
 		}
 		try {
+			logger.info("Connecting socket to " + ipaddr.toString() + ", port " + port);
 			socket.connect(new InetSocketAddress(ipaddr.toString(), port),
 				Thread.currentThread().getName().equals("main")?1000:10000);
+			logger.info("Local address is: " + socket.getLocalAddress() + ":" + socket.getLocalPort());
 		} catch (java.io.IOException e) {
-			finishProgress(ipaddr);
+			finishProgress(sockAddr);
 			logger.warning("IOException/failure in the connect method: " + e.getMessage());
 			throw e;
 		}
 		if(useTls) {
+			SSLSocket _socket;
+			SSLSession session;
+					
+			try {
+				_socket = (SSLSocket)socket;
+				_socket.setUseClientMode(true);
+				_socket.setEnableSessionCreation(true);
+				logger.info("Starting SSL handshake");
+				_socket.startHandshake();
+				logger.info("Getting SSL session");
+				session = _socket.getSession();
+			} catch (Exception ex) {
+				finishProgress(sockAddr);
+				logger.warning("Exception while getting session/starting handshake");
+				throw new IOException("Failed to handshake SSL" + ex.toString() + ", " + ex.getMessage());
+			}
+			
 			logger.info("Checking SSL session validity");
-			SSLSocket _socket = (SSLSocket)socket;
-			SSLSession session = _socket.getSession();
 			if(session.isValid()) {
 				logger.info("Secure connection established");
 			} else {
-				finishProgress(ipaddr);
+				finishProgress(sockAddr);
 				logger.warning("Connection NOT secure");
 				throw new IOException("SSLSession NOT valid/secure");
 			}
@@ -187,7 +213,8 @@ public class TcpSocket {
 			CertificateVerifyer cv = new AlwaysValidVerifyer();
 			tlsHandler.connect(cv); */
 		}
-		finishProgress(ipaddr);
+		finishProgress(sockAddr);
+		logger.info("TcpSocket now ready");
 	}
 
 	/** Closes this socket. */

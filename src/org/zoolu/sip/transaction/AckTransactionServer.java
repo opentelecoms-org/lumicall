@@ -158,8 +158,7 @@ public class AckTransactionServer extends Transaction {
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("AckTransactionServer#" + transaction_sqn + ": " + str,
+		super.printLog("AckTransactionServer#" + transaction_sqn + ": " + str,
 					level + SipStack.LOG_LEVEL_TRANSACTION);
 	}
 

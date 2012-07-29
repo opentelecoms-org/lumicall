@@ -22,6 +22,8 @@
 package org.sipdroid.sipua;
 
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.lumicall.android.R;
 import org.sipdroid.sipua.ui.Receiver;
@@ -114,7 +116,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	boolean loop;
 
 	/** Event logger. */
-	Log log;
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	/** Number of registration attempts. */
 	int attempts,subattempts;
@@ -166,7 +168,6 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		
 		this.listener = listener;
 		this.sip_provider = sip_provider;
-		this.log = sip_provider.getLog();
 		this.target = new NameAddress(target_url);
 		this.contact = new NameAddress(contact_url);
 		this.expire_time = SipStack.default_expires;
@@ -682,8 +683,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	/** Adds a new string to the default Log */
 	void printLog(String str, int level) {
 		if (Sipdroid.release) return;
-		if (log != null)
-			log.println("RegisterAgent: " + str, level + SipStack.LOG_LEVEL_UA);
+		if (logger != null)
+			logger.info("RegisterAgent: " + str);
 		if (level <= LogLevel.HIGH)
 			System.out.println("RegisterAgent: " + str);
 	}
@@ -691,8 +692,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	/** Adds the Exception message to the default Log */
 	void printException(Exception e, int level) {
 		if (Sipdroid.release) return;
-		if (log != null)
-			log.printException(e, level + SipStack.LOG_LEVEL_UA);
+		if (logger != null)
+			logger.log(Level.SEVERE, "exception", e);
 	}
 
 }

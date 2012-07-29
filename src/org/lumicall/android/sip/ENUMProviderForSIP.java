@@ -20,11 +20,15 @@ package org.lumicall.android.sip;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import org.lumicall.android.AppProperties;
+import org.lumicall.android.db.ENUMSuffix;
+import org.lumicall.android.db.LumicallDataSource;
 
 import uk.nominet.DDDS.ENUM;
 import uk.nominet.DDDS.Rule;
@@ -33,6 +37,7 @@ import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.database.SQLException;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -141,11 +146,17 @@ public class ENUMProviderForSIP extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		String number = uri.getPath().substring(1);
-		List<String> suffixes;
+		List<String> suffixes = new Vector<String>();
 		try {
-			suffixes = new AppProperties(this.getContext()).getEnumSuffixes();
-		} catch (IOException e) {
-			Log.e(TAG, "failed to load properties", e);
+			LumicallDataSource ds = new LumicallDataSource(getContext());
+			ds.open();
+			List<ENUMSuffix> _suffixes = ds.getENUMSuffixes();
+			ds.close();
+			for(ENUMSuffix s : _suffixes) {
+				suffixes.add(s.getSuffix());
+			}
+		} catch (SQLException e) {
+			Log.e(TAG, "failed to load ENUM suffixes from DB", e);
 			return null;
 		}
 		

@@ -25,8 +25,8 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.lumicall.android"
-    android:versionName="1.6.0"
-    android:versionCode="107"
+    android:versionName="1.7.0"
+    android:versionCode="110"
     android:installLocation="auto">
         <!-- Not sure of the actual minimum API level required by
              the code.  However, it is good to encourage 
@@ -149,6 +149,10 @@
         <activity android:name=".preferences.SIPIdentitiesSettings" android:label="@string/app_name">
         </activity>
         <activity android:name=".preferences.SIPIdentitySettings" android:label="@string/app_name">
+        </activity>
+        <activity android:name=".preferences.ENUMSuffixesSettings" android:label="@string/app_name">
+        </activity>
+        <activity android:name=".preferences.ENUMSuffixSettings" android:label="@string/app_name">
         </activity>
         <activity android:name=".preferences.PTTChannelsSettings" android:label="@string/app_name">
         </activity>

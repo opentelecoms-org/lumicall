@@ -60,15 +60,15 @@ public class GMonitorService extends Service {
         	
             a = new GMonitor();
             String dest = sp.getString(Settings.PREF_GANGLIA_DEST, Settings.DEFAULT_GANGLIA_DEST);
-            int destPort = sp.getInt(Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT);
-            int ttl = sp.getInt(Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL);
+            int destPort = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT);
+            int ttl = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL);
             a.setGmetric(new GMetric(dest, destPort, UDPAddressingMode.getModeForAddress(dest), ttl));
             
             // Is heartbeat sending required?
             if(!sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT))
             	a.addSampler(new CoreSampler());
             
-            int interval = sp.getInt(Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL);
+            int interval = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL);
             
             a.addSampler(new AndroidSampler(this, interval));
             a.start();

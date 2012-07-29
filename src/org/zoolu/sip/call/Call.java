@@ -25,6 +25,9 @@
 
 package org.zoolu.sip.call;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.zoolu.sip.dialog.*;
 import org.zoolu.sip.provider.*;
 import org.zoolu.sip.message.*;
@@ -49,7 +52,7 @@ import org.zoolu.tools.LogLevel;
  */
 public class Call implements InviteDialogListener {
 	/** Event logger. */
-	Log log;
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	/** The SipProvider used for the call */
 	protected SipProvider sip_provider;
@@ -76,7 +79,6 @@ public class Call implements InviteDialogListener {
 	public Call(SipProvider sip_provider, String from_url, String contact_url,
 			CallListener call_listener) {
 		this.sip_provider = sip_provider;
-		this.log = sip_provider.getLog();
 		this.listener = call_listener;
 		this.from_url = from_url;
 		this.contact_url = contact_url;
@@ -531,7 +533,7 @@ public class Call implements InviteDialogListener {
 
 	/** Adds a new string to the default Log */
 	protected void printLog(String str, int level) {
-		if (log != null)
-			log.println("Call: " + str, level + SipStack.LOG_LEVEL_CALL);
+		if (logger != null)
+			logger.log(Level.WARNING, "Call: " + str);
 	}
 }

@@ -86,18 +86,32 @@ public class SocketAddress {
 		return new SocketAddress(this);
 	}
 
-	/** Wthether it is equal to Object <i>obj</i>. */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((ipaddr == null) ? 0 : ipaddr.hashCode());
+		result = prime * result + port;
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		try {
-			SocketAddress saddr = (SocketAddress) obj;
-			if (port != saddr.port)
-				return false;
-			if (!ipaddr.equals(saddr.ipaddr))
-				return false;
+		if (this == obj)
 			return true;
-		} catch (Exception e) {
+		if (obj == null)
 			return false;
-		}
+		if (getClass() != obj.getClass())
+			return false;
+		SocketAddress other = (SocketAddress) obj;
+		if (ipaddr == null) {
+			if (other.ipaddr != null)
+				return false;
+		} else if (!ipaddr.equals(other.ipaddr))
+			return false;
+		if (port != other.port)
+			return false;
+		return true;
 	}
 
 	/** Gets a String representation of the Object. */
