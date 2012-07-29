@@ -8,7 +8,7 @@ To build for armeabi-v7a (required for G729):
 
 Must copy output files to libs:
 
-rsync -avr jni/libs/ libs/
+rsync -avr libs/ ../libs/
 
 and then commit to git potentially
 
