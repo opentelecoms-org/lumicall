@@ -6,7 +6,7 @@ if [ -z $1 ]; then
 fi
 
 CACERT=$1
-BCJAR=/opt/bounceycastle/bcprov-jdk16-146.jar
+BCJAR=/opt/bouncycastle/bcprov-jdk16-146.jar
 KEYTOOL=/opt/jdk1.6/bin/keytool
 
 TRUSTSTORE=mytruststore.bks
