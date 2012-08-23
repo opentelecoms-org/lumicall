@@ -164,6 +164,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_SIP_INSTANCE_ID = "sip.instance.id";
 	
 	public static final String PREF_GANGLIA_ENABLE = "ganglia_enable";
+	public static final String PREF_GANGLIA_UUID_ENABLE = "ganglia_uuid_enable";
 	public static final String PREF_GANGLIA_HEARTBEAT = "ganglia_heartbeat";
 	public static final String PREF_GANGLIA_DEST = "ganglia_dest";
 	public static final String PREF_GANGLIA_PORT = "ganglia_port";
@@ -227,6 +228,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final boolean DEFAULT_IPV4 = false;  // false: allow IPv6 and IPv4, true: IPv4 only
 	
 	public static final boolean DEFAULT_GANGLIA_ENABLE = false;
+	public static final boolean DEFAULT_GANGLIA_UUID_ENABLE = false;
 	public static final boolean DEFAULT_GANGLIA_HEARTBEAT = true;
 	public static final String DEFAULT_GANGLIA_DEST = "239.2.11.71";
 	public static final int DEFAULT_GANGLIA_PORT = 8649;

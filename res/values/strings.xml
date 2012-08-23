@@ -436,6 +436,8 @@
 <string name="settings_ganglia_options">Monitoring (Ganglia)</string>
 <string name="settings_ganglia_enable">Enable Ganglia</string>
 <string name="settings_ganglia_enable2">Enable embedded Ganglia agent</string>
+<string name="settings_ganglia_uuid_enable">UUID send mode</string>
+<string name="settings_ganglia_uuid_enable2">Requires gmond UUID branch</string>
 <string name="settings_ganglia_heartbeat">Enable heartbeat</string>
 <string name="settings_ganglia_heartbeat2">Send heartbeat from this app</string>
 <string name="settings_ganglia_dest">Destination host/group</string>
