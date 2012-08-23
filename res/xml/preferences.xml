@@ -160,6 +160,10 @@
 				android:title="@string/settings_ganglia_enable"
 				android:summary="@string/settings_ganglia_enable2" />
 			<CheckBoxPreference
+				android:key="ganglia_uuid_enable"
+				android:title="@string/settings_ganglia_uuid_enable"
+				android:summary="@string/settings_ganglia_uuid_enable2" />
+			<CheckBoxPreference
 				android:key="ganglia_heartbeat"
 				android:title="@string/settings_ganglia_heartbeat"
 				android:summary="@string/settings_ganglia_heartbeat2" />

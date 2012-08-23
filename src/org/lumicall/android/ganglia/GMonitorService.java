@@ -1,5 +1,6 @@
 package org.lumicall.android.ganglia;
 
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.sipdroid.sipua.ui.Settings;
@@ -58,11 +59,17 @@ public class GMonitorService extends Service {
         	if(!sp.getBoolean(Settings.PREF_GANGLIA_ENABLE, Settings.DEFAULT_GANGLIA_ENABLE))
         		return;
         	
+        	UUID uuid = null;
+        	if(sp.getBoolean(Settings.PREF_GANGLIA_UUID_ENABLE, Settings.DEFAULT_GANGLIA_UUID_ENABLE)) {
+        		uuid = UUID.fromString(Settings.getSIPInstanceId(this));
+        	}
+        	
             a = new GMonitor();
             String dest = sp.getString(Settings.PREF_GANGLIA_DEST, Settings.DEFAULT_GANGLIA_DEST);
             int destPort = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT);
             int ttl = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL);
-            a.setGmetric(new GMetric(dest, destPort, UDPAddressingMode.getModeForAddress(dest), ttl));
+            a.setGmetric(new GMetric(dest, destPort, UDPAddressingMode.getModeForAddress(dest), ttl,
+            		true, uuid));
             
             // Is heartbeat sending required?
             if(!sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT))
