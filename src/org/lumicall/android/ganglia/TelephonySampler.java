@@ -16,7 +16,7 @@ public class TelephonySampler extends GSampler {
 	private static Logger log =
 	        Logger.getLogger(TelephonySampler.class.getName());
 	
-	private double gsmSS = Double.NaN;
+	private volatile double gsmSS = Double.NaN;
 	
 	TelephonyManager tm;
 
