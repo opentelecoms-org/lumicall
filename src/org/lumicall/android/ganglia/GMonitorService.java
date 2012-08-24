@@ -83,6 +83,11 @@ public class GMonitorService extends Service {
             a.addSampler(new WifiSampler(this, interval));
             a.addSampler(new TelephonySampler(this, interval));
             a.addSampler(new BatterySampler(this, interval));
+            // Is Location required?  Uses more power (with wake lock)
+            if(!sp.getBoolean(Settings.PREF_GANGLIA_LOCATION, Settings.DEFAULT_GANGLIA_LOCATION)) {
+            	log.info("will send location");
+            	a.addSampler(new LocationSampler(this, interval));
+            }
             
             a.start();
 
