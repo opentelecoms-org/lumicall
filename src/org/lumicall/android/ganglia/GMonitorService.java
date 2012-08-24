@@ -64,7 +64,7 @@ public class GMonitorService extends Service {
         		uuid = UUID.fromString(Settings.getSIPInstanceId(this));
         	}
         	
-            a = new GMonitor();
+            a = new GMonitor(new AndroidGScheduler(this));
             String dest = sp.getString(Settings.PREF_GANGLIA_DEST, Settings.DEFAULT_GANGLIA_DEST);
             int destPort = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT);
             int ttl = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL);
@@ -72,13 +72,16 @@ public class GMonitorService extends Service {
             		true, uuid));
             
             // Is heartbeat sending required?
-            if(!sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT))
+            if(!sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT)) {
+            	log.info("will send heartbeat");
             	a.addSampler(new CoreSampler());
+            }
             
             int interval = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL);
             
             a.addSampler(new AndroidSampler(this, interval));
             a.start();
+
             log.info("GMonitorService started");
         } catch ( Exception ex ) {
             log.severe("Exception starting GMonitor");
