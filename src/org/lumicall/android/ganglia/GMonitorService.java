@@ -82,6 +82,7 @@ public class GMonitorService extends Service {
             a.addSampler(new UserAgentSampler(this, interval));
             a.addSampler(new WifiSampler(this, interval));
             a.addSampler(new TelephonySampler(this, interval));
+            a.addSampler(new BatterySampler(this, interval));
             
             a.start();
 
