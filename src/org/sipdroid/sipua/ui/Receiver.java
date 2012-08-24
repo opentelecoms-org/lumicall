@@ -625,6 +625,10 @@ import org.zoolu.sip.provider.SipProvider;
 		}
 		
 		public static boolean isFast(int i) {
+			return true;
+		}
+		
+		public static boolean _isFast(int i) {
         	WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         	WifiInfo wi = wm.getConnectionInfo();
 
