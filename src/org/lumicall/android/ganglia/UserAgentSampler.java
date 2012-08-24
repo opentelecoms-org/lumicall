@@ -9,69 +9,21 @@ import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 
 import android.content.Context;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.telephony.PhoneStateListener;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
 
 import ganglia.GSampler;
 import ganglia.Publisher;
 import ganglia.gmetric.GMetricSlope;
 import ganglia.gmetric.GMetricType;
-import ganglia.gmetric.GangliaException;
 
-public class AndroidSampler extends GSampler {
+public class UserAgentSampler extends GSampler {
 	
 	private static Logger log =
-	        Logger.getLogger(AndroidSampler.class.getName());
+	        Logger.getLogger(UserAgentSampler.class.getName());
 	private Context context;
-	private int interval;
-	
-	private double gsmSS = Double.NaN;
-	
-	TelephonyManager tm;
 
-	public AndroidSampler(Context context, int interval) {
+	public UserAgentSampler(Context context, int interval) {
 		super(0, interval, "lumicall");
 		this.context = context;
-		this.interval = interval;
-		
-		tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-		tm.listen(new GSMListener(), PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-	}
-	
-	class GSMListener extends PhoneStateListener {
-		public void onSignalStrengthsChanged(SignalStrength ss) {
-			gsmSS = ss.getGsmSignalStrength();
-			if(gsmSS > 32)
-				gsmSS = Double.NaN;
-		}
-	}
-	
-	protected void publishWifi(Publisher p) throws Exception {
-		WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		WifiInfo wi = wm.getConnectionInfo();
-		double rssi = Double.NaN;
-		if(wi.getBSSID() != null) {
-			rssi = wi.getRssi();
-		}
-		p.publish(process, "wifi_rssi",
-				Double.toString(rssi), GMetricType.FLOAT, GMetricSlope.BOTH, "");
-	}
-	
-	protected void publishGSM(Publisher p) throws Exception {
-		
-		if(tm != null) {
-			String deviceId = tm.getDeviceId();
-			if(deviceId != null)
-				p.publish(process, "gsm_imei",
-						deviceId, GMetricType.STRING, GMetricSlope.BOTH, "");
-			
-			p.publish(process, "gsm_signal_strength",
-						Double.toString(gsmSS), GMetricType.FLOAT, GMetricSlope.BOTH, "");
-			
-		}
 	}
 
 	@Override
@@ -81,10 +33,6 @@ public class AndroidSampler extends GSampler {
         try {
 			gm.publish(process, "instance_id", 
 					Settings.getSIPInstanceId(context), GMetricType.STRING, GMetricSlope.BOTH, "");
-			
-			publishWifi(gm);
-			
-			publishGSM(gm);
 			
 			float loss_pct = Float.NaN;
 			float lost_pct = Float.NaN;

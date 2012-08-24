@@ -79,7 +79,10 @@ public class GMonitorService extends Service {
             
             int interval = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL);
             
-            a.addSampler(new AndroidSampler(this, interval));
+            a.addSampler(new UserAgentSampler(this, interval));
+            a.addSampler(new WifiSampler(this, interval));
+            a.addSampler(new TelephonySampler(this, interval));
+            
             a.start();
 
             log.info("GMonitorService started");
