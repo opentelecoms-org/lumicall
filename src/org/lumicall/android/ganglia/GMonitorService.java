@@ -19,6 +19,8 @@ public class GMonitorService extends Service {
 	
 	private static Logger log =
 		Logger.getLogger(GMonitorService.class.getName());
+	
+	GMonitor gmon = null;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -50,8 +52,13 @@ public class GMonitorService extends Service {
 	
 	private void handleCommand(Intent intent) {
 		
-		GMonitor a = null ;
+		
         try {
+        	
+        	if(gmon != null) {
+        		log.fine("GMonitor already created");
+        		return;
+        	}
         	
         	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         	
@@ -64,32 +71,32 @@ public class GMonitorService extends Service {
         		uuid = UUID.fromString(Settings.getSIPInstanceId(this));
         	}
         	
-            a = new GMonitor(new AndroidGScheduler(this));
+            gmon = new GMonitor(new AndroidGScheduler(this));
             String dest = sp.getString(Settings.PREF_GANGLIA_DEST, Settings.DEFAULT_GANGLIA_DEST);
             int destPort = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT);
             int ttl = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL);
-            a.setGmetric(new GMetric(dest, destPort, UDPAddressingMode.getModeForAddress(dest), ttl,
+            gmon.setGmetric(new GMetric(dest, destPort, UDPAddressingMode.getModeForAddress(dest), ttl,
             		true, uuid));
             
             // Is heartbeat sending required?
             if(!sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT)) {
             	log.info("will send heartbeat");
-            	a.addSampler(new CoreSampler());
+            	gmon.addSampler(new CoreSampler());
             }
             
             int interval = Settings.getStringAsInt(sp, Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL);
             
-            a.addSampler(new UserAgentSampler(this, interval));
-            a.addSampler(new WifiSampler(this, interval));
-            a.addSampler(new TelephonySampler(this, interval));
-            a.addSampler(new BatterySampler(this, interval));
+            gmon.addSampler(new UserAgentSampler(this, interval));
+            gmon.addSampler(new WifiSampler(this, interval));
+            gmon.addSampler(new TelephonySampler(this, interval));
+            gmon.addSampler(new BatterySampler(this, interval));
             // Is Location required?  Uses more power (with wake lock)
             if(!sp.getBoolean(Settings.PREF_GANGLIA_LOCATION, Settings.DEFAULT_GANGLIA_LOCATION)) {
             	log.info("will send location");
-            	a.addSampler(new LocationSampler(this, interval));
+            	gmon.addSampler(new LocationSampler(this, interval));
             }
             
-            a.start();
+            gmon.start();
 
             log.info("GMonitorService started");
         } catch ( Exception ex ) {
