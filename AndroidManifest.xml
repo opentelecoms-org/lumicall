@@ -62,7 +62,7 @@
 	<uses-permission android:name="android.permission.DISABLE_KEYGUARD"></uses-permission>
 	<uses-permission android:name="android.permission.CAMERA"></uses-permission>
 	<uses-permission android:name="android.permission.VIBRATE" ></uses-permission>
-	<!-- <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" ></uses-permission> -->
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" ></uses-permission>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" ></uses-permission>
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" ></uses-permission>
 	<!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" ></uses-permission> -->
@@ -206,6 +206,11 @@
                     <action android:name="org.lumicall.android.intent.HANDLE_AUTH_CODE" />
                 </intent-filter>
             </receiver> -->    
+        <receiver android:name="org.lumicall.android.ganglia.AndroidGScheduler" android:enabled="true">
+                <!--  <intent-filter android:priority="100">
+                    <action android:name="org.lumicall.android.ganglia.intent.ALARM_EVENT" />
+                </intent-filter> -->
+        </receiver>
         <provider android:name="org.lumicall.android.sip.ENUMProviderForSIP" android:authorities="enum"
                 android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
