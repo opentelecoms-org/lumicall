@@ -440,6 +440,8 @@
 <string name="settings_ganglia_uuid_enable2">Requires gmond UUID branch</string>
 <string name="settings_ganglia_heartbeat">Enable heartbeat</string>
 <string name="settings_ganglia_heartbeat2">Send heartbeat from this app</string>
+<string name="settings_ganglia_location">Enable location metrics</string>
+<string name="settings_ganglia_location2">Drains battery/use with power supply</string>
 <string name="settings_ganglia_dest">Destination host/group</string>
 <string name="settings_ganglia_port">Destination port</string>
 <string name="settings_ganglia_ttl">Multicast TTL</string>
