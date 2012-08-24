@@ -79,7 +79,7 @@ public class GMonitorService extends Service {
             		true, uuid));
             
             // Is heartbeat sending required?
-            if(!sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT)) {
+            if(sp.getBoolean(Settings.PREF_GANGLIA_HEARTBEAT, Settings.DEFAULT_GANGLIA_HEARTBEAT)) {
             	log.info("will send heartbeat");
             	gmon.addSampler(new CoreSampler());
             }
@@ -91,7 +91,7 @@ public class GMonitorService extends Service {
             gmon.addSampler(new TelephonySampler(this, interval));
             gmon.addSampler(new BatterySampler(this, interval));
             // Is Location required?  Uses more power (with wake lock)
-            if(!sp.getBoolean(Settings.PREF_GANGLIA_LOCATION, Settings.DEFAULT_GANGLIA_LOCATION)) {
+            if(sp.getBoolean(Settings.PREF_GANGLIA_LOCATION, Settings.DEFAULT_GANGLIA_LOCATION)) {
             	log.info("will send location");
             	gmon.addSampler(new LocationSampler(this, interval));
             }
