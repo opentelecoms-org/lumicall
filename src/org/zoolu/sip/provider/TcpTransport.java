@@ -25,15 +25,25 @@ package org.zoolu.sip.provider;
 
 import org.zoolu.net.*;
 import org.zoolu.sip.message.Message;
+import org.zoolu.tools.Timer;
+import org.zoolu.tools.TimerListener;
+
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * TcpTransport provides a TCP trasport service for SIP.
  */
 class TcpTransport implements ConnectedTransport, TcpConnectionListener {
+	
+	private static Logger log =
+	        Logger.getLogger(TcpTransport.class.getName());
+	
 	/** TCP protocol type */
 	public static final String PROTO_TCP = "tcp";
 	public static final String PROTO_TLS = "tls";
+	private String protocol = null;
 
 	/** TCP connection */
 	TcpConnection tcp_conn;
@@ -49,22 +59,106 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 
 	/** Transport listener */
 	TransportListener listener;
+	
+	/** Timer for sending Outbound (RFC 5626) keep-alive */
+	Timer keepAliveTimer = null;
+	KeepAliveSender keepAlive = null;
+	/** Default keep-alive interval for
+	 * battery-powered devices as per RFC 5626 */
+	long keepAliveInterval = TimeUnit.SECONDS.toMillis(840);
+	long keepAlivePongTimeout = TimeUnit.SECONDS.toMillis(10);
+	private final static String CRLF = "" + '\r' + '\n';
+	private final static String PING = CRLF + CRLF;
+	private final static String PONG = CRLF;
+	
+	private class KeepAliveSender implements TimerListener {
+		
+		volatile boolean pingSent = false;
+		
+		protected void setTimer(long interval) {
+			keepAliveTimer = new Timer(interval, this);
+			keepAliveTimer.start();
+		}
 
+		@Override
+		public void onTimeout(Timer t) {
+			Exception tcp_failed = null;
+			
+			if(!pingSent) {
+				log.info("Doing TCP outbound Keep-Alive ping");
+				if(tcp_conn != null) {
+					try {
+						synchronized(tcp_conn) {
+							tcp_conn.send(PING.getBytes());
+						}
+					} catch (IOException e) {
+						log.severe("IOException while trying to send ping, maybe connection is down?");
+						tcp_failed = e;
+					}
+					setTimer(keepAlivePongTimeout);
+					pingSent = true;
+				} else {
+					log.severe("tcp_conn is null, can't send any keep-alive");
+					tcp_failed = new IOException("tcp_conn is null, can't send keep-alive");
+				}
+			} else {
+				log.info("No response to keep-alive ping: killing connection");
+				tcp_failed = new IOException("no response to keep-alive Ping");
+			}
+			if(tcp_failed != null) {
+				log.severe("tcp_failed: " + tcp_failed.getMessage());
+				pingSent = false;
+				onConnectionTerminated(tcp_conn, tcp_failed);
+				tcp_failed = null;
+			}
+		}
+		
+		public void onPong() {
+			if(pingSent) {
+				keepAliveTimer.halt();
+				log.info("Got response to keep-alive ping: pong");
+				pingSent = false;
+				setTimer(keepAliveInterval);
+			} else {
+				log.info("Got unexpected pong from peer");
+			}	
+		}
+
+		public void onDataReceived() {
+			keepAliveTimer.halt();
+			if(pingSent) {
+				log.info("Got data from peer while waiting for keep-alive pong");
+				pingSent = false;
+			}
+			setTimer(keepAliveInterval);
+		}
+	}
+	
+	private static String getProtocolString(boolean forTls) {
+		return forTls ? PROTO_TLS : PROTO_TCP;
+	}
+	
 	/** Creates a new TcpTransport */
 	public TcpTransport(IpAddress remote_ipaddr, int remote_port,
 			TransportListener listener, boolean useTls) throws IOException {
+		protocol = getProtocolString(useTls);
 		this.listener = listener;
 		TcpSocket socket = new TcpSocket(remote_ipaddr, remote_port, useTls);
 		tcp_conn = new TcpConnection(socket, this);
 		connection_id = new ConnectionIdentifier(this);
 		last_time = System.currentTimeMillis();
 		text = "";
+		
+		keepAlive = new KeepAliveSender();
+		keepAliveTimer = new Timer(keepAliveInterval, keepAlive);
+		keepAliveTimer.start();
 	}
 
 	/** Costructs a new TcpTransport */
 	public TcpTransport(TcpSocket socket, TransportListener listener) {
 		this.listener = listener;
 		tcp_conn = new TcpConnection(socket, this);
+		protocol = getProtocolString(socket.isTls());
 		connection_id = null;
 		last_time = System.currentTimeMillis();
 		text = "";
@@ -72,9 +166,7 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 
 	/** Gets protocol type */
 	public String getProtocol() {
-		if(tcp_conn.getSocket().isTls())
-			return PROTO_TLS;
-		return PROTO_TCP;
+		return protocol;
 	}
 
 	/** Gets the remote IpAddress */
@@ -114,7 +206,12 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 		if (tcp_conn != null) {
 			last_time = System.currentTimeMillis();
 			byte[] data = msg.toString().getBytes();
-			tcp_conn.send(data);
+			synchronized(tcp_conn) {
+				tcp_conn.send(data);
+			}
+		} else {
+			log.severe("attempt to send message on a TcpTransport that is not available");
+			throw new IOException("no tcp_conn available");
 		}
 	}
 
@@ -140,6 +237,20 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 
 		text += new String(data, 0, len);
 		SipParser par = new SipParser(text);
+		if(keepAlive != null) {
+			if(text.startsWith(PONG)) {
+				/* As keepAlive != null, we presume that we are the client
+				 * and that this can only be a PONG and not a PING.
+				 * FIXME: if this code needs to act as a server-side UA,
+				 * it needs to distinguish received PINGs from PONGs,
+				 * not just assume CRLF is always a PONG
+				 */
+				keepAlive.onPong();
+				text = text.substring(PONG.length());
+			} else {
+				keepAlive.onDataReceived();
+			}
+		}
 		Message msg = par.getSipMessage();
 		while (msg != null) { // System.out.println("DEBUG: message len:
 			// "+msg.getLength());
