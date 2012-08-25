@@ -22,7 +22,7 @@ public class AndroidTimer extends BroadcastReceiver implements InnerTimer {
 	private static Logger log =
 		Logger.getLogger(AndroidTimer.class.getName());
 	
-	private final static String URI_SCHEME = "siptimer:";
+	private final static String URI_SCHEME = "siptimer";
 	static volatile Map<UUID, AndroidTimer> timers = new HashMap<UUID,AndroidTimer>();
 
 	private InnerTimerListener listener = null;
@@ -52,7 +52,7 @@ public class AndroidTimer extends BroadcastReceiver implements InnerTimer {
         		SystemClock.elapsedRealtime() + unit.toMillis(timeout),
         		PendingIntent.getBroadcast(context, 0, _intent, 0));
 		
-        log.info("created an AndroidTimer for " + timeout + " " + unit.name());
+        log.info("created an AndroidTimer for " + timeout + " " + unit.name() + ", id = " + data);
 	}
 
 	@Override
