@@ -40,6 +40,12 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 	private static Logger log =
 	        Logger.getLogger(TcpTransport.class.getName());
 	
+	/** Default keep-alive interval for
+	 * battery-powered devices as per RFC 5626 */
+	private final static int DEFAULT_KEEPALIVE_INTERVAL = 840;
+	/** Default keep-alive timeout, mandated by RFC 5626 */
+	private final static int KEEPALIVE_TIMEOUT = 10;
+	
 	/** TCP protocol type */
 	public static final String PROTO_TCP = "tcp";
 	public static final String PROTO_TLS = "tls";
@@ -63,10 +69,10 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 	/** Timer for sending Outbound (RFC 5626) keep-alive */
 	Timer keepAliveTimer = null;
 	KeepAliveSender keepAlive = null;
-	/** Default keep-alive interval for
-	 * battery-powered devices as per RFC 5626 */
-	long keepAliveInterval = TimeUnit.SECONDS.toMillis(840);
-	long keepAlivePongTimeout = TimeUnit.SECONDS.toMillis(10);
+	
+	long keepAliveInterval = TimeUnit.SECONDS.toMillis(DEFAULT_KEEPALIVE_INTERVAL);
+	long keepAlivePongTimeout = TimeUnit.SECONDS.toMillis(KEEPALIVE_TIMEOUT);
+	
 	private final static String CRLF = "" + '\r' + '\n';
 	private final static String PING = CRLF + CRLF;
 	private final static String PONG = CRLF;
