@@ -145,7 +145,7 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener {
 			// "+msg.getLength());
 			msg.setRemoteAddress(tcp_conn.getRemoteAddress().toString());
 			msg.setRemotePort(tcp_conn.getRemotePort());
-			msg.setTransport(PROTO_TCP);
+			msg.setTransport(getProtocol());
 			msg.setConnectionId(connection_id);
 			if (listener != null)
 				listener.onReceivedMessage(this, msg);
