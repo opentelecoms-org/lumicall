@@ -24,7 +24,7 @@
 package org.zoolu.tools;
 
 /** Listen for an InnerTimer */
-interface InnerTimerListener {
+public interface InnerTimerListener {
 	/** When the Timeout fires */
 	void onInnerTimeout();
 }
