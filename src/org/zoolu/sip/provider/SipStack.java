@@ -23,9 +23,11 @@
 
 package org.zoolu.sip.provider;
 
+import org.zoolu.tools.BasicTimerFactory;
 import org.zoolu.tools.Configure;
 import org.zoolu.tools.Parser;
 import org.zoolu.tools.RotatingLog;
+import org.zoolu.tools.SingleThreadTimerFactory;
 import org.zoolu.tools.Timer;
 
 /**
@@ -307,7 +309,12 @@ public class SipStack extends Configure {
 			server_info = null;
 
 		// timers
-		Timer.SINGLE_THREAD = single_timer;
+		//Timer.SINGLE_THREAD = single_timer;
+		/*if(single_timer) {
+			Timer.tf = new SingleThreadTimerFactory();
+		} else {
+			Timer.tf = new BasicTimerFactory();
+		}*/
 
 		// logs
 		if (debug_level > 0) {

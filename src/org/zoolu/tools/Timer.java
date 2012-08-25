@@ -36,7 +36,8 @@ public class Timer implements InnerTimerListener {
 	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 	
 	/** Whether using single thread for all timer instances. */
-	public static boolean SINGLE_THREAD = true;
+	//public static boolean SINGLE_THREAD = true;
+	public static InnerTimerFactory tf = new SingleThreadTimerFactory();
 
 	// HashSet listener_list=null;
 	TimerListener listener;
@@ -121,10 +122,7 @@ public class Timer implements InnerTimerListener {
 	/** Starts the timer */
 	public void start() {
 		active = true;
-		if (SINGLE_THREAD)
-			new InnerTimerST(time, this);
-		else
-			new InnerTimer(time, this);
+		tf.createInnerTimer(time, this);
 	}
 
 	/** When the Timeout fires */
