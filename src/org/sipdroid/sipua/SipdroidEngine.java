@@ -32,6 +32,7 @@ import java.security.cert.CertificateException;
 import java.util.List;
 
 import org.ice4j.StackProperties;
+import org.lumicall.android.AndroidTimerFactory;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
@@ -48,6 +49,7 @@ import org.zoolu.net.TcpSocket;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
+import org.zoolu.tools.Timer;
 
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -159,6 +161,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 	public boolean StartEngine() {
 		Context context = getUIContext();
+		Timer.tf = new AndroidTimerFactory(context);
 		
 		KeyStore trusted;
 		try {
