@@ -49,7 +49,13 @@
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
 
-    <target name="-pre-build">
+    <available file="assets/app.properties" property="app.properties.present"/>
+
+    <target name="-setup-properties" unless="app.properties.present">
+      <copy file="assets/app.properties-prod" tofile="assets/app.properties"/>
+    </target>
+
+    <target name="-pre-build" depends="-setup-properties">
 
       <property name="gmetric4j.absolute.dir" location="gmetric4j"/>
       <subant buildpath="${gmetric4j.absolute.dir}" antfile="build.xml"/>
@@ -82,6 +88,8 @@
       <copy file="${opentelecoms.org-zrtp.absolute.dir}/opentelecoms.org-zrtp.jar" todir="${jar.libs.absolute.dir}"/>
 
     </target>
+
+
 <!--
     <target name="-pre-compile">
     </target>
