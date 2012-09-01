@@ -1,16 +1,15 @@
 
-A symlink is required to make some of the build scripts work:
+To build for armeabi  (doesn't build G729):
 
-    cd jni && ln -s . jni
+    ~/android/android-ndk-r7/ndk-build
 
 To build for armeabi-v7a (required for G729):
 
-    ~/android/android-ndk-r7/ndk-build  APP_ABI=armeabi-v7a  NDK_DEBUG=1 
+    ~/android/android-ndk-r7/ndk-build APP_ABI=armeabi-v7a 
 
-Must copy output files to libs:
+Look in libs/ to see what architectures were built.
 
-    rsync -avr libs/ ../libs/
-
-and then commit to git potentially
+You can also append NDK_DEBUG=1 to the ndk-build command
+if necessary
 
 
