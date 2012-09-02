@@ -39,7 +39,17 @@
       <subant buildpath="${opentelecoms.org-zrtp.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-zrtp.absolute.dir}/opentelecoms.org-zrtp.jar" todir="${jar.libs.absolute.dir}"/>
 
-    </target>
+        <dependency
+                libraryFolderPathOut="project.library.folder.path"
+                libraryPackagesOut="project.library.packages"
+                libraryManifestFilePathOut="project.library.manifest.file.path"
+                libraryResFolderPathOut="project.library.res.folder.path"
+                libraryBinAidlFolderPathOut="project.library.bin.aidl.folder.path"
+                libraryNativeFolderPathOut="project.library.native.folder.path"
+                jarLibraryPathOut="project.all.jars.path"
+                targetApi="${project.target.apilevel}"
+                verbose="${verbose}" />
 
+    </target>
 
 </project>
