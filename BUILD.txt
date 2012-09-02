@@ -15,26 +15,16 @@ a) make sure you fetched the git submodules:
   $ git submodule init
   $ git submodule update
 
-a) build the JNI code using the `ndk-build' tool
+b) build the JNI code using the `ndk-build' tool
 
   $ ${NDK_HOME}/ndk-build
 
-c) build Lumicall itself (automatically builds submodules)
+c) generate local.properties and other stuff:
+
+  $ android update project --path . --target android-8
+
+d) build Lumicall itself (automatically builds submodules)
 
   $ ant debug
 
-Updating for a newer SDK or target version
-------------------------------------------
-
-According the the SDK manual, you may need to
-run a command such as:
-
-  $ android update project -p . -t android-8
-
-to update the build system if your SDK is newer
-than the one supported for the project.
-
-If you do this, be careful to verify that
-the customisations in build.xml have not been
-lost.
 
