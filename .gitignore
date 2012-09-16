@@ -1,0 +1,14 @@
+assets/app.properties
+bin/
+gen/
+libs/armeabi-v7a/
+libs/gmetric4j.jar
+libs/ice4j.jar
+libs/jain-sdp.jar
+libs/junit.jar
+libs/opentelecoms.org-util.jar
+libs/opentelecoms.org-zrtp.jar
+libs/pbkdf2.jar
+libs/weupnp-0.1.2-SNAPSHOT.jar
+libs/xalan-2.6.0.jar
+obj/
