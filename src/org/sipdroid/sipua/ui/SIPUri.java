@@ -165,7 +165,6 @@ public class SIPUri extends Activity {
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		Sipdroid.on(this,true);
 		Uri uri = getIntent().getData();
 		Parcelable[] _candidates = getIntent().getParcelableArrayExtra("dialCandidates");
 		if(_candidates != null) {
@@ -175,6 +174,13 @@ public class SIPUri extends Activity {
 			return;
 		}
 		
+		// This call appears to try and register synchronously which
+		// causes the process to block during the dial phase
+		// Registering should be done async if possible
+		// If calling depends on registration, then the caller window
+		// should show the status and a progress meter
+		Sipdroid.on(this,true);
+
 		String target;
 		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME))
 			target = uri.getSchemeSpecificPart();
