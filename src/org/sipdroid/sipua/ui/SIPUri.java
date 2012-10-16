@@ -177,25 +177,31 @@ public class SIPUri extends Activity {
 			return;
 		}
 		
-		String target;
+		String target = null;
 		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME)) {
 			target = uri.getSchemeSpecificPart();
 			logger.fine("found a SIP URI: " + target);
 		} else {
-			if (uri.getAuthority().equals("aim") ||
+			if(uri.getAuthority() != null) {
+				if (uri.getAuthority().equals("aim") ||
 					uri.getAuthority().equals("yahoo") ||
 					uri.getAuthority().equals("icq") ||
 					uri.getAuthority().equals("gtalk") ||
 					uri.getAuthority().equals("msn")) {
-				target = uri.getLastPathSegment().replaceAll("@","_at_") + "@" + uri.getAuthority() + ".gtalk2voip.com";
-				logger.fine("found a proprietary authority" + target);
-			} else if (uri.getAuthority().equals("skype")) {
-				target = uri.getLastPathSegment() + "@" + uri.getAuthority();
-				logger.fine("found a proprietary (Skype) URI" + target);
-			} else {
-				target = uri.getLastPathSegment();
-				logger.fine("found a URI that is not explicitly recognised: " + target);
+					target = uri.getLastPathSegment().replaceAll("@","_at_") + "@" + uri.getAuthority() + ".gtalk2voip.com";
+					logger.fine("found a proprietary authority" + target);
+				} else if (uri.getAuthority().equals("skype")) {
+					target = uri.getLastPathSegment() + "@" + uri.getAuthority();
+					logger.fine("found a proprietary (Skype) URI" + target);
+				}
 			}
+		}
+		if(target == null) {
+			if(uri.getLastPathSegment() != null)
+				target = uri.getLastPathSegment();
+			else
+				target = uri.getSchemeSpecificPart();
+			logger.fine("found a URI that is not explicitly recognised: " + target);
 		}
 		
 		// This call appears to try and register synchronously which

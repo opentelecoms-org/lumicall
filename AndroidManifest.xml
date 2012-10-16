@@ -138,6 +138,7 @@
                 <action android:name="android.intent.action.CALL_PRIVILEGED" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="sip" />
+                <data android:scheme="tel" />
             </intent-filter>
         </activity>
         <activity android:name="org.sipdroid.sipua.ui.Activity2" android:label="@string/app_name"
