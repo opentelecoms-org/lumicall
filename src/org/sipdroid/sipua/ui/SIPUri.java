@@ -23,6 +23,7 @@
 package org.sipdroid.sipua.ui;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.lumicall.android.R;
 import org.lumicall.android.sip.DialCandidate;
@@ -52,6 +53,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SIPUri extends Activity {
+	
+	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	void call(String target) {
 		if (!Receiver.engine(this).call(target,true)) {
@@ -175,19 +178,24 @@ public class SIPUri extends Activity {
 		}
 		
 		String target;
-		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME))
+		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME)) {
 			target = uri.getSchemeSpecificPart();
-		else {
+			logger.fine("found a SIP URI: " + target);
+		} else {
 			if (uri.getAuthority().equals("aim") ||
 					uri.getAuthority().equals("yahoo") ||
 					uri.getAuthority().equals("icq") ||
 					uri.getAuthority().equals("gtalk") ||
-					uri.getAuthority().equals("msn"))
+					uri.getAuthority().equals("msn")) {
 				target = uri.getLastPathSegment().replaceAll("@","_at_") + "@" + uri.getAuthority() + ".gtalk2voip.com";
-			else if (uri.getAuthority().equals("skype"))
+				logger.fine("found a proprietary authority" + target);
+			} else if (uri.getAuthority().equals("skype")) {
 				target = uri.getLastPathSegment() + "@" + uri.getAuthority();
-			else
+				logger.fine("found a proprietary (Skype) URI" + target);
+			} else {
 				target = uri.getLastPathSegment();
+				logger.fine("found a URI that is not explicitly recognised: " + target);
+			}
 		}
 		
 		// This call appears to try and register synchronously which
