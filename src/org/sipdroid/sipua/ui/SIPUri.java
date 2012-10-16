@@ -33,9 +33,11 @@ import org.sipdroid.sipua.SipdroidEngine;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -181,6 +183,14 @@ public class SIPUri extends Activity {
 		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME)) {
 			target = uri.getSchemeSpecificPart();
 			logger.fine("found a SIP URI: " + target);
+		} else if(uri.getScheme().equals("tel") && !uri.getSchemeSpecificPart().contains("@")) {
+			/*final Intent intent = new Intent(getIntent());
+			intent.setAction("android.intent.action.CALL_PHONE");
+			intent.setComponent(new ComponentName("com.android.phone", ""));*/
+			Intent intent = new Intent(Intent.ACTION_CALL, uri);
+			logger.info("Sending a numeric dialing attempt to default dialer: " + uri);
+			startActivity(intent);
+			finish();
 		} else {
 			if(uri.getAuthority() != null) {
 				if (uri.getAuthority().equals("aim") ||
