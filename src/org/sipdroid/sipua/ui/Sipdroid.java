@@ -645,12 +645,31 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	public static boolean on(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_ON, Settings.DEFAULT_ON);
 	}
+	
+	private static class ContextRunnable implements Runnable {
+		Context context;
+		public ContextRunnable(Context context) {
+			this.context = context;
+		}
+		public void run() {
+			Receiver.engine(context).isRegistered();
+		}
+	}
+	
+	private static volatile Thread kickerThread = null;
 
-	public static void on(Context context,boolean on) {
+	public static synchronized void on(Context context,boolean on) {
 		Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		edit.putBoolean(Settings.PREF_ON, on);
 		edit.commit();
-        if (on) Receiver.engine(context).isRegistered();
+		// This is wrapped in a thread so it won't block the GUI
+		// FIXME: it should be implemented using the Service paradigm
+        if (on) {
+        	if (kickerThread == null || !kickerThread.isAlive()) {
+        		kickerThread = new Thread(new ContextRunnable(context));
+        	}
+        	kickerThread.start();
+        }
 	}
 
 	@Override
