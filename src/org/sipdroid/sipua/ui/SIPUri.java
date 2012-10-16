@@ -174,13 +174,6 @@ public class SIPUri extends Activity {
 			return;
 		}
 		
-		// This call appears to try and register synchronously which
-		// causes the process to block during the dial phase
-		// Registering should be done async if possible
-		// If calling depends on registration, then the caller window
-		// should show the status and a progress meter
-		Sipdroid.on(this,true);
-
 		String target;
 		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME))
 			target = uri.getSchemeSpecificPart();
@@ -196,6 +189,14 @@ public class SIPUri extends Activity {
 			else
 				target = uri.getLastPathSegment();
 		}
+		
+		// This call appears to try and register synchronously which
+		// causes the process to block during the dial phase
+		// Registering should be done async if possible
+		// If calling depends on registration, then the caller window
+		// should show the status and a progress meter
+		Sipdroid.on(this,true);
+
 		if (!Sipdroid.release) Log.v("SIPUri", "sip uri: " + target);
 		if (!target.contains("@") && PreferenceManager.getDefaultSharedPreferences(this).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_ASK)) {
 			final String t = target;
