@@ -25,8 +25,8 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.lumicall.android"
-    android:versionName="1.8.6"
-    android:versionCode="121"
+    android:versionName="1.8.7"
+    android:versionCode="122"
     android:installLocation="auto">
         <!-- Not sure of the actual minimum API level required by
              the code.  However, it is good to encourage 
