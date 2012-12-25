@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2009 The Lumicall Open Source Project
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.sipdroid.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /////////////////////////////////////////////////////////////////////
-// these are the main messages of Sipdroid
+// these are the main messages of Lumicall
 // for modifying them additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
@@ -27,18 +27,18 @@
 
 <resources>
 
-<string name="app_name">Sipdroid</string>
+<string name="app_name">Lumicall</string>
 <string name="pstn_name">Telefono</string>
-<string name="sip_name">Sipdroid, quando disponibile</string>
+<string name="sip_name">Lumicall, quando disponibile</string>
 
-<string name="about">Sipdroid è un client SIP open-source per Android
+<string name="about">Lumicall è un client SIP open-source per Android
 \n
 \nVisita http://sipdroid.org per maggiori informazioni
 \n
 \nVersione ${VERSION}
 \nIl software è stato rilasciato per prova.
 \n
-\nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
+\nCopyright (C) 2009 The Lumicall Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
@@ -125,9 +125,9 @@
 <string name="settings_edge">Utilizza EDGE</string>
 <string name="settings_check">Controlla se il tuo operatore consente il VoIP</string>
 
-<string name="dialog_default">Sipdroid non è attualmente impostato come telefono predefinito. Vuoi renderlo predefinito?
+<string name="dialog_default">Lumicall non è attualmente impostato come telefono predefinito. Vuoi renderlo predefinito?
 \n
-\nSe rispondi \'No\', puoi ancora chiamare dal sistema tramite Sipdroid aggiungendo \'+\' dopo un numero nella composizione, o selezionando \'testo a\' nei Contatti.</string>
+\nSe rispondi \'No\', puoi ancora chiamare dal sistema tramite Lumicall aggiungendo \'+\' dopo un numero nella composizione, o selezionando \'testo a\' nei Contatti.</string>
 <string name="yes">Sì</string>
 <string name="no">No</string>
 <string name="dontask">Non richiederlo ancora</string>
@@ -135,8 +135,8 @@
 <string name="settings_pref">Tipo di chiamata preferita</string>
 <string name="settings_pref2">Scavalca aggiungendo \'+\' dopo un numero nella composizione, o selezionando \'testo a\' nei Contatti</string>
     <string-array name="pref_display_values">
-        <item>Sipdroid</item>
-        <item>Sipdroid, quando disponibile</item>
+        <item>Lumicall</item>
+        <item>Lumicall, quando disponibile</item>
         <item>Telefono</item>
 		<item>Always ask</item>
     </string-array>

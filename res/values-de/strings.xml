@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2009 The Lumicall Open Source Project
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.sipdroid.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /////////////////////////////////////////////////////////////////////
-// these are the main messages of Sipdroid
+// these are the main messages of Lumicall
 // for modifying them additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
@@ -29,16 +29,16 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
 <string name="pstn_name">Telefon-Anruf</string>
-<string name="sip_name">Sipdroid-Anruf, wenn verfügbar</string>
+<string name="sip_name">Lumicall-Anruf, wenn verfügbar</string>
 
-<string name="about">Sipdroid ist ein freier SIP-Client für Android
+<string name="about">Lumicall ist ein freier SIP-Client für Android
 \n
 \nSiehe http://sipdroid.org für weitere Infos
 \n
 \nVersion ${VERSION}
 \nDas Programm befindet sich noch in der Testphase.
 \n
-\nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
+\nCopyright (C) 2009 The Lumicall Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
@@ -110,9 +110,9 @@
 <string name="settings_check">Prüfen Sie, ob Ihr Mobilfunkanbieter VoIP-Nutzung erlaubt</string>
 <string name="settings_vpn2">PBXes bietet einen VPN-Dienst gratis an, siehe PBXes >> HILFE</string>
 
-<string name="dialog_default">Sipdroid ist nicht als Telefon voreingestellt. Möchten Sie es als Telefon voreinstellen?
+<string name="dialog_default">Lumicall ist nicht als Telefon voreingestellt. Möchten Sie es als Telefon voreinstellen?
 \n
-\nAuch wenn Sie mit \'Nein\' antworten, können Sie aus dem System über Sipdroid wählen, indem Sie \'+\' hinter eine Nummer im Telefon anhängen oder bei einem Kontakt auf \'Textnachricht an\' klicken.</string>
+\nAuch wenn Sie mit \'Nein\' antworten, können Sie aus dem System über Lumicall wählen, indem Sie \'+\' hinter eine Nummer im Telefon anhängen oder bei einem Kontakt auf \'Textnachricht an\' klicken.</string>
 <string name="dialog_port">Möchten Sie den SIP-Port von 5060 auf 5061 ändern, um die Zuverlässigkeit zu erhöhen?</string>
 <string name="yes">Ja</string>
 <string name="no">Nein</string>
@@ -121,8 +121,8 @@
 <string name="settings_pref">Bevorzugte Anrufart</string>
 <string name="settings_pref2">Ausnahmen durch \'+\' hinter Nummern anhängen oder auf \'Textnachricht an\' klicken</string>
     <string-array name="pref_display_values">
-        <item>Sipdroid</item>
-        <item>Sipdroid, wenn verfügbar</item>
+        <item>Lumicall</item>
+        <item>Lumicall, wenn verfügbar</item>
         <item>Telefon</item>
         <item>Immer fragen</item>
     </string-array>

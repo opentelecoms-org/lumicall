@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2009 The Lumicall Open Source Project
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.sipdroid.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /////////////////////////////////////////////////////////////////////
-// these are the main messages of Sipdroid
+// these are the main messages of Lumicall
 // for modifying them additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
@@ -28,18 +28,18 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-<string name="app_name">Sipdroid</string>
+<string name="app_name">Lumicall</string>
 <string name="pstn_name">Telefonsamtal</string>
-<string name="sip_name">Sipdroidsamtal, om möjligt</string>
+<string name="sip_name">Lumicallsamtal, om möjligt</string>
 
-<string name="about">Sipdroid är en open-source SIP klient för Android
+<string name="about">Lumicall är en open-source SIP klient för Android
 \n
 \nSe http://sipdroid.org för mer info
 \n
 \nVersion ${VERSION}
 \nMjukvaran har släppts för provning.
 \n
-\nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
+\nCopyright (C) 2009 The Lumicall Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
@@ -145,10 +145,10 @@
 <string name="settings_check">Kontrollera med din mobil operatör om de tillåter VoIP</string>
 <string name="settings_vpn2">PBXes erbjuder gratis VPN tjänst, se HELP sektion tre</string>
 
-<string name="dialog_default">Sipdroid är inte definerad som föredragen telefon. Vill du göra den till föredragen telefon?
+<string name="dialog_default">Lumicall är inte definerad som föredragen telefon. Vill du göra den till föredragen telefon?
 \n
-\nOm du svarar \'No\' här, kan du fortfarande ringa med Sipdroid från systemet genom att lägga till \'+\' bakom numret i Dialer, eller genom att välja \'text to\' i Contacts.</string>
-<string name="dialog_message">Vill du se a ett medelande från Pascal som introducerar Sipdroid 1.5?</string>
+\nOm du svarar \'No\' här, kan du fortfarande ringa med Lumicall från systemet genom att lägga till \'+\' bakom numret i Dialer, eller genom att välja \'text to\' i Contacts.</string>
+<string name="dialog_message">Vill du se a ett medelande från Pascal som introducerar Lumicall 1.5?</string>
 <string name="yes">Ja</string>
 <string name="no">Nej</string>
 <string name="dontask">Fråga mig inte igen</string>
@@ -156,8 +156,8 @@
 <string name="settings_pref">Föredragen Samtalstyp</string>
 <string name="settings_pref2">Överrid genom att addera \'+\' bakom nummret i Dialer, eller välja \'text to\' i Kontakter</string>
     <string-array name="pref_display_values">
-        <item>Sipdroid alltid</item>
-        <item>Sipdroid, när tillgängligt</item>
+        <item>Lumicall alltid</item>
+        <item>Lumicall, när tillgängligt</item>
         <item>Telefon</item>
 		<item>Fråga alltid</item>
     </string-array>
@@ -231,9 +231,9 @@
 <string name="settings_callthru">Trigga Callthru</string>
 <string name="settings_callthru2">Prefix för Callthru</string>
 
-<string name="settings_title">Sipdroid konfigurationer</string>
+<string name="settings_title">Lumicall konfigurationer</string>
 
-<string name="settings_profile_title">Sipdroid konfigurationer (<xliff:g id="profile">%s</xliff:g>)</string>
+<string name="settings_profile_title">Lumicall konfigurationer (<xliff:g id="profile">%s</xliff:g>)</string>
 <string name="settings_profile_menu_import">Importera</string>
 <string name="settings_profile_menu_delete">Ta bort</string>
 <string name="settings_profile_dialog_profiles_title">Profiler</string>

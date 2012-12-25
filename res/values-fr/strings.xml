@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-	* Copyright (C) 2009 The Sipdroid Open Source Project
+	* Copyright (C) 2009 The Lumicall Open Source Project
 	*
-	* This file is part of Sipdroid (http://www.sipdroid.org)
+	* This file is part of Lumicall (http://www.sipdroid.org)
 	*
-	* Sipdroid is free software; you can redistribute it and/or modify
+	* Lumicall is free software; you can redistribute it and/or modify
 	* it under the terms of the GNU General Public License as published by
 	* the Free Software Foundation; either version 3 of the License, or
 	* (at your option) any later version.
@@ -19,7 +19,7 @@
 	* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 	/////////////////////////////////////////////////////////////////////
-	// these are the main messages of Sipdroid
+	// these are the main messages of Lumicall
 	// for modifying them additional terms according to section 7, GPL apply
 	// see ADDITIONAL_TERMS.txt
 	/////////////////////////////////////////////////////////////////////
@@ -27,18 +27,18 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-<string name="app_name">Sipdroid</string>
+<string name="app_name">Lumicall</string>
 <string name="pstn_name">Téléphone</string>
-<string name="sip_name">Sipdroid, si disponible</string>
+<string name="sip_name">Lumicall, si disponible</string>
 
-<string name="about">Sipdroid est un client SIP open-source pour Android
+<string name="about">Lumicall est un client SIP open-source pour Android
 	\n
 	\nConsulter http://sipdroid.org pour plus d\'informations
 	\n
 	\nVersion ${VERSION}
 	\nLe logiciel a été sorti pour des tests.
 	\n
-	\nCopyright (C) 2009 Le projet Open Source Sipdroid (http://sipdroid.org)
+	\nCopyright (C) 2009 Le projet Open Source Lumicall (http://sipdroid.org)
 	\nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 	\nCopyright (C) 2006 Le projet Open Source Android (http://android.com)
 	\nCopyright (C) 2005 Luca Veltri - University de Parme - Italie (http://mjsip.org)
@@ -147,11 +147,11 @@
 <string name="settings_check">Vérifier auprès de votre opérateur mobile si il autorise la VoIP</string>
 <string name="settings_vpn2">PBXes offres un service VPN gratuit, consulter PBXes >> AIDE</string>
 
-<string name="dialog_default">Sipdroid n\'est pas actuellement défini comme téléphone par défaut. Voudriez-vous le définir comme téléphone par défaut ?
+<string name="dialog_default">Lumicall n\'est pas actuellement défini comme téléphone par défaut. Voudriez-vous le définir comme téléphone par défaut ?
 	\n
-	\nSi vous répondez \'Non\' ici, vous pouvez encore composer avec Sipdroid depuis le système en ajoutant \'+\' après un numéro dans le Numéroteur, ou en sélectionnant \'envoyer un SMS\' dans les Contacts.
+	\nSi vous répondez \'Non\' ici, vous pouvez encore composer avec Lumicall depuis le système en ajoutant \'+\' après un numéro dans le Numéroteur, ou en sélectionnant \'envoyer un SMS\' dans les Contacts.
 </string>
-<string name="dialog_message">Voudriez-vous voir un message de Pascal introduisant Sipdroid 1.5 ?</string>
+<string name="dialog_message">Voudriez-vous voir un message de Pascal introduisant Lumicall 1.5 ?</string>
 <string name="yes">Oui</string>
 <string name="no">Non</string>
 <string name="dontask">Ne pas me redemander</string>
@@ -159,8 +159,8 @@
 <string name="settings_pref">Type d\'appel préféré</string>
 <string name="settings_pref2">Passer outre en ajoutant \'+\' devant un numéro dans le Numéroteur, ou en sélectionnant \'message vers\' dans Contacts</string>
 <string-array name="pref_display_values">
-	<item>Sipdroid</item>
-	<item>Sipdroid, si disponible</item>
+	<item>Lumicall</item>
+	<item>Lumicall, si disponible</item>
 	<item>Téléphone</item>
 	<item>Toujours demander</item>
 </string-array>
@@ -241,9 +241,9 @@
 <string name="settings_callthru">Déclencher un Callthru</string>
 <string name="settings_callthru2">Préfixe pour le Callthru</string>
 
-<string name="settings_title">Paramètres Sipdroid</string>
+<string name="settings_title">Paramètres Lumicall</string>
 
-<string name="settings_profile_title">Paramètres Sipdroid (<xliff:g id="profile">%s</xliff:g>)</string>
+<string name="settings_profile_title">Paramètres Lumicall (<xliff:g id="profile">%s</xliff:g>)</string>
 <string name="settings_profile_menu_import">Importer</string>
 <string name="settings_profile_menu_export">Exporter</string>
 <string name="settings_profile_menu_delete">Effacer</string>

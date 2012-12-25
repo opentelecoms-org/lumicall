@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2009 The Lumicall Open Source Project
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.sipdroid.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -19,25 +19,25 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /////////////////////////////////////////////////////////////////////
-// these are the main messages of Sipdroid
+// these are the main messages of Lumicall
 // for modifying them additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
 -->
 
 <resources>
-<string name="app_name">Sipdroid</string>
+<string name="app_name">Lumicall</string>
 <string name="pstn_name">Telefon</string>
-<string name="sip_name">Sipdroid, când e disponibil</string>
+<string name="sip_name">Lumicall, când e disponibil</string>
 
-<string name="about">Sipdroid este un client SIP open-source pentru Android
+<string name="about">Lumicall este un client SIP open-source pentru Android
 \n
 \nVezi http://sipdroid.org pentru mai multe informaţii
 \n
 \nVersiune ${VERSION}
 \nAplicaţia a fost lansată pentru testare.
 \n
-\nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
+\nCopyright (C) 2009 The Lumicall Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
@@ -82,8 +82,8 @@
 <string name="settings_check">Verifică dacă operatorul de telefonie mobilă permite VoIP</string>
 <string name="settings_pref">Tip apelare preferat</string>
     <string-array name="pref_display_values">
-		<item>Sipdroid</item>
-        <item>Sipdroid, când e disponibil</item>
+		<item>Lumicall</item>
+        <item>Lumicall, când e disponibil</item>
         <item>Apelează</item>
 		<item>Always ask</item>
     </string-array>

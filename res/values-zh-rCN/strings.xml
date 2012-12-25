@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2009 The Lumicall Open Source Project
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.sipdroid.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -27,11 +27,11 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-<string name="app_name">Sipdroid</string>
+<string name="app_name">Lumicall</string>
 <string name="pstn_name">电话</string>
-<string name="sip_name">Sipdroid，当可用时</string>
+<string name="sip_name">Lumicall，当可用时</string>
 
-<string name="about">Sipdroid是Android系统下的开源SIP客户端。
+<string name="about">Lumicall是Android系统下的开源SIP客户端。
 \n
 \n请浏览 http://sipdroid.org 以获得更多信息。
 \n
@@ -40,7 +40,7 @@
 \n此为测试版本。
 
 \n
-\nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
+\nCopyright (C) 2009 The Lumicall Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
@@ -148,17 +148,17 @@
 <string name="settings_check">请确认你的运营商是否允许VoIP电话</string>
 <string name="settings_vpn2">PBXes提供免费VPN服务，请进入www.pbxes.com并点击HELP获取相关信息。</string>
 
-<string name="dialog_default">Sipdroid现在不是默认的电话程序，是否要将其设置为默认？
+<string name="dialog_default">Lumicall现在不是默认的电话程序，是否要将其设置为默认？
 \n
-\n如果你选择了 \'否\'，你仍然可以在拨号时在电话号码后加上字符\'+\'，或长按联系人选择 \'发送短信\'以强制使用Sipdroid拨号。</string>
-<string name="dialog_message">是否查看Sipdroid 1.5的视频介绍？</string>
+\n如果你选择了 \'否\'，你仍然可以在拨号时在电话号码后加上字符\'+\'，或长按联系人选择 \'发送短信\'以强制使用Lumicall拨号。</string>
+<string name="dialog_message">是否查看Lumicall 1.5的视频介绍？</string>
 
 <string name="yes">是</string>
 <string name="no">否</string>
 <string name="dontask">不再提示</string>
 
-<string name="settings_pref">Sipdroid优先级</string>
-<string name="settings_pref2">在拨号时在电话号码后加上字符\'+\'，或长按联系人选择 \'发送短信\'以强制使用Sipdroid拨号。</string>
+<string name="settings_pref">Lumicall优先级</string>
+<string name="settings_pref2">在拨号时在电话号码后加上字符\'+\'，或长按联系人选择 \'发送短信\'以强制使用Lumicall拨号。</string>
 
 
 
@@ -176,8 +176,8 @@
 
 
     <string-array name="pref_display_values">
-        <item>只使用Sipdroid</item>
-        <item>当可用时使用Sipdroid</item>
+        <item>只使用Lumicall</item>
+        <item>当可用时使用Lumicall</item>
         <item>总是使用电话</item>
         <item>Always ask</item>
     </string-array>
@@ -262,9 +262,9 @@
 <string name="settings_callthru">触发Callthru</string>
 <string name="settings_callthru2">Callthru前缀</string>
 
-<string name="settings_title">Sipdroid设置</string>
+<string name="settings_title">Lumicall设置</string>
 
-<string name="settings_profile_title">Sipdroid设置 (<xliff:g id="profile">%s</xliff:g>)</string>
+<string name="settings_profile_title">Lumicall设置 (<xliff:g id="profile">%s</xliff:g>)</string>
 <string name="settings_profile_menu_import">导入</string>
 <string name="settings_profile_menu_delete">删除</string>
 <string name="settings_profile_dialog_profiles_title">用户配置</string>

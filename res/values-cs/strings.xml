@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2009 The Sipdroid Open Source Project
+ * Copyright (C) 2009 The Lumicall Open Source Project
  *
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://www.sipdroid.org)
  *
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /////////////////////////////////////////////////////////////////////
-// these are the main messages of Sipdroid
+// these are the main messages of Lumicall
 // for modifying them additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
@@ -29,16 +29,16 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
 <string name="pstn_name">Telefon</string>
-<string name="sip_name">Sipdroid, když je k dispozici</string>
+<string name="sip_name">Lumicall, když je k dispozici</string>
 
-<string name="about">Sipdroid je open-source SIP klient pro Android
+<string name="about">Lumicall je open-source SIP klient pro Android
 \n
 \nPro více informací navštivte http://sipdroid.org
 \n
 \nVerze ${VERSION}
 \nTento program byl uvolněn pro testování.
 \n
-\nCopyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)
+\nCopyright (C) 2009 The Lumicall Open Source Project (http://sipdroid.org)
 \nCopyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)
 \nCopyright (C) 2006 The Android Open Source Project (http://android.com)
 \nCopyright (C) 2005 Luca Veltri - University of Parma - Italy (http://mjsip.org)
@@ -83,9 +83,9 @@
 <string name="settings_edge">Použít EDGE</string>
 <string name="settings_check">Ověřte si u vašeho operátora, jestli má povolené VoIP.</string>
 
-<string name="dialog_default">Sipdroid je nyní není nastavený jako výchozí telefon. Chcete ho nastavit jako výchozí telefon?
+<string name="dialog_default">Lumicall je nyní není nastavený jako výchozí telefon. Chcete ho nastavit jako výchozí telefon?
 \n
-\nPokud zde odpovíte \'Ne\', můžete stále volat přes Sipdroid přidáním znaku \'+\' za číslo volaného.</string>
+\nPokud zde odpovíte \'Ne\', můžete stále volat přes Lumicall přidáním znaku \'+\' za číslo volaného.</string>
 <string name="yes">Ano</string>
 <string name="no">Ne</string>
 <string name="dontask">Neptat se znovu</string>
@@ -93,8 +93,8 @@
 <string name="settings_pref">Preferovaný typ volání</string>
 <string name="settings_pref2">Možno předpsat pomocí znaku \'+\' za číslem volaného.</string>
     <string-array name="pref_display_values">
-        <item>Pouze Sipdroid</item>
-        <item>Sipdroid, pokud je k dispozici</item>
+        <item>Pouze Lumicall</item>
+        <item>Lumicall, pokud je k dispozici</item>
         <item>Telefon</item>
 		<item>Always ask</item>
     </string-array>
@@ -155,9 +155,9 @@
 <string name="settings_callthru">Spoušť přesměrování</string>
 <string name="settings_callthru2">Prefix pro přesměrování</string>
 
-<string name="settings_title">Nastavení Sipdroidu</string>
+<string name="settings_title">Nastavení Lumicallu</string>
 
-<string name="settings_profile_title">Nastavení Sipdroidu (<xliff:g id="profile">%s</xliff:g>)</string>
+<string name="settings_profile_title">Nastavení Lumicallu (<xliff:g id="profile">%s</xliff:g>)</string>
 <string name="settings_profile_menu_import">Importovat</string>
 <string name="settings_profile_menu_delete">Smazat</string>
 <string name="settings_profile_dialog_profiles_title">Profily</string>
