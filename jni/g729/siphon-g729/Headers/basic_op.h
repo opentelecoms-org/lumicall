@@ -627,9 +627,22 @@ static inline Word16 add(Word16 var1, Word16 var2)
   register Word32 ra = var1;
   register Word32 rb = var2;
 
+#ifdef ARM_V7A
   __asm__ volatile("qadd16 %0, %1, %2"
           : "=r"(out)
           : "r"(ra), "r"(rb));
+#else
+   register Word32 L_var_aux;
+          __asm__ volatile(
+                  "mov  %0, %2, lsl #16\n"
+                  "mov  %1, %3, lsl #16\n"
+                  "qadd %0, %0, %1\n"
+                  "mov  %0, %0, asr #16"
+                  : "=&r*i"(out),
+                  "=&r*i"(L_var_aux)
+                  : "r"(ra),
+                  "r"(rb));
+#endif
 
   return (Word16)out;
 }
@@ -673,9 +686,22 @@ static inline Word16 sub(Word16 var1, Word16 var2)
   register Word32 rb = var2;
   Word32 out;
 
+#ifdef ARM_V7A
   __asm__ volatile("qsub16 %0, %1, %2"
           : "=r"(out)
           : "r"(ra), "r"(rb));
+#else
+     register Word32 L_var_aux;
+        __asm__ volatile(
+            "mov  %0, %2, lsl #16\n"
+            "mov  %1, %3, lsl #16\n"
+            "qsub %0, %0, %1\n"
+            "mov  %0, %0, asr #16"
+    : "=&r*i"(out),
+            "=&r*i"(L_var_aux)
+                    : "r"(ra),
+                    "r"(rb));
+#endif
 
   return (Word16)out;
 }

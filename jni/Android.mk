@@ -244,7 +244,7 @@ LOCAL_ARM_MODE := arm
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 include $(BUILD_SHARED_LIBRARY)
 
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+ifeq ($(subst -v7a,,$(TARGET_ARCH_ABI)),armeabi)
 include $(CLEAR_VARS)
 #ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 G729	:= g729/siphon-g729
@@ -289,6 +289,9 @@ LOCAL_SRC_FILES	:= g729_jni.cpp \
 	$(G729SRC)/qua_lsp.c
 LOCAL_C_INCLUDES	+= $(LOCAL_PATH)/$(G729HDR)
 LOCAL_CFLAGS = -g -Wall -Wextra
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+LOCAL_CFLAGS += -DARM_V7A
+endif
 LOCAL_ARM_MODE	:= arm
 LOCAL_LDLIBS	:= -L$(SYSROOT)/usr/lib
 include $(BUILD_SHARED_LIBRARY)

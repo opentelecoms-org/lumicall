@@ -30,7 +30,9 @@
 #include <stdlib.h>
 #include <assert.h>
 //#include "libavutil/bswap.h"
+#ifdef ARM_V7A
 #define HAVE_ARMV6 1
+#endif
 static inline uint32_t bswap_32(uint32_t x)
 {
 #if 0
