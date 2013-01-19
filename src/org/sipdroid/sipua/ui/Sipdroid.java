@@ -68,6 +68,7 @@ import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.CallLog.Calls;
 import android.provider.Contacts.People;
@@ -652,6 +653,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			this.context = context;
 		}
 		public void run() {
+			Looper.prepare();
 			Receiver.engine(context).isRegistered();
 		}
 	}
