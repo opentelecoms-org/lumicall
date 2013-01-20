@@ -61,7 +61,7 @@ public class Codecs {
 //			add(new BV16());
 			add(new alaw());   // These should be enabled for compatibility reasons,
 			add(new ulaw());   // but they are currently disabled to reduce load on the TURN relay
-//			add(new G722());   // enable this once we have a way to prevent it being used with our TURN relay
+			add(new G722());
 		}};
 	private static final HashMap<Integer, Codec> codecsNumbers;
 	private static final HashMap<String, Codec> codecsNames;
@@ -169,15 +169,7 @@ public class Codecs {
 			l.setPersistent(true);
 			l.setEnabled(!c.isFailed());
 			c.setListPreference(l);
-			//boolean isPBXes = ps.getSharedPreferences().getString(Settings.PREF_SERVER, Settings.DEFAULT_SERVER).equals(Settings.DEFAULT_SERVER);
-			boolean isPBXes = false;
-			if (c.number() == 9)
-				if (isPBXes)
-					l.setSummary(l.getEntry()+" ("+r.getString(R.string.settings_improve2)+")");
-				else
-					l.setSummary(l.getEntry()+" ("+r.getString(R.string.settings_hdvoice)+")");
-			else
-				l.setSummary(l.getEntry());
+			l.setSummary(l.getEntry());
 			l.setTitle(c.getTitle());
 			ps.addPreference(l);
 		}
