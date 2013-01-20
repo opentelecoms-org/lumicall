@@ -79,15 +79,6 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:src="@android:drawable/arrow_down_float"
-                    />
-                <TextView
-                    android:id="@+id/slideDownHint"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     />                
                 <TextView
                     android:id="@+id/stats"
@@ -115,6 +106,27 @@ xmlns:android="http://schemas.android.com/apk/res/android"
                     android:textColor="?android:attr/textColorSecondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    />
+               <TextView
+                    android:id="@+id/slideDownHint"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+               <!-- space at bottom so that SRTP/ZRTP SaS is not
+               		covered by drawer control -->
+               <TextView
+                    android:id="@+id/sas_buffer"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20sp"
+                    android:text="daniel"
                     />
             </LinearLayout>
 

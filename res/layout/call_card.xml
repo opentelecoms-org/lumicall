@@ -49,7 +49,7 @@
         android:gravity="center_horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:minHeight="300dip"
+        android:minHeight="128dip"
         >
 
         <!-- "Upper title" at the very top of the CallCard. -->
