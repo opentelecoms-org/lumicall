@@ -7,10 +7,17 @@ could run the following command to build:
 
     ~/android/android-ndk-r7/ndk-build
 
-By default, Application.mk defaults the ABI to armeabi-v7a.
-That is currently required for the G.729 code to build.
+By default, Application.mk defaults the APP_ABI to build
+for the following target ABIs:
 
-To build for legacy armeabi (without attempting to compile G.729):
+   armeabi-v7a    Most modern/high-end phones
+   armeabi        Low cost phones (e.g. Samsung Galaxy Mini)
+   x86
+
+Some of the codecs (e.g. G.729) only build on some of the
+ABIs however.
+
+To build for a single ABI:
 
     ~/android/android-ndk-r7/ndk-build APP_ABI=armeabi
 
@@ -18,7 +25,10 @@ and to build for x86:
 
     ~/android/android-ndk-r7/ndk-build APP_ABI=x86
 
-Look in libs/ to see what architectures were built.
+Look in libs/ to see what architectures were built.  Note
+that if you build for a subset of ABIs, ndk-build will delete
+the objects that were built for other ABIs on previous
+builds.
 
 You can also append NDK_DEBUG=1 to the ndk-build command
 if necessary
