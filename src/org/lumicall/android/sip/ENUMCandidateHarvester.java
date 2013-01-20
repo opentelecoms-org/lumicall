@@ -2,6 +2,12 @@ package org.lumicall.android.sip;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Logger;
+
+import org.sipdroid.sipua.ui.Receiver;
+import org.zoolu.sip.dialog.OptionsDialog;
+import org.zoolu.sip.dialog.OptionsDialogListener;
+import org.zoolu.sip.message.Message;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -10,8 +16,8 @@ import android.net.Uri;
 import android.util.Log;
 
 public class ENUMCandidateHarvester implements DialCandidateHarvester {
-
-	private static final String TAG = "ENUMHarvest";
+	
+	Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	@Override
 	public List<DialCandidate> getCandidatesForNumber(Context context,
@@ -22,12 +28,12 @@ public class ENUMCandidateHarvester implements DialCandidateHarvester {
 		boolean online = ENUMUtil.updateNotification(context);
 		
 		if(!online) {
-			Log.v(TAG, "ENUM not online");
+			logger.info("ENUM not online");
 			return candidates;
 		}
 		
 		if(e164Number == null || !e164Number.startsWith("+")) {
-			Log.v(TAG, "can't handle non-E.164 numbers");
+			logger.info("can't handle non-E.164 numbers");
 			return candidates;
 		}
 		
@@ -40,7 +46,7 @@ public class ENUMCandidateHarvester implements DialCandidateHarvester {
 		if (mCursor == null || mCursor.getCount() <= 0) {
 			if(mCursor != null)
 				mCursor.close();
-			Log.v(TAG, "no ENUM result found");
+			logger.info("no ENUM result found");
 			return candidates;
 		}
 
@@ -53,7 +59,7 @@ public class ENUMCandidateHarvester implements DialCandidateHarvester {
 		}
 		mCursor.close();
 		
-		Log.v(TAG, "ENUM results found, count = " + candidates.size());
+		logger.info("ENUM results found, count = " + candidates.size());
 		
 		return candidates;
 	}
