@@ -226,7 +226,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final boolean DEFAULT_KEEPON = true;
 	public static final boolean DEFAULT_SELECTWIFI = false;
 	public static final int     DEFAULT_ACCOUNT = 0;
-	public static final boolean DEFAULT_IPV4 = false;  // false: allow IPv6 and IPv4, true: IPv4 only
+	public static final boolean DEFAULT_IPV4 = true;  // false: allow IPv6 and IPv4, true: IPv4 only
 	
 	public static final boolean DEFAULT_GANGLIA_ENABLE = false;
 	public static final boolean DEFAULT_GANGLIA_UUID_ENABLE = false;
