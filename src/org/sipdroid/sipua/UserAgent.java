@@ -94,6 +94,7 @@ import org.zoolu.tools.Parser;
 
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 /**
@@ -594,6 +595,25 @@ public class UserAgent extends CallListenerAdapter {
 		}
 		hangup(); // modified
 		changeStatus(UA_STATE_OUTGOING_CALL,target_url);
+		
+		AsyncTask _call = new AsyncTask() {
+
+			@Override
+			protected Object doInBackground(Object... arg0) {
+				logger.info("Starting Async call setup phase");
+				callAsync((String)arg0[0], false);
+				logger.info("Done Async call setup phase");
+				return null;
+			}
+			
+		};
+		_call.execute(target_url);
+		
+		return true;
+		
+	}
+	
+	protected boolean callAsync(String target_url, boolean send_anonymous) {
 		
 		String from_url;
 		
