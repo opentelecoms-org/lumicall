@@ -3,6 +3,8 @@ package org.lumicall.android.sip;
 import java.util.Date;
 
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIP5060ProvisioningRequest;
 import org.lumicall.android.reg.EnrolmentService;
 
 import android.app.Activity;
@@ -100,10 +102,14 @@ public class ActivateAccount extends Activity {
 		buttonRegAgain = (Button) findViewById(R.id.Button02);
 		buttonRegAgain.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
+				LumicallDataSource ds = new LumicallDataSource(ActivateAccount.this);
+				ds.open();
+				for(SIP5060ProvisioningRequest req : ds.getSIP5060ProvisioningRequests())
+					ds.deleteSIP5060ProvisioningRequest(req);
+				ds.close();
 				SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, MODE_PRIVATE);
 		    	Editor ed = settings.edit();
-		    	ed.putLong(RegisterAccount.PREF_LAST_ENROLMENT_ATTEMPT, 0);
-		    	ed.putLong(RegisterAccount.PREF_LAST_VALIDATION_ATTEMPT, 0);
+		    	ed.putBoolean(RegisterAccount.PREF_ADVANCED_SETUP, false);
 		    	ed.commit();
 				final Intent intent = new Intent(ActivateAccount.this, RegisterAccount.class);
 		        Log.v(TAG, "user wants to try registration form again");

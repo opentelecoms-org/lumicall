@@ -349,17 +349,13 @@
 <string name="toast_progress">ENUM lookup in progress</string>
 <string name="toast_notfound">No ENUM results found</string>
 
-<string name="reg_instructions">We need to verify your phone number by asking you to send us a missed call.  Once verified, your friends will be able to call you for free.</string>
+<string name="reg_title">Lumicall activation</string>
+<string name="reg_instructions">We need to verify your phone number by sending a short SMS and receiving an automated SMS response.  Once verified, your friends will be able to call you for free.</string>
+<string name="reg_instructions2">You must be connected to the Internet using the mobile network or wifi while the registration is completed.</string>
 
-<string name="reg_phone_num">Phone number (including country code, e.g. +447771234567)</string>
-<string name="reg_first_name">First name</string>
-<string name="reg_last_name">Last name</string>
-<string name="reg_email">Email address</string>
+<string name="reg_proceed">Verify my number now</string>
 
-<string name="reg_privacy">Your personal data will be used for essential communications about your account.  Full privacy policy available at our web site.</string>
-<string name="reg_missed_call">Your phone will send us a missed call to verify your caller-ID number.  We do not answer - there is no charge.  Do not cancel the call before the busy tone/response.</string>
-
-<string name="reg_proceed">Send missed call</string>
+<string name="reg_advanced"><u>Manual SIP account setup (experts only)</u></string>
 
 <string name="reg_please_wait">One moment...</string>
 <string name="reg_submit_failed">Failed to submit registration details</string>
@@ -370,13 +366,23 @@
 <string name="reg_num_invalid_use_anyway">Use anyway</string>
 <string name="reg_num_invalid_edit">Edit number</string>
 
-<string name="reg_advanced"><u>Manual SIP account setup (experts only)</u></string>
+<string name="enrolment_request_title">Lumicall enrolment</string>
+<string name="enrolment_request_detail">Requesting enrolment...</string>
+<string name="enrolment_requested_detail">Enrolment requested</string>
+<string name="enrolment_request_failed">Failed to submit enrolment</string>
+<string name="enrolment_submitting_code">Submitting validation code...</string>
+<string name="enrolment_submitted_code">Validation code submitted</string>
+<string name="enrolment_submission_failed">Failed to submit validation code</string>
 
 <string name="activate_instructions">You should receive an SMS text containing an activation code.  Please wait for it to arrive.</string>
 <string name="activate_code">Enter the activation code here (e.g. **ABC123**)</string>
 <string name="activate_proceed">Activate</string>
 <string name="activate_re_reg">Request code again</string>
 <string name="activate_invalid_code">Invalid activation code</string>
+
+<string name="validation_requested_title">Lumicall validation</string>
+<string name="validation_requested">Validation requested</string>
+<string name="validation_requested_detail">Validation requested - you may try to use Lumicall now</string>
 
 <string name="sip_identities">SIP Identities</string>
 

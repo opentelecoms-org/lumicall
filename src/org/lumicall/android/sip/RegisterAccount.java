@@ -45,6 +45,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.util.Base64;
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIP5060ProvisioningRequest;
 import org.lumicall.android.ganglia.GMonitorService;
 import org.lumicall.android.reg.EnrolmentService;
 import org.sipdroid.sipua.SipdroidEngine;
@@ -95,12 +97,7 @@ public class RegisterAccount extends Activity {
 	
 	public static final String PREFS_FILE = "org.opentelecoms.prefs.enrol";
 	public static final String PREF_PHONE_NUMBER = "phoneNumber";
-	public static final String PREF_SECRET = "secret";
-	public static final String PREF_FIRST_NAME = "firstName";
-	public static final String PREF_LAST_NAME = "lastName";
-	public static final String PREF_EMAIL = "emailAddr";
-	public static final String PREF_LAST_ENROLMENT_ATTEMPT = "lastEnrolmentAttempt";
-	public static final String PREF_LAST_VALIDATION_ATTEMPT = "lastValidationAttempt";
+	public static final String PREF_ADVANCED_SETUP = "advancedSetupMode";
 	
 	private static final String TAG = "EnrolAcct";
 
@@ -108,32 +105,6 @@ public class RegisterAccount extends Activity {
 	
 	SharedPreferences settings;
 	String password;
-	
-/* 	public static Boolean isPossible(Context context) {
-		Boolean found = true; // disabled temporarily
-	   	for (int i = 0; i < SipdroidEngine.LINES; i++) {
-	   		String j = (i!=0?""+i:"");
-	   		String username = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_USERNAME+j, Settings.DEFAULT_USERNAME),
-	   			server = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_SERVER+j, Settings.DEFAULT_SERVER);
-	   		if (username.equals("") || server.equals(""))
-	   			continue;
-	   		if (server.equals(Settings.DEFAULT_SERVER))
-	   			found = true;
-	   	}
-	   	if (found) return false;
-		Intent intent = new Intent(Intent.ACTION_SENDTO);
-		intent.setPackage("com.google.android.apps.googlevoice");
-		intent.setData(Uri.fromParts("smsto", "", null));
-		List<ResolveInfo> a = context.getPackageManager().queryIntentActivities(intent,PackageManager.GET_INTENT_FILTERS);
-		if (a == null || a.size() == 0)
-			return false;
-        Account[] accounts = AccountManager.get(context).getAccountsByType("com.google");
-        for (Account account : accounts) {
-        	  email = account.name;
-        	  return true;
-        }
-        return false;
-	} */
 	
 	int statusLine;
 	
@@ -166,49 +137,28 @@ public class RegisterAccount extends Activity {
 	    return password.toString();
     }
     
-    protected String getRegNum() {
-    	return etNum.getText().toString();
-    }
-    
     protected String getPassword() {
     	if(password == null)
     		password = generatePassword(PASSWORD_LEN);
     	return password;
     }
 	
-	protected String getRegFirstName() {
-		return etFirst.getText().toString();
-	}
-	
-	protected String getRegLastName() {
-		return etLast.getText().toString();
-	}
-	
-	protected String getRegEmail() {
-		return etEmail.getText().toString();
-	}
-    
     protected void storeSettings() {
-    	settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
     	
-    	Editor ed = settings.edit();
-    	ed.putString(PREF_PHONE_NUMBER, getRegNum());
-    	ed.putString(PREF_SECRET, getPassword());
-    	ed.putString(PREF_FIRST_NAME, getRegFirstName());
-    	ed.putString(PREF_LAST_NAME, getRegLastName());
-    	ed.putString(PREF_EMAIL, getRegEmail());
-    	// Only change the times on a successful submission
-    	//ed.putLong(PREF_LAST_REGISTRATION_ATTEMPT,
-    	//		new Date().getTime() / 1000);
-    	// Reset last activation attempt every time registration is
-    	// attempted
-    	ed.putLong(PREF_LAST_VALIDATION_ATTEMPT, 0);
-    	ed.commit();
+    	SIP5060ProvisioningRequest req = new SIP5060ProvisioningRequest();
+    	req.setAuthPassword(getPassword());
+    	
+    	LumicallDataSource db = new LumicallDataSource(this);
+    	db.open();
+    	// clear out any previous incomplete request
+    	List<SIP5060ProvisioningRequest> reqs = db.getSIP5060ProvisioningRequests();
+    	for(SIP5060ProvisioningRequest _req : reqs)
+    		db.deleteSIP5060ProvisioningRequest(_req);
+    	// Now put in the new request we are starting
+    	db.persistSIP5060ProvisioningRequest(req);
+    	db.close();
     }
-    
 
-
-	
 	private void doValidationActivity() {
 		final Intent intent = new Intent(RegisterAccount.this,
 				ActivateAccount.class);
@@ -220,46 +170,9 @@ public class RegisterAccount extends Activity {
 	private void doMainActivity() {
 		final Intent intent = new Intent(RegisterAccount.this,
 				org.sipdroid.sipua.ui.Sipdroid.class);
-		Log.v(TAG, "validation done already");
+		Log.v(TAG, "validation done or skipped, going to main activity");
 		startActivity(intent);
 		finish();
-	}
-		
-	
-	void checkAccountDetails() {	
-		// Check the phone number
-		String number = getRegNum();
-		String e164Number = null;
-		PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-		try {
-			// FIXME - should prompt the user to check the number
-			// FIXME - should update the contact DB
-			TelephonyManager mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-			String countryIsoCode = mTelephonyMgr.getSimCountryIso().toUpperCase();
-			Log.v(TAG, "Converting number: " + number + ", country ISO = " + countryIsoCode);
-			PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode);
-			if(phoneUtil.isValidNumber(numberProto))
-				e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
-		} catch (NumberParseException e) {
-			Log.w(TAG, "Error parsing number", e);
-		}
-		if(e164Number == null) {
-			Log.w(TAG, "Unsure about the phone number entered by the user");
-			Dialog dialog = new AlertDialog.Builder(this)
-				.setMessage(R.string.reg_num_invalid_message)
-				.setTitle(R.string.reg_num_invalid_t)
-				.setCancelable(true)
-				.setPositiveButton(R.string.reg_num_invalid_use_anyway, new Dialog.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						enrolAccountNow();
-					}
-				})
-				.setNegativeButton(R.string.reg_num_invalid_edit, null)
-				.show();
-				
-		} else
-			enrolAccountNow();
 	}
 	
 	void advancedSetup() {
@@ -267,30 +180,26 @@ public class RegisterAccount extends Activity {
 		settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
 		Editor ed = settings.edit();
 		long ts = new Date().getTime() / 1000;
-		ed.putLong(PREF_LAST_ENROLMENT_ATTEMPT, ts);
-		ed.putLong(PREF_LAST_VALIDATION_ATTEMPT, ts);
+		ed.putBoolean(PREF_ADVANCED_SETUP, true);
 		ed.commit();
 		
 		doMainActivity();
 		
 	}
-			
-	void enrolAccountNow() {
+	
+	protected void doSIP5060Provisioning() {
 		buttonOK.setEnabled(false);
-		//setCancelable(false);
 		storeSettings();
 		
 		final Intent intent = new Intent(this, EnrolmentService.class);
-		intent.setAction(EnrolmentService.ACTION_ENROL);
+		intent.setAction(EnrolmentService.ACTION_ENROL_SMS);
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
 		startService(intent);
 		
 		//doValidationActivity();  // FIXME - hiding the SMS validation temporarily
 		finish();
-		            
 	}
-
-	EditText etNum, etFirst, etLast, etEmail;
+			
 	Button buttonOK;
 	TextView advancedSettings;
 
@@ -303,26 +212,26 @@ public class RegisterAccount extends Activity {
         startService(new Intent(this, GMonitorService.class));
         
         // Has user already done registration or activation?
+        LumicallDataSource ds = new LumicallDataSource(this);
+        ds.open();
+        int pendingAccounts = ds.getSIP5060ProvisioningRequests().size();
+        int createdAccounts = ds.getSIPIdentities().size();
+        ds.close();
+        
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
         
-        Long ts = settings.getLong(PREF_LAST_VALIDATION_ATTEMPT, 0);
-        if(ts != 0) {
+        boolean advancedSetup = settings.getBoolean(PREF_ADVANCED_SETUP, false);
+        if(advancedSetup || createdAccounts > 0) {
         	doMainActivity();
         	return;
         }
         
-        ts = settings.getLong(PREF_LAST_ENROLMENT_ATTEMPT, 0);
-        if(ts != 0) {
-        	doValidationActivity();
-        	return;
-        }
-        
         setContentView(R.layout.register_dialog);
-        setTitle("Complete service activation");
+        setTitle(R.string.reg_title);
         buttonOK = (Button) findViewById(R.id.Button01);
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
-				checkAccountDetails();
+				doSIP5060Provisioning();
 			}
 		});
 		advancedSettings = (TextView) findViewById(R.id.AdvancedSetup);
@@ -332,21 +241,6 @@ public class RegisterAccount extends Activity {
 				advancedSetup();
 			}
 		});
-        etNum = (EditText) findViewById(R.id.EditText01);
-        etFirst = (EditText) findViewById(R.id.EditText02);
-        etLast = (EditText) findViewById(R.id.EditText03);
-        etEmail = (EditText) findViewById(R.id.EditText04);
-        
-        // Try to guess the values...
-        // TODO: if we can guess anything, skip the form and register 
-        // automatically? The user can change settings later if they
-        // want to
-        // TODO: should ignore exceptions in these methods, and just
-        // fall back to the form
-        
-        String myPhoneNumber = getMyPhoneNumber();
-        etNum.setText(settings.getString(PREF_PHONE_NUMBER, myPhoneNumber));
-        setAccountDetails(settings);
     }
 	
 	@Override
@@ -427,30 +321,4 @@ public class RegisterAccount extends Activity {
 		return "";
 	}
 	
-	// Requires android.permission.GET_ACCOUNTS
-	private void setAccountDetails(SharedPreferences settings) {
-		String firstName = "";
-		String lastName = "";
-		String email = "";
-		
-		AccountManager am = AccountManager.get(this);
-		// Get all accounts
-		Account[] accounts = am.getAccountsByType(null);
-		
-		// TODO: extract email address using regexp
-		//Pattern p = Pattern.compile("");
-		
-		for(Account acct : accounts) {
-			if(email.equals("") && !(acct.name.indexOf('@') < 0)) {
-				email = acct.name;
-			}
-		}
-		
-		etFirst.setText(settings.getString(PREF_FIRST_NAME, firstName));
-        etLast.setText(settings.getString(PREF_LAST_NAME, lastName));
-        etEmail.setText(settings.getString(PREF_EMAIL, email));
-		
-	}
-
-
 }

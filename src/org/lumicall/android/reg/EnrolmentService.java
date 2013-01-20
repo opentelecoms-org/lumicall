@@ -3,12 +3,16 @@ package org.lumicall.android.reg;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.lumicall.android.AppProperties;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIP5060ProvisioningRequest;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.ActivateAccount;
 import org.lumicall.android.sip.RegisterAccount;
@@ -26,9 +30,13 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.util.Log;
 import android.util.Xml;
 
@@ -37,7 +45,7 @@ public class EnrolmentService extends IntentService {
 	 private Notification notification;
      private NotificationManager nm;
 
-	public static final String ACTION_ENROL = "org.lumicall.android.intent.USER_ENROL";
+	public static final String ACTION_ENROL_SMS = "org.lumicall.android.intent.USER_ENROL_SMS";
 	public static final String ACTION_VALIDATE = "org.lumicall.android.intent.USER_VALIDATE";
 	public static final String ACTION_SCAN_SMS_INBOX = "org.lumicall.android.intent.SCAN_SMS_INBOX";
 	public static final String ACTION_RETRY_ENROLMENT = "org.lumicall.android.intent.RETRY_ENROLMENT";
@@ -48,6 +56,7 @@ public class EnrolmentService extends IntentService {
 	public static final String VALIDATION_ATTEMPTED = "org.lumicall.android.extra.VALIDATION_ATTEMPTED";
 	
 	private static final String TAG = "EnrolSvc";
+	private static final String PHASE2_PATTERN = "^(\\w+):(\\+\\d+)$";
 	
 	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	
@@ -73,20 +82,18 @@ public class EnrolmentService extends IntentService {
         super.onCreate();
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
-
 	
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		
-		if(intent.getAction().equals(ACTION_ENROL)) {
-			
-			
-			handleEnrolment(this);
+		if(intent.getAction().equals(ACTION_ENROL_SMS)) {
+				
+				
+			doEnrolmentBySMS(this);
 			
 		} else if(intent.getAction().equals(ACTION_VALIDATE)) {
 			// Get the validation code from the SMS
-			String regCode = intent.getStringExtra(VALIDATION_CODE);
-			handleValidationCode(this, regCode);
+			String smsText = intent.getStringExtra(VALIDATION_CODE);
+			handleValidationResponseSMS(smsText);
 		} else if(intent.getAction().equals(ACTION_SCAN_SMS_INBOX)) {
 			
 			// TODO
@@ -105,25 +112,19 @@ public class EnrolmentService extends IntentService {
 		}
 	}
 	
-	protected void validationDone(Context context) {
-		SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
-		Editor ed = settings.edit();
-		ed.putLong(RegisterAccount.PREF_LAST_VALIDATION_ATTEMPT,
-				new Date().getTime() / 1000);
-		ed.commit();
-		
+	protected void validationDone(Context context, SIP5060ProvisioningRequest req) {
 		Intent intent = new Intent();
 		intent.setAction(EnrolmentService.VALIDATION_ATTEMPTED);
 		this.sendBroadcast(intent);
 		
-		notification = new Notification(R.drawable.icon22, "Validation requested", new Date().getTime());
+		notification = new Notification(R.drawable.icon22, getText(R.string.validation_requested), new Date().getTime());
 		Intent notificationIntent = new Intent(this, Sipdroid.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-		notification.setLatestEventInfo(this, "Lumicall validation", "Validation requested - you may try to use Lumicall now", contentIntent);
+		notification.setLatestEventInfo(this, getText(R.string.validation_requested_title), getText(R.string.validation_requested_detail), contentIntent);
         nm.notify(10, notification);
 		
 		try {
-			setupSIP(this);
+			setupSIP(this, req);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -137,7 +138,8 @@ public class EnrolmentService extends IntentService {
         startActivity(callIntent);
 	}
 	
-	protected void handleEnrolment(Context context) {
+	
+	protected void doEnrolmentBySMS(Context context) {
 		try {
 			AppProperties props;
 			try {
@@ -146,81 +148,121 @@ public class EnrolmentService extends IntentService {
 				throw new RegistrationFailedException(e.getClass().getCanonicalName() + ": " + e.getMessage());
 			}
 			
-			notification = new Notification(R.drawable.icon22, "Requesting enrolment...", new Date().getTime());
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_request_detail), new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(this, "Enrolment", "Requesting enrolment...", contentIntent);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_request_detail), contentIntent);
             nm.notify(10, notification);
             
-			String enrolmentMessage = getEnrolmentEncryptedXml();
-			String numberToDial = RegistrationUtil.submitMessage(props, "enrol", enrolmentMessage);
+            LumicallDataSource ds = new LumicallDataSource(this);
+            ds.open();
+            List<SIP5060ProvisioningRequest> reqs = ds.getSIP5060ProvisioningRequests();
+            if(reqs.size() < 1) {
+            	logger.severe("no SIP5060ProvisioningRequest");
+            	throw new RegistrationFailedException("no SIP5060ProvisioningRequest");
+            }
+            SIP5060ProvisioningRequest req = reqs.get(0);
+			String enrolmentMessage = getEnrolmentEncryptedXml(req);
+			String numberToDial = RegistrationUtil.submitMessage(props, "enrol", enrolmentMessage, req);
+			ds.persistSIP5060ProvisioningRequest(req);
 			
-			notification = new Notification(R.drawable.icon22, "Enrolment requested", new Date().getTime());
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_requested_detail), new Date().getTime());
 			notificationIntent = new Intent(this, ActivateAccount.class);
 			contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(this, "Enrolment", "Enrolment requested", contentIntent);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_requested_detail), contentIntent);
             nm.notify(10, notification);
             
-			// If we got here, it was successful
-			updateSubmissionTimes();
-			
 			logger.info("HTTP response: " + numberToDial);
 			if(numberToDial.charAt(0) == '+') {
-				makeValidationCall(context, numberToDial);
-				validationDone(context);
+				sendValidationSMS(context, numberToDial, req.getValidationCode1());
 			}
+			ds.close();
 
 		} catch (RegistrationFailedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			
-			notification = new Notification(R.drawable.icon22, "Failed to submit enrolment", new Date().getTime());
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_request_failed), new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(this, "Enrolment", "Failed to submit enrolment", contentIntent);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_request_failed), contentIntent);
             nm.notify(10, notification);
 		}
 	}
-
-	protected void handleValidationCode(final Context context, final String regCode) {
+	
+	protected void sendValidationSMS(Context context, String dest, String validationCode) {
+		SmsManager smsManager = SmsManager.getDefault();
+		// FIXME: should detect failures, log them, and report back issues per-country
+		smsManager.sendTextMessage(dest, null, validationCode, null, null);
+	}
+	
+	protected void handleValidationResponseSMS(String smsText) {
 
 		try {
+			Pattern p = Pattern.compile(PHASE2_PATTERN);
+			Matcher m = p.matcher(smsText);
+			if(!m.matches()) {
+				// some other SMS, not for us
+				logger.info("ignoring SMS (not for us), body = " + smsText);
+				return;
+			}
+			String validationCode2 = m.group(1);
+			String validatedNumber = m.group(2);
+			
+			LumicallDataSource ds = new LumicallDataSource(this);
+			ds.open();
+			List<SIP5060ProvisioningRequest> reqs = ds.getSIP5060ProvisioningRequests();
+            if(reqs.size() < 1) {
+            	logger.severe("no SIP5060ProvisioningRequest");
+            	throw new RegistrationFailedException("no SIP5060ProvisioningRequest");
+            }
+            SIP5060ProvisioningRequest req = reqs.get(0);
+				
+			req.setPhoneNumber(validatedNumber);
+			req.setValidationCode2(validationCode2);
+			
+			ds.persistSIP5060ProvisioningRequest(req);
+			logger.info("validation reply SMS, code2 = " + validationCode2 + ", my number = " + validatedNumber);
 			
 			AppProperties props;
 			try {
-				props = new AppProperties(context);
+				props = new AppProperties(this);
 			} catch (IOException e) {
 				throw new RegistrationFailedException(e.getClass().getCanonicalName() + ": " + e.getMessage());
 			}
 			
-			notification = new Notification(R.drawable.icon22, "Submitting validation code...", new Date().getTime());
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_submitting_code), new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(this, "Enrolment", "Submitting validation code...", contentIntent);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_submitting_code), contentIntent);
 			nm.notify(10, notification);
 
-			SharedPreferences settings = context.getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
-			String phoneNumber = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
-			String s = getValidationBodyXml(phoneNumber, regCode);
-			RegistrationUtil.submitMessage(props, "validate", getValidationEncryptedXml(context, s));  
-
-			notification = new Notification(R.drawable.icon22, "Validation requested", new Date().getTime());
+			String s = getValidationBodyXml(validatedNumber, validationCode2);
+			String responseText = RegistrationUtil.submitMessage(props, "validate", getValidationEncryptedXml(this, s), null);
+			
+			if(!responseText.startsWith("DONE")) {
+				logger.severe("Bad response from validation server when sending phase2 code, text = " + responseText);
+				return;
+			}
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_submitted_code), new Date().getTime());
 			notificationIntent = new Intent(this, ActivateAccount.class);
 			contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(this, "Enrolment", "Validation requested", contentIntent);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_submitted_code), contentIntent);
             nm.notify(10, notification);
 
 			// This only gets updated if no exception occurred
-			validationDone(context);
+			validationDone(this, req);
+			
+			ds.close();
 
 		} catch (RegistrationFailedException e) {
 			// TODO: display error to user
 			Log.e(TAG, e.toString());
 
-			notification = new Notification(R.drawable.icon22, "Failed to submit validation code", new Date().getTime());
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_submission_failed), new Date().getTime());
 			Intent notificationIntent = new Intent(this, RegisterAccount.class);
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(this, "Enrolment", "Failed to submit validation code", contentIntent);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_submission_failed), contentIntent);
             nm.notify(10, notification);
 
 		}
@@ -239,15 +281,11 @@ public class EnrolmentService extends IntentService {
 		return Locale.getDefault().toString();
 	}
 
-	protected String getEnrolmentBodyXml() {
+	protected String getEnrolmentBodyXml(SIP5060ProvisioningRequest req) {
 		
 		SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
 		
-    	String enrolmentNum = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
-    	String password = settings.getString(RegisterAccount.PREF_SECRET, null);
-    	String firstName = settings.getString(RegisterAccount.PREF_FIRST_NAME, null);
-    	String lastName = settings.getString(RegisterAccount.PREF_LAST_NAME, null);
-    	String emailAddr = settings.getString(RegisterAccount.PREF_EMAIL, null);
+    	String enrolmentNum = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, "");
 
 		XmlSerializer serializer = Xml.newSerializer();
 		StringWriter writer = new StringWriter();
@@ -258,10 +296,10 @@ public class EnrolmentService extends IntentService {
 			serializer.startTag(ns, "enrolment");
 		
 			RegistrationUtil.serializeProperty(serializer, ns, "phoneNumber", enrolmentNum);
-			RegistrationUtil.serializeProperty(serializer, ns, "secret", password);
-			RegistrationUtil.serializeProperty(serializer, ns, "firstName", firstName);
-			RegistrationUtil.serializeProperty(serializer, ns, "lastName", lastName);
-			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", emailAddr);
+			RegistrationUtil.serializeProperty(serializer, ns, "secret", req.getAuthPassword());
+			RegistrationUtil.serializeProperty(serializer, ns, "firstName", "");
+			RegistrationUtil.serializeProperty(serializer, ns, "lastName", "");
+			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", "");
 			RegistrationUtil.serializeProperty(serializer, ns, "language", getLanguage());
 			
 			serializer.endTag(ns, "enrolment");
@@ -272,7 +310,7 @@ public class EnrolmentService extends IntentService {
 		} 
 	}
 	
-	protected String getEnrolmentEncryptedXml() {
+	protected String getEnrolmentEncryptedXml(SIP5060ProvisioningRequest req) {
 		XmlSerializer serializer = Xml.newSerializer();
 		StringWriter writer = new StringWriter();
 		try {
@@ -281,7 +319,7 @@ public class EnrolmentService extends IntentService {
 			serializer.startTag("", "encryptedEnrolment");
 			//serializer.attribute("", "regNum", getRegNum());
 
-			String fullBody = getEnrolmentBodyXml();
+			String fullBody = getEnrolmentBodyXml(req);
 
 			String encryptedBody = RegistrationUtil.getEncryptedStringAsBase64(this, fullBody); 
 			serializer.text(encryptedBody);
@@ -295,20 +333,6 @@ public class EnrolmentService extends IntentService {
 			return null;
 		}
 	}
-	
-    protected void updateSubmissionTimes() {
-    	SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, MODE_PRIVATE);
-    	
-    	Editor ed = settings.edit();
-    	ed.putLong(RegisterAccount.PREF_LAST_ENROLMENT_ATTEMPT,
-    			new Date().getTime() / 1000);
-    	// Reset last validation attempt every time enrolment is
-    	// attempted
-    	ed.putLong(RegisterAccount.PREF_LAST_VALIDATION_ATTEMPT, 0);
-    	
-    	ed.commit();
-    }
-	
 	
 	protected String getValidationBodyXml(String phoneNumber, String validationCode) {
 
@@ -356,7 +380,7 @@ public class EnrolmentService extends IntentService {
 	
 	
 	
-	protected void setupSIP(Context context) throws IOException {
+	protected void setupSIP(Context context, SIP5060ProvisioningRequest req) throws IOException {
 		
 		AppProperties props = new AppProperties(context);
 
@@ -366,17 +390,17 @@ public class EnrolmentService extends IntentService {
 		SharedPreferences sipSettings = context.getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
 		Editor edSIP = sipSettings.edit();
 		
-		String num = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null);
-		String email = settings.getString(RegisterAccount.PREF_EMAIL, null);
+		String num = req.getPhoneNumber();
 		
 		LumicallDataSource ds = new LumicallDataSource(context);
 		ds.open();
-		SIPIdentity sipIdentity = createSIPIdentity(props, settings);
+		SIPIdentity sipIdentity = createSIPIdentity(props, settings, req);
 		for(SIPIdentity s : ds.getSIPIdentities()) {
 			if(s.getUri().equals(sipIdentity.getUri()))
 				sipIdentity.setId(s.getId());
 		}		
-		ds.persistSIPIdentity(sipIdentity); 
+		ds.persistSIPIdentity(sipIdentity);
+		ds.deleteSIP5060ProvisioningRequest(req);
 		ds.close();
 		edSIP.putString(Settings.PREF_SIP, Long.toString(sipIdentity.getId()));
 		if(!sipSettings.contains(Settings.PREF_TEL))
@@ -396,7 +420,7 @@ public class EnrolmentService extends IntentService {
 		edSIP.putBoolean(Settings.PREF_ON, true);
 		
 		if(edSIP.commit())
-			Log.v(TAG, "Configured prefs for number " + num + ", email " + email);
+			Log.v(TAG, "Configured prefs for number " + num);
 		else {
 			Log.e(TAG, "error while committing preferences");
 		}
@@ -408,14 +432,14 @@ public class EnrolmentService extends IntentService {
 			
 	}
 	
-	private SIPIdentity createSIPIdentity(AppProperties props, SharedPreferences settings) {
+	private SIPIdentity createSIPIdentity(AppProperties props, SharedPreferences settings, SIP5060ProvisioningRequest req) {
 		
 		SIPIdentity sipIdentity = new SIPIdentity();
-		String uri = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null) +
+		String uri = req.getPhoneNumber() +
 				"@" + props.getSipDomain();
 		sipIdentity.setUri(uri);
 		sipIdentity.setAuthUser(uri);
-		sipIdentity.setAuthPassword(settings.getString(RegisterAccount.PREF_SECRET, null));
+		sipIdentity.setAuthPassword(req.getAuthPassword());
 		sipIdentity.setReg(true);
 		//sipIdentity.setRegServerName(props.getSipServer());
 		sipIdentity.setRegServerName("");

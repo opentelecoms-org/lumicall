@@ -12,6 +12,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -27,6 +30,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.opentelecoms.util.Base64;
 import org.lumicall.android.AppProperties;
 import org.lumicall.android.R;
+import org.lumicall.android.db.SIP5060ProvisioningRequest;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
@@ -37,6 +41,10 @@ import android.util.Xml;
 public class RegistrationUtil {
 
 	public final static String NS = "http://opentelecoms.org/sipdroid/reg";
+	
+	public final static String PHASE1_PATTERN = "^(\\w+):(.\\d+)$";
+	
+	Logger logger = Logger.getLogger(getClass().getCanonicalName());
 	
 	public static void serializeProperty(XmlSerializer serializer, String ns, String propertyName, String value) throws IllegalArgumentException, IllegalStateException, IOException {
 		serializer.startTag(ns, propertyName);
@@ -96,7 +104,10 @@ public class RegistrationUtil {
 	}
 
 	
-	public static String submitMessage(AppProperties props, String route, String message) throws RegistrationFailedException {
+	public static String submitMessage(AppProperties props, String route, String message,
+			SIP5060ProvisioningRequest req) throws RegistrationFailedException {
+		Logger _logger = Logger.getLogger(RegistrationUtil.class.getCanonicalName());
+		
 		HttpClient httpclient = new DefaultHttpClient();  
 		HttpPost httppost = new HttpPost(props.getRegistrationUrl() + "/" + route);  
 
@@ -112,6 +123,20 @@ public class RegistrationUtil {
 			// Execute HTTP Post Request  
 			HttpResponse response = httpclient.execute(httppost);
 			responseText = inputStreamToString(response.getEntity().getContent());
+			
+			if(req != null) {
+				Pattern p = Pattern.compile(PHASE1_PATTERN);
+				Matcher m = p.matcher(responseText);
+				if(!m.matches()) {
+					_logger.info("failed to match the response " + responseText);
+					return "ERROR";
+				}
+				String validationCode1 = m.group(1);
+				String numberToCall = m.group(2);
+				req.setValidationCode1(validationCode1);
+				_logger.info("validation instruction, code1 = " + validationCode1 + ", dest = " + numberToCall);
+				responseText = numberToCall;
+			}
 
 		} catch (ClientProtocolException e) {  
 			// TODO Auto-generated catch block

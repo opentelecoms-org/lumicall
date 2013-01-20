@@ -72,5 +72,21 @@ public class LumicallDataSource {
 	public void persistENUMSuffix(ENUMSuffix object) {
 		object.commit(db);
 	}
+	
+	public SIP5060ProvisioningRequest getSIP5060ProvisioningRequest(long id) {
+		return SIP5060ProvisioningRequest.loadFromDatabase(db, id);
+	}
+	
+	public List<SIP5060ProvisioningRequest> getSIP5060ProvisioningRequests() {
+		return SIP5060ProvisioningRequest.loadFromDatabase(db);
+	}
+	
+	public void persistSIP5060ProvisioningRequest(SIP5060ProvisioningRequest sIP5060ProvisioningRequest) {
+		sIP5060ProvisioningRequest.commit(db);
+	}
+	
+	public void deleteSIP5060ProvisioningRequest(SIP5060ProvisioningRequest sIP5060ProvisioningRequest) {
+		sIP5060ProvisioningRequest.delete(db);
+	}
 
 }

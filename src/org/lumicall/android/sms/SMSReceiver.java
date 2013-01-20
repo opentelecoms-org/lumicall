@@ -37,7 +37,7 @@ public class SMSReceiver extends BroadcastReceiver {
 			Object[] pdus = (Object[])bundle.get("pdus");
             msgs = new SmsMessage[pdus.length];
             //byte[] data = null;
-            String info = "SMS msg: ";
+            StringBuilder sb = new StringBuilder();
             
             Log.v(LOG_TAG, "rx msgs: " + msgs.length);
             
@@ -49,16 +49,18 @@ public class SMSReceiver extends BroadcastReceiver {
                 /*for(int index=0; index<data.length; ++index) {                
                         info += Character.toString((char)data[index]);
                 }*/
-                info += msgs[i].getMessageBody();
+                sb.append(msgs[i].getMessageBody());
             }
 
             // Toast.makeText(context, info, Toast.LENGTH_SHORT).show();
 
-            Matcher m = pattern.matcher(info);
+            /* Matcher m = pattern.matcher(info);
             if(m.find()) {
             	String regCode = m.group(1);
             	handleRegistrationCode(context, regCode);
-            }
+            } */
+            
+            handleRegistrationCode(context, sb.toString());
 			
 			/* NotificationManager nm = (NotificationManager) context.getSystemService(
 					Context.NOTIFICATION_SERVICE);
@@ -74,13 +76,13 @@ public class SMSReceiver extends BroadcastReceiver {
 		}
 	}
 	
-	protected void handleRegistrationCode(Context context, String regCode) {
+	protected void handleRegistrationCode(Context context, String msg) {
 		// Send a new intent
 		
 		final Intent intent = new Intent(context, EnrolmentService.class);
 		intent.setAction(EnrolmentService.ACTION_VALIDATE);
 		//intent.setAction(RegistrationPhaseTwo.ACTION);
-		intent.putExtra(EnrolmentService.VALIDATION_CODE, regCode);
+		intent.putExtra(EnrolmentService.VALIDATION_CODE, msg);
 		context.startService(intent);
 	}
 
