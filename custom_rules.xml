@@ -45,6 +45,7 @@
                 libraryManifestFilePathOut="project.library.manifest.file.path"
                 libraryResFolderPathOut="project.library.res.folder.path"
                 libraryBinAidlFolderPathOut="project.library.bin.aidl.folder.path"
+                libraryRFilePathOut="project.library.bin.r.file.path"
                 libraryNativeFolderPathOut="project.library.native.folder.path"
                 jarLibraryPathOut="project.all.jars.path"
                 targetApi="${project.target.apilevel}"
