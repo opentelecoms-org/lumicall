@@ -160,8 +160,10 @@ public abstract class BaseMessageFactory {
 		String proto;
 		if (request_uri.hasTransport())
 			proto = request_uri.getTransport();
-		else
+		else {
 			proto = sip_provider.getDefaultTransport();
+			request_uri.addTransport(proto);
+		}
 
 		return createRequest(method, request_uri, to, from, contact, proto,
 				via_addr, host_port, rport, call_id, cseq, local_tag,
