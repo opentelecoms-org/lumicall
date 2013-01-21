@@ -15,4 +15,4 @@
 	url = git://github.com/opentelecoms-org/ice4j.git
 [submodule "jni"]
 	path = jni
-	url = git@github.com:opentelecoms-org/codecs.git
+	url = git://github.com/opentelecoms-org/codecs.git
