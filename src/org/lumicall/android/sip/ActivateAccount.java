@@ -23,8 +23,8 @@ import android.widget.Toast;
 
 public class ActivateAccount extends Activity {
 	
-	private final static int REG_CODE_SIZE = 10;
-	private final static String DEFAULT_REG_CODE = "**";
+	private final static int REG_CODE_SIZE = 12;
+	private final static String DEFAULT_REG_CODE = "";
 	
 	private EditText etCode;
 	private Button buttonOK;
@@ -59,7 +59,7 @@ public class ActivateAccount extends Activity {
 		
 	protected boolean validateRegCode(String regCode) {
 		
-		if(regCode.length() != REG_CODE_SIZE)
+		if(regCode.length() < REG_CODE_SIZE)
 			return false;
 		
 		return true;
