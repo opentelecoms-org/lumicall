@@ -57,6 +57,14 @@ public class EnrolmentService extends IntentService {
 	
 	private static final String TAG = "EnrolSvc";
 	private static final String PHASE2_PATTERN = "^(\\w+):(\\+\\d+)$";
+	public static final String ACTION_SENT = "org.lumicall.SMS_SENT";
+	public static final String ACTION_DELIVERED = "org.lumicall.SMS_DELIVERED";
+	public static final String SMS_REG_DEST = "Lumicall-Reg-Dest";
+	public static final String SMS_REG_CODE = "Lumicall-Reg-Code";
+	public static final String SMS_REG_RETRY_COUNT = "Lumicall-Reg-Retry-Count";
+	
+	public static final int SMS_INTERVAL = 20;
+	public static final int DEFAULT_RETRY_COUNT = 3;
 	
 	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	
@@ -174,7 +182,7 @@ public class EnrolmentService extends IntentService {
             
 			logger.info("HTTP response: " + numberToDial);
 			if(numberToDial.charAt(0) == '+') {
-				sendValidationSMS(context, numberToDial, req.getValidationCode1());
+				sendValidationSMS(context, numberToDial, req.getValidationCode1(), DEFAULT_RETRY_COUNT);
 			}
 			ds.close();
 
@@ -190,10 +198,21 @@ public class EnrolmentService extends IntentService {
 		}
 	}
 	
-	protected void sendValidationSMS(Context context, String dest, String validationCode) {
+	protected static PendingIntent getIntent(Context context, String action, String dest, String validationCode, int count) {
+		Intent intent = new Intent(action);
+		intent.putExtra(SMS_REG_DEST, dest);
+		intent.putExtra(SMS_REG_CODE, validationCode);
+		intent.putExtra(SMS_REG_RETRY_COUNT, count);
+		return PendingIntent.getBroadcast(context, 0, intent, 0);
+	}
+	
+	public static void sendValidationSMS(Context context, String dest, String validationCode, int count) {
 		SmsManager smsManager = SmsManager.getDefault();
-		// FIXME: should detect failures, log them, and report back issues per-country
-		smsManager.sendTextMessage(dest, null, validationCode, null, null);
+		smsManager.sendTextMessage(dest, null, validationCode,
+				getIntent(context, ACTION_SENT, dest, validationCode, count),
+				getIntent(context, ACTION_DELIVERED, dest, validationCode, count));
+		Logger.getLogger(EnrolmentService.class.getCanonicalName())
+			.info("Lumicall registration SMS sending initiated (sendTextMessage)");
 	}
 	
 	protected void handleValidationResponseSMS(String smsText) {

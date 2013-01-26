@@ -207,6 +207,12 @@
 	        	<action android:name="android.intent.action.NEW_OUTGOING_CALL" />
 	        </intent-filter>
 	    </receiver>
+	    <receiver android:name="org.lumicall.android.reg.SMSProgressReceiver">
+	        <intent-filter>
+	        	<action android:name="org.lumicall.SMS_SENT" />
+	        	<action android:name="org.lumicall.SMS_DELIVERED" />
+	        </intent-filter>
+	    </receiver>
         <receiver android:name="org.sipdroid.sipua.ui.Receiver" android:enabled="true">
 	      	<intent-filter>
 	        	<action android:name="android.intent.action.BOOT_COMPLETED" />
