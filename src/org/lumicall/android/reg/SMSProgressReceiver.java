@@ -50,7 +50,11 @@ public class SMSProgressReceiver extends BroadcastReceiver {
 			return;
 
 		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-			errorCode = String.format("Generic Failure (%s)", intent.getStringExtra("errorCode"));
+			Object _errorCode = intent.getExtras().get("errorCode");
+			if(_errorCode != null)
+				errorCode = String.format("Generic Failure (%s)", _errorCode.toString());
+			else
+				errorCode = "Generic Failure (no reason given - check logcat)";
 			break;
 		case SmsManager.RESULT_ERROR_NO_SERVICE:
 			errorCode = "No Service";
