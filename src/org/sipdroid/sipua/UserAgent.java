@@ -158,6 +158,7 @@ public class UserAgent extends CallListenerAdapter {
 		call_state = state;
 		Receiver.onState(state, caller);
 		if(state == UA_STATE_IDLE) {
+			peerUserAgent = null;
 			setSocketAllocator(null);
 			if(iceAgent != null) {
 				iceAgent.free();
@@ -582,6 +583,8 @@ public class UserAgent extends CallListenerAdapter {
 	String realm;
 
 	private boolean iceLitePeer;
+
+	private String peerUserAgent = null;
 	
 	/** Makes a new call (acting as UAC). */
 	public boolean call(String target_url, boolean send_anonymous) {
@@ -735,6 +738,11 @@ public class UserAgent extends CallListenerAdapter {
 			call.redirect(redirection);
 		}
 	}
+	
+	protected boolean isCompatibleUserAgent() {
+		return (peerUserAgent  != null && 
+				peerUserAgent.startsWith(Receiver.mContext.getString(R.string.app_name)));
+	}
 
 	/** Launches the Media Application (currently, the RAT audio tool) */
 	protected void launchMediaApplication() {
@@ -840,8 +848,15 @@ public class UserAgent extends CallListenerAdapter {
 			}
 		} else if (user_profile.security_mode.equals(SecurityMode.ZRTP)) {
 			// User wants to try ZRTP
-			zrtp = new ZRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
-			zrtp.setPhoneNumber("+999999999");  // FIXME ZRTP - E.164 number not in use
+			// We know that this ZRTP implementation only works with itself and has trouble
+			// talking to other implementations such as Jitsi, so let's make sure
+			// we are talking to another Lumicall
+			if(isCompatibleUserAgent()) {
+				zrtp = new ZRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
+				zrtp.setPhoneNumber("+999999999");  // FIXME ZRTP - E.164 number not in use
+			} else {
+				printLog("not trying ZRTP, peer User-Agent (" + peerUserAgent + ") not known to be compatible");
+			}
 		}
 		
 		DatagramSocket socket = null;
@@ -1140,6 +1155,8 @@ public class UserAgent extends CallListenerAdapter {
 			return;
 		}
 		
+		updatePeerUserAgent(invite);
+		
 		/* if (Receiver.mSipdroidEngine != null)  // FIXME - moved for ICE, must review
 			Receiver.mSipdroidEngine.ua = this;
 		changeStatus(UA_STATE_INCOMING_CALL,caller.toString()); */
@@ -1183,6 +1200,12 @@ public class UserAgent extends CallListenerAdapter {
 		}
 	}
 	
+	private void updatePeerUserAgent(Message msg) {
+		String _ua = msg.getUserAgentHeader().getInfo();
+		if(_ua != null)
+			peerUserAgent = _ua;
+	}
+
 	protected void proceedToRing(NameAddress caller) {
 		if (Receiver.mSipdroidEngine != null)
 			Receiver.mSipdroidEngine.ua = this;
@@ -1273,6 +1296,8 @@ public class UserAgent extends CallListenerAdapter {
 			return;
 		}
 		
+		updatePeerUserAgent(resp);
+		
 		String _remote_sdp = call.getRemoteSessionDescriptor();
 		if (_remote_sdp==null || _remote_sdp.length()==0) {
 			printLog("RINGING", LogLevel.HIGH);
@@ -1330,6 +1355,9 @@ public class UserAgent extends CallListenerAdapter {
 			hangup();
 			return;
 		}
+		
+		updatePeerUserAgent(resp);
+		
 		changeStatus(UA_STATE_INCALL);
 		
 		SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
