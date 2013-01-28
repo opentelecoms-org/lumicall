@@ -1201,9 +1201,15 @@ public class UserAgent extends CallListenerAdapter {
 	}
 	
 	private void updatePeerUserAgent(Message msg) {
-		String _ua = msg.getUserAgentHeader().getInfo();
-		if(_ua != null)
-			peerUserAgent = _ua;
+		if(msg.hasUserAgentHeader()) {
+			String _ua = msg.getUserAgentHeader().getInfo();
+			if(_ua != null)
+				peerUserAgent = _ua;
+		} else if(msg.hasServerHeader()) {
+			String _server = msg.getServerHeader().getInfo();
+			if(_server != null)
+				peerUserAgent = _server;
+		}
 	}
 
 	protected void proceedToRing(NameAddress caller) {
