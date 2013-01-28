@@ -370,6 +370,9 @@
 <string name="enrolment_submitted_code">Validation code submitted</string>
 <string name="enrolment_submission_failed">Failed to submit validation code</string>
 
+<string name="enrolment_sms_sending_failed_title">Lumicall SMS sending failure.</string>
+<string name="enrolment_sms_sending_failed">Check SIM, signal, account balance.</string>
+
 <string name="activate_instructions">You should receive an SMS text containing an activation code.  Please wait for it to arrive.</string>
 <string name="activate_code">Enter the activation code here (e.g. ABC123XYZ456:+123456789000)</string>
 <string name="activate_proceed">Activate</string>

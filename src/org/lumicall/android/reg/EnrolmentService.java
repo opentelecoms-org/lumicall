@@ -59,6 +59,7 @@ public class EnrolmentService extends IntentService {
 	private static final String PHASE2_PATTERN = "^(\\w+):(\\+\\d+)$";
 	public static final String ACTION_SENT = "org.lumicall.SMS_SENT";
 	public static final String ACTION_DELIVERED = "org.lumicall.SMS_DELIVERED";
+	public static final String ACTION_SMS_FAILED = "org.lumicall.SMS_FAILED";
 	public static final String SMS_REG_DEST = "Lumicall-Reg-Dest";
 	public static final String SMS_REG_CODE = "Lumicall-Reg-Code";
 	public static final String SMS_REG_RETRY_COUNT = "Lumicall-Reg-Retry-Count";
@@ -116,6 +117,21 @@ public class EnrolmentService extends IntentService {
 			// - phone boots
 			// - network status changes
 			// - app starts
+			
+		} else if(intent.getAction().equals(ACTION_SMS_FAILED)) {
+			// Failed to send the SMS
+			
+			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_sms_sending_failed), new Date().getTime());
+			Intent notificationIntent = new Intent(this, Sipdroid.class);
+			PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+			notification.setLatestEventInfo(this, getText(R.string.enrolment_sms_sending_failed_title), getText(R.string.enrolment_sms_sending_failed), contentIntent);
+	        nm.notify(10, notification);
+	        LumicallDataSource ds = new LumicallDataSource(this);
+            ds.open();
+            for(SIP5060ProvisioningRequest req : ds.getSIP5060ProvisioningRequests())
+				ds.deleteSIP5060ProvisioningRequest(req);
+            ds.close();
+            logger.warning("SMS sending failed, all provisioning requests deleted, user must start again");
 			
 		}
 	}
@@ -203,7 +219,8 @@ public class EnrolmentService extends IntentService {
 		intent.putExtra(SMS_REG_DEST, dest);
 		intent.putExtra(SMS_REG_CODE, validationCode);
 		intent.putExtra(SMS_REG_RETRY_COUNT, count);
-		return PendingIntent.getBroadcast(context, 0, intent, 0);
+		PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		return pi;
 	}
 	
 	public static void sendValidationSMS(Context context, String dest, String validationCode, int count) {
@@ -212,7 +229,7 @@ public class EnrolmentService extends IntentService {
 				getIntent(context, ACTION_SENT, dest, validationCode, count),
 				getIntent(context, ACTION_DELIVERED, dest, validationCode, count));
 		Logger.getLogger(EnrolmentService.class.getCanonicalName())
-			.info("Lumicall registration SMS sending initiated (sendTextMessage)");
+			.info("Lumicall registration SMS sending initiated (sendTextMessage), retry count = " + count);
 	}
 	
 	protected void handleValidationResponseSMS(String smsText) {

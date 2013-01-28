@@ -71,10 +71,16 @@ public class SMSProgressReceiver extends BroadcastReceiver {
 			// Sent OK
 			return;
 		} else {
-			logger.severe("Registration SMS sending error: " + errorCode);
-			if(count > 1)
+			logger.severe("Registration SMS sending error: " + errorCode + ", retry count = " + count);
+			if(count < 1) {
+				final Intent _intent = new Intent(context, EnrolmentService.class);
+				_intent.setAction(EnrolmentService.ACTION_SMS_FAILED);
+				context.startService(_intent);
 				return;
-			new Thread(new RetrySender(context, dest, code, count-1)).run();
+			}
+			count --;
+			RetrySender rs = new RetrySender(context, dest, code, count);
+			new Thread(rs).start();
 		}
 	}
 
@@ -99,6 +105,7 @@ public class SMSProgressReceiver extends BroadcastReceiver {
 			} catch (InterruptedException e) {
 				logger.info("Interrupted while sleeping for retry");
 			}
+			logger.info("Initiating retry, count = " + count);
 	      	EnrolmentService.sendValidationSMS(context, dest, code, count);
 		}
 		
