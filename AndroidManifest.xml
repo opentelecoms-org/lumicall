@@ -62,7 +62,10 @@
 	<uses-permission android:name="android.permission.DISABLE_KEYGUARD"></uses-permission>
 	<uses-permission android:name="android.permission.CAMERA"></uses-permission>
 	<uses-permission android:name="android.permission.VIBRATE" ></uses-permission>
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" ></uses-permission>
+	<!-- Location / GPS support is used by the Ganglia agent, it must be enabled explicitly
+	     in the preferences.  Many users are scared if they see the request for GPS permissions
+	     so it is completely disabled in the manifest for now.
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" ></uses-permission> -->
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" ></uses-permission>
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" ></uses-permission>
 	<!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" ></uses-permission> -->

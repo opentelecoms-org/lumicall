@@ -167,10 +167,12 @@
 				android:key="ganglia_heartbeat"
 				android:title="@string/settings_ganglia_heartbeat"
 				android:summary="@string/settings_ganglia_heartbeat2" />
+			<!--  Many users are scared of the request for GPS permissions when
+			installing an app, so this is now disabled.
 			<CheckBoxPreference
 				android:key="ganglia_location"
 				android:title="@string/settings_ganglia_location"
-				android:summary="@string/settings_ganglia_location2" />
+				android:summary="@string/settings_ganglia_location2" /> -->
 			<EditTextPreference
 				android:key="ganglia_dest"
 				android:persistent="true"

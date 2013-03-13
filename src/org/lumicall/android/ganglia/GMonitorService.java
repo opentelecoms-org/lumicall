@@ -92,8 +92,9 @@ public class GMonitorService extends Service {
             gmon.addSampler(new BatterySampler(this, interval));
             // Is Location required?  Uses more power (with wake lock)
             if(sp.getBoolean(Settings.PREF_GANGLIA_LOCATION, Settings.DEFAULT_GANGLIA_LOCATION)) {
-            	log.info("will send location");
-            	gmon.addSampler(new LocationSampler(this, interval));
+            	log.warning("location metric enabled in the config, but not supported by this Lumicall build, ignoring");
+            	/* log.info("will send location");
+            	gmon.addSampler(new LocationSampler(this, interval)); */
             }
             
             gmon.start();
