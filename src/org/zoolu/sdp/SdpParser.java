@@ -104,8 +104,9 @@ class SdpParser extends Parser {
 		int begin = 0;
 		if (!str.startsWith(type + "=", index)) {
 			begin = str.indexOf("\n" + type + "=", index);
+			int end = str.indexOf("\nm", begin);
 			// if (begin<0) begin=str.indexOf("\r"+type+"=",index);
-			if (begin < 0) { // return null if no type SdpField has been
+			if (begin < 0 || begin > end) { // return null if no type SdpField has been
 				// found
 				return null;
 			}
