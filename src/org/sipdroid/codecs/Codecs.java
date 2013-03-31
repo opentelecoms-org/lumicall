@@ -285,16 +285,16 @@ public class Codecs {
 			
 			Codec codec = null;
 			int index = formats.size() + 1;
-			
+			logger.info("number of local codecs = " + codecs.size());
 			for (Codec c : codecs) {
-				logger.fine("checking " + c.userName() + ", valid = " + c.isValid());
+				logger.info("checking " + c.userName() + ", valid = " + c.isValid());
 				if (!c.isValid())
 					continue;
 
 				//search current codec in offers by name
 				int i = names.indexOf(c.userName().toLowerCase());
 				if (i >= 0) {
-					logger.fine("adding codec " + c.userName() + " by name");
+					logger.info("adding codec " + c.userName() + " by name");
 					codecmap.set(i, c);
 					if ( (codec==null) || (i < index) ) {
 						codec = c;
@@ -307,7 +307,7 @@ public class Codecs {
 				i = numbers.indexOf(c.number());
 				if (i >= 0) {
 						if ( names.elementAt(i).equals("")) {
-							logger.fine("adding codec " + c.userName() + " by number");
+							logger.info("adding codec " + c.userName() + " by number");
 							codecmap.set(i, c);
 							if ( (codec==null) || (i < index) )  {
 								//fmt number has no attr with name 
