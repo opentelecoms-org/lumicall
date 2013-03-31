@@ -22,10 +22,12 @@ package org.sipdroid.codecs;
 
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import org.lumicall.android.R;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
+import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;
 import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.sdp.AttributeField;
@@ -220,7 +222,21 @@ public class Codecs {
 	};
 
 	public static Map getCodec(SessionDescriptor offers) {
-		MediaField m = offers.getMediaDescriptor("audio").getMedia(); 
+		
+		Logger logger = Logger.getLogger(Codecs.class.getCanonicalName());
+		if(offers == null) {
+			logger.warning("offers == null");
+			return null;
+		}
+		
+		MediaDescriptor mAudio = offers.getMediaDescriptor("audio");
+		if(mAudio == null) {
+			logger.warning("offer doesn't contain m=audio");
+			logger.info(offers.toString());
+			return null;
+		}
+		
+		MediaField m = mAudio.getMedia(); 
 		if (m==null) 
 			return null;
 
