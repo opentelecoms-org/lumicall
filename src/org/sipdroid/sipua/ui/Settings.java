@@ -578,6 +578,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
         getPreferenceScreen().findPreference(PREF_GANGLIA_PORT).setSummary("" + getStringAsInt(settings, Settings.PREF_GANGLIA_PORT, Settings.DEFAULT_GANGLIA_PORT));
         getPreferenceScreen().findPreference(PREF_GANGLIA_TTL).setSummary("" + getStringAsInt(settings, Settings.PREF_GANGLIA_TTL, Settings.DEFAULT_GANGLIA_TTL));
         getPreferenceScreen().findPreference(PREF_GANGLIA_INTERVAL).setSummary("" + getStringAsInt(settings, Settings.PREF_GANGLIA_INTERVAL, Settings.DEFAULT_GANGLIA_INTERVAL));
+        
+        getPreferenceScreen().findPreference(PREF_IPV4).setDefaultValue(settings.getBoolean(PREF_IPV4, Settings.DEFAULT_IPV4));
     }
 
 	public static int getStringAsInt(SharedPreferences settings, String pref, int defaultValue) {
