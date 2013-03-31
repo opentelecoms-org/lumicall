@@ -54,6 +54,9 @@ public class Codecs {
 	/* The default codec preference order is based on the order
 	   of the elements in this vector */
     	private static final Vector<Codec> codecs = new Vector<Codec>() {{			
+			add(new G722());
+			add(new alaw());   // These should be enabled for compatibility reasons,
+			add(new ulaw());   // but they are currently disabled to reduce load on the TURN relay			
 //			add(new SILK24());		save space (until a common library for all bitrates gets available?)
 //			add(new SILK16());
 			add(new SILK8());
@@ -61,9 +64,6 @@ public class Codecs {
 			add(new GSM());
 //			add(new Speex());
 //			add(new BV16());
-			add(new alaw());   // These should be enabled for compatibility reasons,
-			add(new ulaw());   // but they are currently disabled to reduce load on the TURN relay
-			add(new G722());
 		}};
 	private static final HashMap<Integer, Codec> codecsNumbers;
 	private static final HashMap<String, Codec> codecsNames;
