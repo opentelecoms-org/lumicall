@@ -802,10 +802,12 @@ public class UserAgent extends CallListenerAdapter {
 			String mt = media.getTransport();
 			if(mt.equals("RTP/SAVP") || mt.equals("RTP/SAVPF")) {
 				mustEncrypt = true;
-				CryptoField cf = new CryptoField(md.getAttribute("crypto"));
-				if(cf.getSuite().equals(SUPPORTED_CRYPTO_SUITE)) {
-					SRTPKeySpec keySpec = new SRTPKeySpec(cf.getKey());
-					remoteKeys.put(media.getMedia(), keySpec);
+				for(AttributeField af : md.getAttributes("crypto")) {
+					CryptoField cf = new CryptoField(af);
+					if(cf.getSuite().equals(SUPPORTED_CRYPTO_SUITE)) {
+						SRTPKeySpec keySpec = new SRTPKeySpec(cf.getKey());
+						remoteKeys.put(media.getMedia(), keySpec);
+					}
 				}
 			}
 		}
