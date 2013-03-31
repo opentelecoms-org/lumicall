@@ -261,9 +261,11 @@ public class Codecs {
 					// continue ... remote sent bogus rtp setting
 				}
 			};
+			logger.info("got " + numbers.size() + " format numbers");
 		
 			//if we have attrs for format -> set name
-			Vector<AttributeField> attrs = offers.getMediaDescriptor("audio").getAttributes("rtpmap");			
+			Vector<AttributeField> attrs = offers.getMediaDescriptor("audio").getAttributes("rtpmap");
+			logger.info("got " + attrs.size() + " rtpmap attributes");
 			for (AttributeField a : attrs) {
 				String s = a.getValue();
 				// skip over "rtpmap:"
@@ -273,6 +275,7 @@ public class Codecs {
 					String name = s.substring(i + 1);
 					int number = Integer.parseInt(s.substring(0, i));
 					int index = numbers.indexOf(number);
+					logger.info("format offered " + index + ", " + name);
 					if (index >=0)
 						names.set(index, name.toLowerCase());
 				} catch (NumberFormatException e) {
@@ -284,12 +287,14 @@ public class Codecs {
 			int index = formats.size() + 1;
 			
 			for (Codec c : codecs) {
+				logger.fine("checking " + c.userName() + ", valid = " + c.isValid());
 				if (!c.isValid())
 					continue;
 
 				//search current codec in offers by name
 				int i = names.indexOf(c.userName().toLowerCase());
 				if (i >= 0) {
+					logger.fine("adding codec " + c.userName() + " by name");
 					codecmap.set(i, c);
 					if ( (codec==null) || (i < index) ) {
 						codec = c;
@@ -302,6 +307,7 @@ public class Codecs {
 				i = numbers.indexOf(c.number());
 				if (i >= 0) {
 						if ( names.elementAt(i).equals("")) {
+							logger.fine("adding codec " + c.userName() + " by number");
 							codecmap.set(i, c);
 							if ( (codec==null) || (i < index) )  {
 								//fmt number has no attr with name 
