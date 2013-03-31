@@ -237,8 +237,10 @@ public class Codecs {
 		}
 		
 		MediaField m = mAudio.getMedia(); 
-		if (m==null) 
+		if (m==null) {
+			logger.warning("media field invalid");
 			return null;
+		}
 
 		String proto = m.getTransport();
 		//see http://tools.ietf.org/html/rfc4566#page-22, paragraph 5.14, <fmt> description 
@@ -312,12 +314,16 @@ public class Codecs {
 			}			
 			if (codec!=null) 
 				return new Map(numbers.elementAt(index), codec, numbers, codecmap);
-			else
+			else {
 				// no codec found ... we can't talk
+				logger.warning("didn't find any recognised codec");
 				return null;
-		} else
+			}
+		} else {
 			/*formats of other protocols not supported yet*/
+			logger.warning("can't handle protocol: " + proto);
 			return null;
+		}
 	}
 
 	public static class CodecSettings extends PreferenceActivity {
