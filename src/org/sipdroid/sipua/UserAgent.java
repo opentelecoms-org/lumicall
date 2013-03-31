@@ -984,6 +984,27 @@ public class UserAgent extends CallListenerAdapter {
 		if (call!=null) call.setLocalSessionDescriptor(local_session);
 	}
 	
+	String[] getRemoteICEAttrs(SessionDescriptor _sdp) {
+		String[] result = new String[] { null, null };
+		
+		if(_sdp.getAttribute(ATTR_ICE_UFRAG) != null)
+			result[0] = _sdp.getAttribute(ATTR_ICE_UFRAG).getAttributeValue();
+		if(_sdp.getAttribute(ATTR_ICE_PWD) != null)
+			result[1] = _sdp.getAttribute(ATTR_ICE_PWD).getAttributeValue();
+		
+		MediaDescriptor mAudio = _sdp.getMediaDescriptor("audio");
+		if(mAudio != null) {
+			if(mAudio.getAttribute(ATTR_ICE_UFRAG) != null)
+				result[0] = mAudio.getAttribute(ATTR_ICE_UFRAG).getAttributeValue();
+			if(mAudio.getAttribute(ATTR_ICE_PWD) != null)
+				result[1] = mAudio.getAttribute(ATTR_ICE_PWD).getAttributeValue();
+		}
+		
+		if(result[0] == null || result[1] == null)
+			result = null;
+		return result;
+	}
+	
 	void handleRemoteSDPforICE(SessionDescriptor remote_sdp) {
 		
 		printLog("scanning for ICE candidates in remote SDP");
@@ -1008,8 +1029,9 @@ public class UserAgent extends CallListenerAdapter {
 			printLog("peer is not an ICE LITE implementation");
 		}
 		
-		String rUfrag = remote_sdp.getAttribute(ATTR_ICE_UFRAG).getAttributeValue();
-		String rPassword = remote_sdp.getAttribute(ATTR_ICE_PWD).getAttributeValue();
+		String[] iceAttrs = getRemoteICEAttrs(remote_sdp);
+		String rUfrag = iceAttrs[0];
+		String rPassword = iceAttrs[1];
 		
 		ConnectionField globalConnection = remote_sdp.getConnection();
         String globalConnAddr = null;
@@ -1039,7 +1061,7 @@ public class UserAgent extends CallListenerAdapter {
 					String candidate = af.getAttributeValue();
 					StringTokenizer st = new StringTokenizer(candidate);
 					int nTokens = st.countTokens();
-					if (! ((nTokens == 8) || (nTokens == 12)) ) {
+					if (nTokens  < 8 ) {
 						printLog("BAD CANDIDATE (" + nTokens + " tokens) [" + candidate + "]");
 						return;
 					}
@@ -1058,6 +1080,8 @@ public class UserAgent extends CallListenerAdapter {
 				    	rAddr = st.nextToken();
 				    	st.nextToken();
 				    	rPort = st.nextToken();
+				    } else {
+				    	logger.warning("Ignoring some tokens from candidate: [" + candidate + "]");
 				    }
 				    
 				    Component lc = stream.getComponent(Integer.parseInt(componentId));
@@ -1168,7 +1192,7 @@ public class UserAgent extends CallListenerAdapter {
 		}
 		else { 
 			SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
-			if(remote_sdp.getAttribute(ATTR_ICE_UFRAG) != null) {
+			if(getRemoteICEAttrs(remote_sdp) != null) {
 				printLog("begin ICE setup (incoming)");
 				setupICE(caller);
 				iceAgent.setControlling(false);
@@ -1239,6 +1263,9 @@ public class UserAgent extends CallListenerAdapter {
 			printLog("IceProcessingListener: received event: " + iceProcessingState);
 			
 			switch (iceProcessingState) {
+			case RUNNING:
+				logger.info("received notification that ICE is running");
+				break;
 			case COMPLETED:
 				tmp = new ICESocketAllocator(iceAgent);
 				setSocketAllocator(tmp);
@@ -1263,7 +1290,7 @@ public class UserAgent extends CallListenerAdapter {
 				}
 				break;
 			default:
-				printLog("IceProcessingListener: unhandled event: " + iceProcessingState);
+				logger.warning("IceProcessingListener: unhandled event: " + iceProcessingState);
 				return;
 			}
 			
@@ -1316,7 +1343,7 @@ public class UserAgent extends CallListenerAdapter {
 			SessionDescriptor remote_sdp = new SessionDescriptor(_remote_sdp);
 			// Maybe ICE?
 			IceProcessingState iceProcessingState = null;
-			if(remote_sdp.getAttribute(ATTR_ICE_UFRAG) != null && iceAgent != null) {
+			if(getRemoteICEAttrs(remote_sdp) != null && iceAgent != null) {
 				iceProcessingState = iceAgent.getState();
 				if(iceProcessingState == IceProcessingState.WAITING) {
 					handleRemoteSDPforICE(remote_sdp);
