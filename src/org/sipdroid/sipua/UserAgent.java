@@ -799,7 +799,8 @@ public class UserAgent extends CallListenerAdapter {
 				remote_audio_port = media.getPort();
 			if (media.getMedia().equals("video"))
 				remote_video_port = media.getPort();
-			if(media.getTransport().equals("RTP/SAVP")) {
+			String mt = media.getTransport();
+			if(mt.equals("RTP/SAVP") || mt.equals("RTP/SAVPF")) {
 				mustEncrypt = true;
 				CryptoField cf = new CryptoField(md.getAttribute("crypto"));
 				if(cf.getSuite().equals(SUPPORTED_CRYPTO_SUITE)) {
@@ -812,7 +813,8 @@ public class UserAgent extends CallListenerAdapter {
 		Map<String, SRTPKeySpec> localKeys = new HashMap<String, SRTPKeySpec>();
 		for(MediaDescriptor md : local_sdp.getMediaDescriptors()) {
 			MediaField media = md.getMedia();
-			if(media.getTransport().equals("RTP/SAVP")) {
+			String mt = media.getTransport();
+			if(mt.equals("RTP/SAVP") || mt.equals("RTP/SAVPF")) {
 				mustEncrypt = true;
 				CryptoField cf = new CryptoField(md.getAttribute("crypto"));
 				if(cf.getSuite().equals(SUPPORTED_CRYPTO_SUITE)) {
@@ -830,7 +832,7 @@ public class UserAgent extends CallListenerAdapter {
 			SRTPKeySpec rxAudioKey = remoteKeys.get("audio");
 			printLog("Using RX key: " + rxAudioKey);
 			if(txAudioKey == null || rxAudioKey == null)
-				throw new RuntimeException("RTP/SAVP detected in SDP, but insufficient crypto keys");
+				throw new RuntimeException("RTP/SAVP(F) detected in SDP, but insufficient crypto keys");
 			srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
 			if(!srtp.testEncryption())
 				throw new RuntimeException("SRTP.testEncryption() failed, platform not compatible");

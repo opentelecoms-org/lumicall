@@ -102,10 +102,11 @@ public class SdpTools {
 						}
 						
 						// For SRTP, select the best matching crypto attribute
-						if(spec_md.getMedia().getTransport().equals("RTP/SAVP")) {
+						String mt = spec_md.getMedia().getTransport();
+						if(mt.equals("RTP/SAVP") || mt.equals("RTP/SAVPF")) {
 							Vector<AttributeField> spec_crypto = spec_md.getAttributes("crypto");
 							if(spec_crypto.size() == 0)
-								throw new RuntimeException("Peer requests RTP/SAVP but presents no crypto attributes for media: " + spec_md.getMedia().getMedia());
+								throw new RuntimeException("Peer requests " + mt + " but presents no crypto attributes for media: " + spec_md.getMedia().getMedia());
 							CryptoField _spec_cf = null;
 							CryptoField _prev_cf = null;
 							for(AttributeField af : spec_crypto) {

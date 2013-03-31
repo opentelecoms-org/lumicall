@@ -226,7 +226,7 @@ public class Codecs {
 
 		String proto = m.getTransport();
 		//see http://tools.ietf.org/html/rfc4566#page-22, paragraph 5.14, <fmt> description 
-		if ( proto.equals("RTP/AVP") || proto.equals("RTP/SAVP") ) {
+		if ( proto.equals("RTP/AVP") || proto.equals("RTP/SAVP") || proto.equals("RTP/SAVPF") ) {
 			Vector<String> formats = m.getFormatList();
 			Vector<String> names = new Vector<String>(formats.size());
 			Vector<Integer> numbers = new Vector<Integer>(formats.size());
