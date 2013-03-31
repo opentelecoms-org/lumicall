@@ -341,7 +341,16 @@ public class UserAgent extends CallListenerAdapter {
 		
 		String mediaProfile = "RTP/AVP";
 		if(user_profile.security_mode == SecurityMode.SRTP) {
-			mediaProfile = "RTP/SAVP";
+			mediaProfile = "RTP/SAVP";  // default secure profile, but...
+			String _rsdp = call.getRemoteSessionDescriptor();
+			if(_rsdp != null) {
+				SessionDescriptor remote_sdp = new SessionDescriptor(_rsdp);
+				MediaDescriptor _rmd = remote_sdp.getMediaDescriptor(media);
+				if(_rmd != null) {
+					if(_rmd.getMedia().getTransport().equals("RTP/SAVPF"))
+						mediaProfile = "RTP/SAVPF";
+				}
+			}
 			int secItem = 1;
 			String secSuite = SUPPORTED_CRYPTO_SUITE;
 			String secKey = SRTPKeySpec.generate().toString();
@@ -349,7 +358,7 @@ public class UserAgent extends CallListenerAdapter {
 					String.format("%d %s inline:%s", secItem, secSuite, secKey)));
 		}
 		
-		sdp.addMedia(new MediaField(media, port, 0, mediaProfile, avpvec), afvec);		
+		sdp.addMedia(new MediaField(media, port, 0, mediaProfile, avpvec), afvec);
 		local_session = sdp.toString();
 	}
 	
