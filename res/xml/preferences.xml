@@ -133,6 +133,7 @@
 				android:singleLine="true" /> -->
 			<CheckBoxPreference
 				android:key="preferipv4"
+				android:defaultValue="true"
 				android:title="@string/settings_prefer_ipv4"
 				android:summary="@string/settings_prefer_ipv4_info" />
 	</PreferenceScreen>
