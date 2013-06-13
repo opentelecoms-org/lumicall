@@ -625,6 +625,18 @@ import org.zoolu.sip.provider.SipProvider;
 		}
 		
 		public static boolean isFast(int i) {
+        	WifiManager wm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        	WifiInfo wi = wm.getConnectionInfo();
+        	on_wlan = false;
+        	if (wi != null) {
+        		if (!Sipdroid.release) Log.i("SipUA:","isFastWifi() "+WifiInfo.getDetailedStateOf(wi.getSupplicantState())
+        				+" "+wi.getIpAddress());
+	        	if (wi.getIpAddress() != 0 && (WifiInfo.getDetailedStateOf(wi.getSupplicantState()) == DetailedState.OBTAINING_IPADDR
+	        			|| WifiInfo.getDetailedStateOf(wi.getSupplicantState()) == DetailedState.CONNECTED)) {
+	        		on_wlan = true;
+	        	}
+        	}
+
 			return true;
 		}
 		
