@@ -23,8 +23,11 @@ c) generate local.properties and other stuff:
 
   $ android update project --path . --target android-8
 
-d) build Lumicall itself (automatically builds submodules)
+d) make sure you create a properties file:
+
+  $ ln -s assets/app.properties-prod assets/app.properties
+
+e) build Lumicall itself (automatically builds submodules)
 
   $ ant debug
-
 
