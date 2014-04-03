@@ -494,7 +494,13 @@ import org.zoolu.sip.provider.SipProvider;
 			if (number != null)
 				intent.putExtra("incoming_number", number);
 			intent.putExtra(mContext.getString(R.string.app_name), true);
-			mContext.sendBroadcast(intent, android.Manifest.permission.READ_PHONE_STATE);
+			try {
+				mContext.sendBroadcast(intent, android.Manifest.permission.READ_PHONE_STATE);
+			} catch (SecurityException ex) {
+				// New versions of Android (KitKat and beyond) don't let us
+				// send ACTION_PHONE_STATE_CHANGED
+				Log.w("Lumicall", "Failed to send intent: " + intent.getAction());
+			}
 			if (state.equals("IDLE")) {
 				if (was_playing) {
 					if (pstn_state == null || pstn_state.equals("IDLE"))
