@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
 import org.sipdroid.sipua.SipdroidEngine;
@@ -59,18 +61,28 @@ public class SIPUri extends Activity {
 	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
 	void call(String target) {
-		if (!Receiver.engine(this).call(target,true)) {
-			new AlertDialog.Builder(this)
-			.setMessage(R.string.notfast)
-			.setTitle(R.string.app_name)
-			.setIcon(R.drawable.icon22)
-			.setCancelable(true)
-			.setOnCancelListener(new OnCancelListener() {
-				public void onCancel(DialogInterface dialog) {
-					finish();
-				}
-			})
-			.show();
+		String _domain = target.substring(target.indexOf('@') + 1);
+		LumicallDataSource ds = new LumicallDataSource(this);
+		ds.open();
+
+		List<SIPIdentity> sipIdentities = ds.getSIPIdentities();
+
+		SIPIdentity sipIdentity = null;
+		for(SIPIdentity s : sipIdentities) {
+			String uri = s.getUri();
+			String domain = uri.substring(uri.indexOf('@') + 1);
+			if(domain.equals(_domain))
+			{
+				sipIdentity = s;
+				logger.fine("matched domain: " + domain + ", using identity: " + s.getUri());
+			}
+		}
+
+		ds.close();
+		DialCandidate dc = new DialCandidate("sip", target, "", "Manual dial", sipIdentity);
+		if(!dc.call(this)) {
+			// ignoring error
+			logger.severe("DialCandidate failed to place call");
 		} else
 			finish();
 	}
