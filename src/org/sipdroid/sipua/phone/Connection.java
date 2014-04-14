@@ -176,6 +176,12 @@ public class Connection
                 number = CallerInfo.UNKNOWN_NUMBER;
             }
         } else {
+        	// For issue #15 - when logging a SIP URI to the call log,
+        	// must always include the SIP URI prefix "sip:"
+            if(number.contains("@") && !number.contains(":")) {
+            	number = "sip:" + number;
+            }
+
             if (number.contains("&"))
             	number = number.substring(0, number.indexOf("&"));
         }
