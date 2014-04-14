@@ -175,12 +175,13 @@ public class Connection
             } else {
                 number = CallerInfo.UNKNOWN_NUMBER;
             }
+        } else {
+            if (number.contains("&"))
+            	number = number.substring(0, number.indexOf("&"));
         }
 
         ContentValues values = new ContentValues(5);
 
-        if (number.contains("&"))
-        	number = number.substring(0,number.indexOf("&"));
         values.put(Calls.NUMBER, number);
         values.put(Calls.TYPE, Integer.valueOf(callType));
         values.put(Calls.DATE, Long.valueOf(start));
