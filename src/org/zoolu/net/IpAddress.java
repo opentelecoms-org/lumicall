@@ -143,7 +143,7 @@ public class IpAddress {
 				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 
-					if (!inetAddress.isLoopbackAddress()) { 
+					if (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) { 
 						localIpAddress = inetAddress.getHostAddress().toString();
 					}					
 				}
