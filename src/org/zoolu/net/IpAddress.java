@@ -24,15 +24,21 @@
 
 package org.zoolu.net;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.Vector;
+import java.util.logging.Logger;
 
 /**
  * IpAddress is an IP address.
  */
 public class IpAddress {
+	
+	static Logger logger = Logger.getLogger(IpAddress.class.getCanonicalName());
 
 	/** The host address/name */
 	String address;
@@ -135,6 +141,13 @@ public class IpAddress {
 	/** Sets the local IP address into the variable <i>localIpAddress</i> */
 	public static void setLocalIpAddress() {
 		localIpAddress = "127.0.0.1";
+		
+		Vector<InetAddress> preferredResults = new Vector<InetAddress>();
+		Vector<InetAddress> extraResults = new Vector<InetAddress>();
+		
+		String _prefer_v4 = System.getProperty("java.net.preferIPv4Stack");
+		boolean prefer_v4 = (_prefer_v4 != null && Boolean.valueOf(_prefer_v4));
+		logger.fine("java.net.preferIPv4Stack: " + _prefer_v4 + ", prefer IPv4: " + prefer_v4);
 
 		try {
 			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -143,13 +156,28 @@ public class IpAddress {
 				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
 					InetAddress inetAddress = enumIpAddr.nextElement();
 
-					if (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) { 
-						localIpAddress = inetAddress.getHostAddress().toString();
+					if (!inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {
+						if(prefer_v4 && !(inetAddress instanceof Inet4Address)) {
+							extraResults.add(inetAddress);
+						} else {
+							preferredResults.add(inetAddress);
+						}
+						
 					}					
 				}
 			}
 		} catch (SocketException ex) {
 			// do nothing
 		}
+		InetAddress inetAddress = null;
+		if(preferredResults.size() > 0) {
+			inetAddress = preferredResults.get(0);
+		} else if(extraResults.size() > 0) {
+			inetAddress = extraResults.get(0);
+		}
+		if(inetAddress != null) {
+			localIpAddress = inetAddress.getHostAddress().toString();
+		}
+		logger.fine("Selected localIpAddress: " + localIpAddress);
 	}
 }
