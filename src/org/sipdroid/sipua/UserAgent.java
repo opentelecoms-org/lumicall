@@ -635,7 +635,7 @@ public class UserAgent extends CallListenerAdapter {
 		}
 		else
 		{
-			from_url = "sip:anonymous@anonymous.com";
+			from_url = "sip:anonymous@anonymous.invalid";
 		}
 		
 		printLog("begin ICE setup (outbound)");
