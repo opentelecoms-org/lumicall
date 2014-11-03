@@ -102,7 +102,7 @@ public class ViaHeader extends ParametricHeader {
 	public String getHost() {
 		String sentby = getSentBy();
 		SipParser par = new SipParser(sentby);
-		par.goTo(':');
+		par.goToLast(':');
 		if (par.hasMore())
 			return sentby.substring(0, par.getPos());
 		else
@@ -120,7 +120,7 @@ public class ViaHeader extends ParametricHeader {
 	/** Gets port of ViaHeader */
 	public int getPort() {
 		SipParser par = new SipParser(getSentBy());
-		par.goTo(':');
+		par.goToLast(':');
 		if (par.hasMore())
 			return par.skipChar().getInt();
 		return -1;

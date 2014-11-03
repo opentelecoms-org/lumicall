@@ -164,6 +164,14 @@ public class Parser {
 			index = str.length();
 		return this;
 	}
+	
+	/** Goes to the last occurence of <i>char c</i> */
+	public Parser goToLast(char c) {
+		index = str.lastIndexOf(c, index);
+		if (index < 0)
+			index = str.length();
+		return this;
+	}
 
 	/** Goes to the next occurence of any char of array <i>cc</i> */
 	public Parser goTo(char[] cc) {
