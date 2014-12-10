@@ -301,6 +301,20 @@
 <string name="settings_prefer_ipv4">Prefer IPv4 only</string>
 <string name="settings_prefer_ipv4_info">Some devices have bugs in IPv6 stack</string>
 
+<string name="settings_log_uri_prefix">URI prefix for call log</string>
+<string name="settings_log_uri_prefix_info">Using "sip:" in call log triggers Android bug #58097</string>
+<string-array name="settings_log_uri_prefix_display">
+    <item>lumicall:</item>
+    <item>sip:</item>
+</string-array>
+<string-array name="settings_log_uri_prefix_values">
+    <item>lumicall</item>
+    <item>sip</item>
+</string-array>
+
+<string name="settings_log_uri_hack">URI hack for call log</string>
+<string name="settings_log_uri_hack_info">Substitute @ symbol, workaround #58097</string>
+
 <string name="menu_settings">Settings</string>
 <string name="menu_exit">Exit</string>
 <string name="menu_about">About</string>

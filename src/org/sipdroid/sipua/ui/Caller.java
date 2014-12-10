@@ -20,6 +20,8 @@ package org.sipdroid.sipua.ui;
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -35,6 +37,7 @@ import org.lumicall.android.sip.ENUMUtil;
 import org.lumicall.android.sip.EmailCandidateHarvester;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.HarvestDirector;
+import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.UserAgent;
 
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -115,8 +118,8 @@ public class Caller extends BroadcastReceiver {
         			return;
         		}
         		
-        		String uriFragment = Uri.parse(
-        	            intent.getStringExtra("android.phone.extra.ORIGINAL_URI")).getFragment();
+        		String originalUri = intent.getStringExtra("android.phone.extra.ORIGINAL_URI"); 
+        		String uriFragment = Uri.parse(originalUri).getFragment();
         		if(uriFragment != null && uriFragment.contains(PSTN.BYPASS_LUMICALL)) {
         			// Let the call go through to the next handler/GSM network
         			Log.i(TAG, "*** Lumicall detected `lumicall-bypass' in URI, letting call go to next handler ***");
@@ -177,6 +180,38 @@ public class Caller extends BroadcastReceiver {
 				}
 				
 				String e164Number = null;
+				
+				boolean logUriHack = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_LOG_URI_HACK, Settings.DEFAULT_LOG_URI_HACK);
+				if (logUriHack) {
+					int index = number.indexOf(Constants.SUBSTITUTE_AT);
+					if (index >= 0) {
+						Log.d(TAG, "found a substitute @, putting back regular @");
+						String userPart = number.substring(0, index);
+						String finalPart = number.substring(index+1);
+						number = userPart + '@' + finalPart;
+					} else if (originalUri != null) {
+						try {
+							String originalUriDecoded = URLDecoder.decode(originalUri, "UTF-8");
+							Log.d(TAG, "decoded original URI: " + originalUriDecoded);
+							for (String prefix : Constants.POSSIBLE_PREFIXES) {
+								String prefixHack = "tel:" + prefix + ":";
+								if (originalUriDecoded.startsWith(prefixHack)) {
+									index = originalUriDecoded.indexOf(Constants.SUBSTITUTE_AT);
+									if (index >= 0) {
+										Log.d(TAG, "found encoded substitute @, putting back regular @");
+										String userPart = originalUriDecoded.substring(prefixHack.length(), index);
+										String finalPart = originalUriDecoded.substring(index+1);
+										number = userPart + '@' + finalPart;
+									} else {
+										number = originalUriDecoded.substring(prefixHack.length());
+									}
+								}
+							}
+						} catch (UnsupportedEncodingException e1) {
+							Log.e(TAG, "error decoding original URI: " + e1.getClass().getCanonicalName() + ": " + e1.getMessage());
+						}
+					}
+				}
 				if (number.indexOf('@') > 0) {
 					// The target contains the @ symbol, treat it as a SIP address
 					// NOTE: When somebody dials a SIP URI, it will usually not end up

@@ -30,6 +30,7 @@ import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
+import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.SipdroidEngine;
 
 import android.app.Activity;
@@ -192,8 +193,19 @@ public class SIPUri extends Activity {
 		}
 		
 		String target = null;
-		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME)) {
+		if (uri.getScheme().equals("sip") || uri.getScheme().equals(Settings.URI_SCHEME) ||
+				uri.getScheme().equals(Constants.URI_PREFIX)) {
 			target = uri.getSchemeSpecificPart();
+			boolean logUriHack = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Settings.PREF_LOG_URI_HACK, Settings.DEFAULT_LOG_URI_HACK);
+    		if (logUriHack) {
+    			int i = target.indexOf(Constants.SUBSTITUTE_AT);
+    			if (i >= 0) {
+    				logger.fine("found a substitute @, putting back regular @");
+    				String userPart = target.substring(0, i);
+    				String finalPart = target.substring(i+1);
+    				target = userPart + '@' + finalPart;
+    			}
+    		}
 			logger.fine("found a SIP URI: " + target);
 		} else if(uri.getScheme().equals("tel") && !uri.getSchemeSpecificPart().contains("@")) {
 			/*final Intent intent = new Intent(getIntent());

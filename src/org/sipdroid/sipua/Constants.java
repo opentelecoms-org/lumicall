@@ -29,4 +29,21 @@ public class Constants {
 		public final static byte UDP_SOCK = 2;
 
 	}
+
+	// Also defined in the Android manifest
+	public static final String URI_PREFIX = "lumicall";
+	
+	// This is an alternative @ symbol from Unicode
+	// used as part of the workaround for Android bug #58097
+	public static final char SUBSTITUTE_AT = '\uFE6B';
+	
+	// These are SIP URI prefixes that we may encounter including
+	// both official prefixes and app-specific prefixes
+	public static final String[] POSSIBLE_PREFIXES = {
+			URI_PREFIX,   // ourselves
+			"sip",
+			"sips",
+			"sipdroid",
+			"csip"        // CSipSimple
+		};
 }

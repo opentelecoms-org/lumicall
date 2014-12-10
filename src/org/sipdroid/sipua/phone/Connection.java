@@ -1,6 +1,8 @@
 package org.sipdroid.sipua.phone;
 
+import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.ui.Receiver;
+import org.sipdroid.sipua.ui.Settings;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -8,10 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.provider.Contacts.People;
 import android.text.TextUtils;
+import android.util.Log;
 
 /*
  * Copyright (C) 2009 The Sipdroid Open Source Project
@@ -65,6 +69,7 @@ public class Connection
     private static final String EXTRA_SIP_URI = "uri";
     /** Extra holding name of provider. */
     private static final String EXTRA_SIP_PROVIDER = "provider";
+	private static final String TAG = Connection.class.getCanonicalName();
 
     Object userData;
 
@@ -165,6 +170,35 @@ public class Connection
         this.userData = userdata;
     }
     
+    private static String getSipPrefix(Context context) {
+    	String prefix = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_LOG_URI_PREFIX, Settings.DEFAULT_LOG_URI_PREFIX);
+    	if (prefix == null || prefix.length() == 0) {
+    		return Constants.URI_PREFIX;
+    	} else {
+    		return prefix;
+    	}
+    }
+    
+    private static String formatUriForCallLog(Context context, String uriText) {
+    	String result = uriText;
+    	// For issue #15 - when logging a SIP URI to the call log,
+    	// must always include the SIP URI prefix "sip:"
+    	int i = uriText.indexOf('@');
+    	if (i >= 0 && !uriText.contains(":")) {
+    		if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_LOG_URI_HACK, Settings.DEFAULT_LOG_URI_HACK)) {
+    			String userPart = uriText.substring(0, i);
+    			String finalPart = uriText.substring(i+1);
+    			uriText = userPart + Constants.SUBSTITUTE_AT + finalPart;
+    		}
+        	result = getSipPrefix(context) + ":" + uriText; 
+        }
+
+        if (result.contains("&"))
+        	result = result.substring(0, result.indexOf("&"));
+        
+        return result;
+    }
+    
     public static Uri addCall(CallerInfo ci, Context context, String number,
             boolean isPrivateNumber, int callType, long start, int duration) {
         final ContentResolver resolver = context.getContentResolver();
@@ -176,14 +210,7 @@ public class Connection
                 number = CallerInfo.UNKNOWN_NUMBER;
             }
         } else {
-        	// For issue #15 - when logging a SIP URI to the call log,
-        	// must always include the SIP URI prefix "sip:"
-            if(number.contains("@") && !number.contains(":")) {
-            	number = "sip:" + number;
-            }
-
-            if (number.contains("&"))
-            	number = number.substring(0, number.indexOf("&"));
+        	number = formatUriForCallLog(context, number);
         }
 
         ContentValues values = new ContentValues(5);

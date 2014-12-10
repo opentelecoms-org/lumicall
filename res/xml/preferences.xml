@@ -136,6 +136,19 @@
 				android:defaultValue="true"
 				android:title="@string/settings_prefer_ipv4"
 				android:summary="@string/settings_prefer_ipv4_info" />
+			<ListPreference
+				android:key="call_log_uri_prefix"
+				android:title="@string/settings_log_uri_prefix"
+				android:summary="@string/settings_log_uri_prefix_info"
+				android:entries="@array/settings_log_uri_prefix_display"
+				android:entryValues="@array/settings_log_uri_prefix_values"
+				android:defaultValue="lumicall"
+				android:dialogTitle="@string/settings_log_uri_prefix" />
+			<CheckBoxPreference
+				android:key="call_log_uri_hack"
+				android:defaultValue="true"
+				android:title="@string/settings_log_uri_hack"
+				android:summary="@string/settings_log_uri_hack_info" />
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_wireless_options">
 			<CheckBoxPreference

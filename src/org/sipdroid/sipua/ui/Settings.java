@@ -28,6 +28,7 @@ import java.util.UUID;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.lumicall.android.R;
+import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.zoolu.sip.provider.SipStack;
 
@@ -160,6 +161,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_SELECTWIFI = "selectwifi";
 	public static final String PREF_ACCOUNT = "account";
 	public static final String PREF_IPV4 = "preferipv4";
+	public static final String PREF_LOG_URI_PREFIX = "call_log_uri_prefix";
+	public static final String PREF_LOG_URI_HACK = "call_log_uri_hack";
 	
 	public static final String PREF_SIP_INSTANCE_ID = "sip.instance.id";
 	
@@ -227,6 +230,8 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final boolean DEFAULT_SELECTWIFI = false;
 	public static final int     DEFAULT_ACCOUNT = 0;
 	public static final boolean DEFAULT_IPV4 = true;  // false: allow IPv6 and IPv4, true: IPv4 only
+	public static final String DEFAULT_LOG_URI_PREFIX = Constants.URI_PREFIX;
+	public static final boolean DEFAULT_LOG_URI_HACK = true;
 	
 	public static final boolean DEFAULT_GANGLIA_ENABLE = false;
 	public static final boolean DEFAULT_GANGLIA_UUID_ENABLE = false;
