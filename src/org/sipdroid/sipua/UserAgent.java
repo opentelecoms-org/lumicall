@@ -1098,7 +1098,15 @@ public class UserAgent extends CallListenerAdapter {
 				    Component lc = stream.getComponent(Integer.parseInt(componentId));
 				    
 				    RemoteCandidate rc = null;
+				    RemoteCandidate relatedCandidate = null;
 					try {
+						if(rAddr != null) {
+							TransportAddress relatedTransport =
+									new TransportAddress(InetAddress.getByName(rAddr),
+											Integer.parseInt(rPort),
+											Transport.parse(protocol));
+							relatedCandidate = lc.findRemoteCandidate(relatedTransport);
+						}
 						rc = new RemoteCandidate(
 								new TransportAddress(InetAddress.getByName(addr),
 										Integer.parseInt(port),
@@ -1106,14 +1114,9 @@ public class UserAgent extends CallListenerAdapter {
 								lc,
 								CandidateType.parse(type),
 								foundation,
-								Long.parseLong(priority)
+								Long.parseLong(priority),
+								relatedCandidate
 								);
-						if(rAddr != null) {
-							rc.setRelatedAddress(
-									new TransportAddress(InetAddress.getByName(rAddr),
-											Integer.parseInt(rPort),
-											Transport.parse(protocol)));
-						}
 						lc.addRemoteCandidate(rc);
 					} catch (Exception e) {
 						// FIXME TODO Auto-generated catch block
