@@ -22,6 +22,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
+import android.widget.ListView;
 
 public abstract class DBObjectsSettings<T extends DBObject> extends PreferenceActivity {
 	
@@ -78,6 +80,16 @@ public abstract class DBObjectsSettings<T extends DBObject> extends PreferenceAc
 		loadPreferences(getPreferenceScreen());
 		
 		registerForContextMenu(getListView());
+		
+		ListView v = getListView();
+		Button addButton = new Button(this);
+		addButton.setText(R.string.add);
+		addButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                addObject();
+            }
+        });
+        v.addFooterView(addButton);
 	}
 	
 	@Override
@@ -94,10 +106,7 @@ public abstract class DBObjectsSettings<T extends DBObject> extends PreferenceAc
         // Handle item selection
         switch (item.getItemId()) {
         case R.id.add_db_object:
-            final Intent intent = new Intent(DBObjectsSettings.this, getEditorActivity());
-            intent.putExtra(getKeyForIntent(), new Long(-1));
-            startActivity(intent);
-            finish();
+            addObject();
             return true; 
         default:
             return super.onOptionsItemSelected(item);
@@ -132,6 +141,13 @@ public abstract class DBObjectsSettings<T extends DBObject> extends PreferenceAc
 			return super.onContextItemSelected(item);
 		}
 	}
+    
+    private void addObject() {
+    	final Intent intent = new Intent(DBObjectsSettings.this, getEditorActivity());
+        intent.putExtra(getKeyForIntent(), Long.valueOf(-1));
+        startActivity(intent);
+        finish();
+    }
 
 
 }
