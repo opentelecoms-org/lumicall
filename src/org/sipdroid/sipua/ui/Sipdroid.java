@@ -87,6 +87,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.Filterable;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -124,6 +125,8 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	PTTChannel chosenPTTChannel = null;
 	
 	Button buttonPTTSend;
+	
+	LinearLayout pttControls;
 	
 	@Override
 	public void onStart() {
@@ -321,6 +324,14 @@ public class Sipdroid extends Activity implements OnDismissListener {
 				return false;
 			}
 		});
+		
+		pttControls = (LinearLayout) findViewById(R.id.PTTControls);
+		boolean enablePTT = PreferenceManager.getDefaultSharedPreferences(this).getBoolean(Settings.PREF_PTT_ENABLE, Settings.DEFAULT_PTT_ENABLE);
+		if(enablePTT) {
+			pttControls.setVisibility(View.VISIBLE);
+		} else {
+			pttControls.setVisibility(View.INVISIBLE);
+		}
 
 		final Context mContext = this;
 		final OnDismissListener listener = this;

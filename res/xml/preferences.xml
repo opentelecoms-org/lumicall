@@ -149,6 +149,11 @@
 				android:defaultValue="true"
 				android:title="@string/settings_log_uri_hack"
 				android:summary="@string/settings_log_uri_hack_info" />
+			<CheckBoxPreference
+				android:key="ptt_enable"
+				android:defaultValue="false"
+				android:title="@string/settings_ptt_enable"
+				android:summary="@string/settings_ptt_enable_info"/>			
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_wireless_options">
 			<CheckBoxPreference

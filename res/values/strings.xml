@@ -425,6 +425,8 @@
 <string name="sip_stun_server_protocol">STUN server protocol</string>
 <string name="sip_security_mode">Security mode</string>
 
+<string name="settings_ptt_enable">Enable PTT</string>
+<string name="settings_ptt_enable_info">Experimental, potentially high battery drain</string>
 <string name="ptt_channels">PTT Channels</string>
 <string name="ptt_channel_alias">Alias</string>
 <string name="ptt_channel_address">Multicast address</string>

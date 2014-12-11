@@ -180,6 +180,7 @@
                         android:text="@string/no_identity_configured" />
 
                     <LinearLayout
+                        android:id="@+id/PTTControls"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal" >
