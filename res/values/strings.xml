@@ -466,4 +466,6 @@
 <string name="settings_ganglia_ttl">Multicast TTL</string>
 <string name="settings_ganglia_interval">Transmit interval</string>
 
+<string name="add">Add</string>
+
 </resources>
