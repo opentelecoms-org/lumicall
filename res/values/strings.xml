@@ -397,7 +397,7 @@
 <string name="validation_requested">Validation requested</string>
 <string name="validation_requested_detail">Validation requested - you may try to use Lumicall now</string>
 
-<string name="sip_identities">SIP Identities</string>
+<string name="sip_identities">SIP Accounts</string>
 
 <string name="sip_address_uri">SIP address/URI</string>
 <string name="sip_identity_enable">Profile enabled</string>
