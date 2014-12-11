@@ -27,10 +27,4 @@ public class SIPIdentityListPreference extends DBObjectListPreference<SIPIdentit
 	protected List<SIPIdentity> getObjects(LumicallDataSource ds) {
 		return ds.getSIPIdentities();
 	}
-
-	@Override
-	protected int getTitleResId() {
-		return R.string.sip_identities;
-	}
-	
 }

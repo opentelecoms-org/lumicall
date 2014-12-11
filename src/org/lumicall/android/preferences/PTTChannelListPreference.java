@@ -28,9 +28,4 @@ public class PTTChannelListPreference extends DBObjectListPreference<PTTChannel>
 	protected List<PTTChannel> getObjects(LumicallDataSource ds) {
 		return ds.getPTTChannels();
 	}
-
-	@Override
-	protected int getTitleResId() {
-		return R.string.ptt_channels;
-	}
 }

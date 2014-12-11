@@ -32,10 +32,8 @@ public abstract class DBObjectListPreference<T extends DBObject> extends ListPre
 	}
 	
 	protected abstract List<T> getObjects(LumicallDataSource ds);
-	protected abstract int getTitleResId();
 	
 	protected void init(Context context) {
-		setTitle(getTitleResId());
 		LumicallDataSource ds = new LumicallDataSource(context);
 		ds.open();
 		objects = getObjects(ds);
