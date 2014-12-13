@@ -252,8 +252,14 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog {
 					}
 			}
 		}
+		
+		boolean canAuthenticate = false;
+		if(username != null && username.length() > 0 &&
+				passwd != null && passwd.length() > 0) {
+			canAuthenticate = true;
+		}
 
-		if (isErr401 | isErr407) {
+		if (canAuthenticate && (isErr401 | isErr407)) {
 			attempts++;
 			Message req = tc.getRequestMessage();
 			req.setCSeqHeader(req.getCSeqHeader().incSequenceNumber());

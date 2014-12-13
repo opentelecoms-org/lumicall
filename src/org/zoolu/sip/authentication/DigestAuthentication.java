@@ -62,6 +62,9 @@ public class DigestAuthentication {
 			 */
 			this.nc = "00000001";
 		}
+		if (username == null || username.length() == 0) {
+			throw new IllegalArgumentException("username must not be empty");
+		}
 		this.username = username;
 	}
 
@@ -70,6 +73,9 @@ public class DigestAuthentication {
 			String passwd) {
 		this.method = method;
 		this.username = ah.getUsernameParam();
+		if (passwd == null) {
+			throw new IllegalArgumentException("passwd must not be null");
+		}
 		this.passwd = passwd;
 		this.realm = ah.getRealmParam();
 		this.opaque = ah.getOpaqueParam();

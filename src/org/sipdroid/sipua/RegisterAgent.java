@@ -602,6 +602,14 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 
 	private boolean handleAuthentication(int respCode, Message resp,
 					     Message req) {
+		
+		if (username == null || username.length() == 0) {
+			return false;
+		}
+		if (passwd == null || passwd.length() == 0) {
+			return false;
+		}
+		
 		switch (respCode) {
 		case 407:
 			return generateRequestWithProxyAuthorizationheader(resp, req);
