@@ -2,6 +2,7 @@ package org.lumicall.android.reg;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +38,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.Xml;
 
@@ -186,7 +188,7 @@ public class EnrolmentService extends IntentService {
             	throw new RegistrationFailedException("no SIP5060ProvisioningRequest");
             }
             SIP5060ProvisioningRequest req = reqs.get(0);
-			String enrolmentMessage = getEnrolmentEncryptedXml(req);
+			String enrolmentMessage = getEnrolmentBodyXml(req);
 			String numberToDial = RegistrationUtil.submitMessage(props, "enrol", enrolmentMessage, req);
 			ds.persistSIP5060ProvisioningRequest(req);
 			
@@ -337,6 +339,119 @@ public class EnrolmentService extends IntentService {
 			RegistrationUtil.serializeProperty(serializer, ns, "lastName", "");
 			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", "");
 			RegistrationUtil.serializeProperty(serializer, ns, "language", getLanguage());
+
+			try {
+				TelephonyManager mTelephonyMgr;
+				mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+				/**
+				 * Privacy note:
+				 * This information is gathered to help understand why the
+				 * enrolment SMS request or reply does not get through some
+				 * networks.
+				 *
+				 * The information below is not really private anyway, it is
+				 * almost always possible for somebody in possession of the
+				 * phone number to deduce which country the user is in and which
+				 * network issued the number.
+				 *
+				 * Similar data is revealed by a user's IP address when browsing the
+				 * Internet.
+				 */
+
+				//String deviceId = mTelephonyMgr.getDeviceId();
+
+				String phoneType = null;
+				try {
+					int phoneTypeId = mTelephonyMgr.getPhoneType();
+					switch(phoneTypeId) {
+					case TelephonyManager.PHONE_TYPE_NONE:
+						phoneType = "NONE";  // we can't actually do SMS enrolment in this case
+						break;
+					case TelephonyManager.PHONE_TYPE_GSM:
+						phoneType = "GSM";
+						break;
+					case TelephonyManager.PHONE_TYPE_CDMA:
+						phoneType = "CDMA";
+						break;
+					default:
+						phoneType = "UNKNOWN:" + phoneTypeId;
+					}
+					RegistrationUtil.serializeProperty(serializer, ns, "phoneType", phoneType);
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get phoneType: " + ex.getMessage());
+				}
+				if (phoneType != null && phoneType.equals("CDMA")) {
+					try {
+						// For CDMA phones
+						Class<?> c = Class.forName("android.os.SystemProperties");
+						Method get = c.getMethod("get", String.class);
+						// Gives MCC + MNC
+						String homeOperator = ((String) get.invoke(c, "ro.cdma.home.operator.numeric"));
+						RegistrationUtil.serializeProperty(serializer, ns, "cdmaHomeOperator", phoneType);
+					} catch (Exception ex) {
+						// we just ignore and try the next one...
+						Log.d(TAG, "failed to get ro.cdma.home.operator.numeric: " + ex.getMessage());
+					}
+				}
+				try {
+					String simCountry = mTelephonyMgr.getSimCountryIso();
+					if(simCountry != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "simCountry", simCountry);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get simCountry: " + ex.getMessage());
+				}
+				try {
+					String simOperator = mTelephonyMgr.getSimOperator();
+					if(simOperator != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "simOperator", simOperator);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get simOperator: " + ex.getMessage());
+				}
+				try {
+					String simOperatorName = mTelephonyMgr.getSimOperatorName();
+					if(simOperatorName != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "simOperatorName", simOperatorName);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get simOperatorName: " + ex.getMessage());
+				}
+				try {
+					String networkCountry = mTelephonyMgr.getNetworkCountryIso();
+					if(networkCountry != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "networkCountry", networkCountry);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get networkCountry: " + ex.getMessage());
+				}
+				try {
+					String networkOperator = mTelephonyMgr.getNetworkOperator();
+					if(networkOperator != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "networkOperator", networkOperator);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get networkOperator: " + ex.getMessage());
+				}
+				try {
+					String networkOperatorName = mTelephonyMgr.getNetworkOperatorName();
+					if(networkOperatorName != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "networkOperatorName", networkOperatorName);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get networkOperatorName: " + ex.getMessage());
+				}
+			} catch (Exception ex) {
+				// ignore, this part of the XML is optional
+			}
 			
 			serializer.endTag(ns, "enrolment");
 			serializer.endDocument();
