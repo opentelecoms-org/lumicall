@@ -164,6 +164,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_LOG_URI_PREFIX = "call_log_uri_prefix";
 	public static final String PREF_LOG_URI_HACK = "call_log_uri_hack";
 	public static final String PREF_PTT_ENABLE = "ptt_enable";
+	public static final String PREF_AUTH_FULL_URI = "auth_full_uri";
 	
 	public static final String PREF_SIP_INSTANCE_ID = "sip.instance.id";
 	
@@ -234,6 +235,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String DEFAULT_LOG_URI_PREFIX = Constants.URI_PREFIX;
 	public static final boolean DEFAULT_LOG_URI_HACK = true;
 	public static final boolean DEFAULT_PTT_ENABLE = false;
+	public static final boolean DEFAULT_AUTH_FULL_URI = false;
 	
 	public static final boolean DEFAULT_GANGLIA_ENABLE = false;
 	public static final boolean DEFAULT_GANGLIA_UUID_ENABLE = false;

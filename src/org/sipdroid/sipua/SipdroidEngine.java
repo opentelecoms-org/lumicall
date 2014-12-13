@@ -93,10 +93,38 @@ public class SipdroidEngine implements RegisterAgentListener {
 		user_profile.enable = sipIdentity.isEnable();
 		
 		//Uri uri = Uri.parse("sip:" + sipIdentity.getUri());
-		user_profile.username = sipIdentity.getAuthUser();
-		user_profile.passwd = sipIdentity.getAuthPassword();
-		int i = sipIdentity.getUri().indexOf('@') + 1;
-		user_profile.realm = sipIdentity.getUri().substring(i);
+		String fromUri = sipIdentity.getUri();
+		if (fromUri == null || fromUri.length() == 0) {
+			Log.w(TAG, "Invalid From URI (null or empty)");
+			return null;
+		}
+		int i = fromUri.indexOf('@');
+		if (i < 1) {
+			Log.w(TAG, "Invalid From URI, missing username or '@'");
+			return null;
+		}
+		String fromUriDomain = fromUri.substring(i+1);
+		String username = sipIdentity.getAuthUser();
+		String password = sipIdentity.getAuthPassword();
+		if (password == null || password.length() == 0) {
+			// Do not try to authenticate if there is no password
+			Log.d(TAG, "No password specified, will not try to authenticate");
+			username = null;
+			password = null;
+		} else if (username == null || username.length() == 0) {
+			// If authUser not specified, choose a value based on From URI
+			
+			if(PreferenceManager.getDefaultSharedPreferences(getUIContext()).getBoolean(Settings.PREF_AUTH_FULL_URI, Settings.DEFAULT_AUTH_FULL_URI)) {
+				username = fromUri;
+			} else {
+				String fromUriUser = fromUri.substring(0, i);
+				username = fromUriUser;
+			}
+			Log.i(TAG, "auth user was null/empty, using value derived from URI: " + username);
+		}
+		user_profile.username = username;
+		user_profile.passwd = password;
+		user_profile.realm = fromUriDomain;
 		
 		user_profile.realm_orig = user_profile.realm;
 		user_profile.from_url = sipIdentity.getUri();

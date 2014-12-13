@@ -153,7 +153,12 @@
 				android:key="ptt_enable"
 				android:defaultValue="false"
 				android:title="@string/settings_ptt_enable"
-				android:summary="@string/settings_ptt_enable_info"/>			
+				android:summary="@string/settings_ptt_enable_info"/>
+			<CheckBoxPreference
+				android:key="auth_full_uri"
+				android:defaultValue="false"
+				android:title="@string/settings_auth_full_uri"
+				android:summary="@string/settings_auth_full_uri_info"/>
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_wireless_options">
 			<CheckBoxPreference
