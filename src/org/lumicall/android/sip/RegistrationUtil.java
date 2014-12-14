@@ -52,6 +52,12 @@ public class RegistrationUtil {
 		serializer.endTag(ns, propertyName);
 	}
 	
+	public static void serializeProperty(XmlSerializer serializer, String ns, String propertyName, int value) throws IllegalArgumentException, IllegalStateException, IOException {
+		serializer.startTag(ns, propertyName);
+		serializer.text(Integer.toString(value));
+		serializer.endTag(ns, propertyName);
+	}
+	
 	public static String getPublicKey(Context context) throws IOException {
 		Resources res = context.getResources();
 		InputStream i = res.openRawResource(R.raw.reg_server);
