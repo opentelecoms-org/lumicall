@@ -1,12 +1,20 @@
 package org.lumicall.android.reg;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.logging.Logger;
+
+import org.lumicall.android.AppProperties;
+import org.lumicall.android.sip.RegistrationFailedException;
+import org.lumicall.android.sip.RegistrationUtil;
+import org.xmlpull.v1.XmlSerializer;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsManager;
+import android.util.Xml;
 
 
 public class SMSProgressReceiver extends BroadcastReceiver {
@@ -42,18 +50,22 @@ public class SMSProgressReceiver extends BroadcastReceiver {
 			logger.warning("No more retries!");
 		}
 
-		String errorCode = "";            
+		String errorCode = "";
+		String errorDetail = null;
 
+		boolean mustRetry = true;
 		switch (getResultCode()) {
 		case Activity.RESULT_OK:
 			logger.info("Registration SMS sent to Lumicall server, awaiting delivery report or reply");
-			return;
+			mustRetry = false;
+			break;
 
 		case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 			Object _errorCode = intent.getExtras().get("errorCode");
-			if(_errorCode != null)
-				errorCode = String.format("Generic Failure (%s)", _errorCode.toString());
-			else
+			if(_errorCode != null) {
+				errorDetail = _errorCode.toString();
+				errorCode = String.format("Generic Failure (%s)", errorDetail);
+			} else
 				errorCode = "Generic Failure (no reason given - check logcat)";
 			break;
 		case SmsManager.RESULT_ERROR_NO_SERVICE:
@@ -67,10 +79,7 @@ public class SMSProgressReceiver extends BroadcastReceiver {
 			break;
 		}
 
-		if (errorCode.length() == 0) {
-			// Sent OK
-			return;
-		} else {
+		if (mustRetry) {
 			logger.severe("Registration SMS sending error: " + errorCode + ", retry count = " + count);
 			if(count < 1) {
 				final Intent _intent = new Intent(context, EnrolmentService.class);
@@ -81,6 +90,30 @@ public class SMSProgressReceiver extends BroadcastReceiver {
 			count --;
 			RetrySender rs = new RetrySender(context, dest, code, count);
 			new Thread(rs).start();
+		}
+		
+		XmlSerializer serializer = Xml.newSerializer();
+		StringWriter writer = new StringWriter();
+		try {
+			serializer.setOutput(writer);
+			serializer.startDocument("UTF-8", true);
+			String ns = RegistrationUtil.NS;
+			serializer.startTag(ns, "smsSendingReport");
+			RegistrationUtil.serializeProperty(serializer, ns, "timestamp", Long.toString(System.currentTimeMillis()/1000));
+			RegistrationUtil.serializeProperty(serializer, ns, "dest", dest);
+			RegistrationUtil.serializeProperty(serializer, ns, "code", code);
+			RegistrationUtil.serializeProperty(serializer, ns, "resultCode", getResultCode());
+			if (errorDetail != null) {
+				RegistrationUtil.serializeProperty(serializer, ns, "errorCode", errorDetail);
+			}
+			serializer.endTag(ns, "smsSendingReport");
+			serializer.endDocument();
+			String reportBody = writer.toString();
+			
+			AppProperties props = new AppProperties(context);
+			RegistrationUtil.submitMessage(props, "smsSent", reportBody, null);
+		} catch (Exception e) {
+			logger.severe("error constructing SMS report");
 		}
 	}
 
