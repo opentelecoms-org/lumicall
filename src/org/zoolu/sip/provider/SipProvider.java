@@ -262,6 +262,12 @@ public class SipProvider implements Configurable, TransportListener,
 		via_addr = viaddr;
 		if (via_addr == null || via_addr.equalsIgnoreCase(AUTO_CONFIGURATION))
 			via_addr = IpAddress.localIpAddress;
+		if(via_addr.indexOf(':') >= 0) {
+			int zoneIndex = via_addr.indexOf('%');
+			if(zoneIndex < 0)
+				zoneIndex = via_addr.length();
+			via_addr = '[' + via_addr.substring(0, zoneIndex) + ']';
+		}
 		host_port = port;
 		if (host_port < 0) // modified
 			host_port = SipStack.default_port;

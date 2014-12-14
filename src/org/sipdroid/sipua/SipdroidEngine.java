@@ -314,6 +314,18 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 			return true;
 	}
+	
+	private String getContactAddress() {
+		String addr = IpAddress.localIpAddress;
+		if(addr.indexOf(':') >= 0) {
+			int zoneIndex = addr.indexOf('%');
+			if(zoneIndex < 0)
+				zoneIndex = addr.length();
+			addr = '[' + addr.substring(0, zoneIndex) + ']';
+		}
+		
+		return addr;
+	}
 
 	private String getContactURL(String username,SipProvider sip_provider) {
 		int i = username.indexOf("@");
@@ -327,7 +339,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			username = "unspecified";
 		}
 
-		return username + "@" + IpAddress.localIpAddress
+		return username + "@" + getContactAddress()
 		+ (sip_provider.getPort() != 0?":"+sip_provider.getPort():"")
 		+ ";transport=" + sip_provider.getDefaultTransport();		
 	}
