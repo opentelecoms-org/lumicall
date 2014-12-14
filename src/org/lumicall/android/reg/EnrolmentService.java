@@ -34,7 +34,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -383,16 +387,27 @@ public class EnrolmentService extends IntentService {
 					Log.d(TAG, "failed to get phoneType: " + ex.getMessage());
 				}
 				if (phoneType != null && phoneType.equals("CDMA")) {
+					Class<?> c = null;
+					Method get = null;
 					try {
 						// For CDMA phones
-						Class<?> c = Class.forName("android.os.SystemProperties");
-						Method get = c.getMethod("get", String.class);
+						c = Class.forName("android.os.SystemProperties");
+						get = c.getMethod("get", String.class);
 						// Gives MCC + MNC
 						String homeOperator = ((String) get.invoke(c, "ro.cdma.home.operator.numeric"));
-						RegistrationUtil.serializeProperty(serializer, ns, "cdmaHomeOperator", phoneType);
+						RegistrationUtil.serializeProperty(serializer, ns, "cdmaHomeOperator", homeOperator);
 					} catch (Exception ex) {
 						// we just ignore and try the next one...
 						Log.d(TAG, "failed to get ro.cdma.home.operator.numeric: " + ex.getMessage());
+					}
+					try {
+						if (get != null) {
+							String homeOperatorName = ((String) get.invoke(c, "ro.cdma.home.operator.alpha"));
+							RegistrationUtil.serializeProperty(serializer, ns, "cdmaHomeOperatorName", homeOperatorName);
+						}
+					} catch (Exception ex) {
+						// we just ignore and try the next one...
+						Log.d(TAG, "failed to get ro.cdma.home.operator.alpha: " + ex.getMessage());
 					}
 				}
 				try {
@@ -449,9 +464,32 @@ public class EnrolmentService extends IntentService {
 					// we just ignore and try the next one...
 					Log.d(TAG, "failed to get networkOperatorName: " + ex.getMessage());
 				}
+				try {
+					String line1Number = mTelephonyMgr.getLine1Number();
+					if(line1Number != null) {
+						RegistrationUtil.serializeProperty(serializer, ns, "line1Number", line1Number);
+					}
+				} catch (Exception ex) {
+					// we just ignore and try the next one...
+					Log.d(TAG, "failed to get line1Number: " + ex.getMessage());
+				}
 			} catch (Exception ex) {
 				// ignore, this part of the XML is optional
 			}
+			
+			String packageName = getPackageName();
+			RegistrationUtil.serializeProperty(serializer, ns, "packageName", packageName);
+			try {
+				PackageInfo packageInfo = getPackageManager().getPackageInfo(packageName, 0);
+				RegistrationUtil.serializeProperty(serializer, ns, "versionName", packageInfo.versionName);
+				RegistrationUtil.serializeProperty(serializer, ns, "versionCode", packageInfo.versionCode);
+			} catch(NameNotFoundException ex) {
+				Log.w(TAG, "failed to get PackageInfo for myself");
+			}
+			
+			RegistrationUtil.serializeProperty(serializer, ns, "androidBuildVersionRelease", Build.VERSION.RELEASE);
+			RegistrationUtil.serializeProperty(serializer, ns, "androidBuildVersionSDKINT", Build.VERSION.SDK_INT);
+			RegistrationUtil.serializeProperty(serializer, ns, "androidBuildDisplay", Build.DISPLAY);
 			
 			serializer.endTag(ns, "enrolment");
 			serializer.endDocument();
