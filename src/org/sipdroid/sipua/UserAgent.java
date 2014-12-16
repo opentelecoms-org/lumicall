@@ -497,10 +497,24 @@ public class UserAgent extends CallListenerAdapter {
 			String stunUser = user_profile.from_url;
 			String stunPassword = user_profile.passwd;
 		
-			LongTermCredential longTermCredential
-				//= new LongTermCredential("test", "1234"); // FIXME credentials
-        			= new LongTermCredential(stunUser, stunPassword);
+			LongTermCredential longTermCredential = null;
 			
+			/**
+			 * This is a hack: if we are the callee and the caller is a
+			 * sip5060.net user then we assume they have a TURN relay already
+			 * and we leave the longTermCredential empty, just using STUN
+			 * instead of relay.  This means that when a sip5060.net user
+			 * calls another sip5060.net user, only one of them will have a
+			 * TURN allocation.
+			 *
+			 * FIXME: check the SDP to see if the peer really has
+			 * a TURN relay, that would be a much safer solution as then we
+			 * would know there is always at least one relay.
+			 */
+			boolean sip5060Caller = (caller != null && caller.getAddress().getHost().equals("sip5060.net"));
+			if(!sip5060Caller) {
+				longTermCredential = new LongTermCredential(stunUser, stunPassword); 
+			}
         
         	/* iceAgent.addCandidateHarvester(
                 new StunCandidateHarvester(
