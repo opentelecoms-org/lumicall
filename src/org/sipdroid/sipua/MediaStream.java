@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.DatagramSocket;
+import java.util.logging.Logger;
 
 import org.ice4j.Transport;
 import org.ice4j.ice.Agent;
@@ -15,6 +16,8 @@ import org.ice4j.ice.IceProcessingState;
 import org.lumicall.android.R;
 
 public class MediaStream {
+	
+	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 	
 	final static int PORT_RANGE = 6;
 	
@@ -98,6 +101,7 @@ public class MediaStream {
 		CandidatePair selectedPair = iceStream.getComponent(componentId).getSelectedPair();
 		if(selectedPair != null)
 			return selectedPair.getRemoteCandidate().getTransportAddress().getPort();
+		logger.warning("getPortForComponent: selected pair not found");
 		return -1;
 	}
 	
@@ -105,13 +109,15 @@ public class MediaStream {
 		CandidatePair selectedPair = iceStream.getComponent(componentId).getSelectedPair();
 		if(selectedPair != null)
 			return selectedPair.getRemoteCandidate().getTransportAddress().getAddress().getHostAddress();
+		logger.warning("getAddressForComponent: selected pair not found");
 		return null;
 	}
 	
 	protected DatagramSocket getDatagramSocketForComponent(int componentId) {
 		CandidatePair selectedPair = iceStream.getComponent(componentId).getSelectedPair();
 		if(selectedPair != null)
-			return selectedPair.getLocalCandidate().getDatagramSocket();
+			return selectedPair.getDatagramSocket();
+		logger.warning("getDatagramSocketForComponent: selected pair not found");
 		return iceStream.getComponent(componentId).getDefaultCandidate().getDatagramSocket();
 	}
 	

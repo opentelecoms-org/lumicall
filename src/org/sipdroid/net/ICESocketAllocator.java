@@ -59,8 +59,7 @@ public class ICESocketAllocator implements SocketAllocator {
 
                 if (selectedPair != null) {
                     DatagramSocket streamConnectorSocket
-                        = selectedPair.getLocalCandidate().
-                            getDatagramSocket();
+                        = selectedPair.getDatagramSocket();
 
                     if (streamConnectorSocket != null) {
                     	//Integer port = new Integer(streamConnectorSocket.getPort());
