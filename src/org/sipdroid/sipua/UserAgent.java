@@ -48,6 +48,7 @@ import org.ice4j.ice.IceProcessingState;
 import org.ice4j.ice.LocalCandidate;
 import org.ice4j.ice.NominationStrategy;
 import org.ice4j.ice.RemoteCandidate;
+import org.ice4j.ice.harvest.StunCandidateHarvester;
 import org.ice4j.ice.harvest.TurnCandidateHarvester;
 import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
@@ -546,17 +547,23 @@ public class UserAgent extends CallListenerAdapter {
 			if(len > 0 && _stunServer.charAt(len - 1) == '.')
 				_stunServer = _stunServer.substring(0, len - 1);
 			
-			if(_stunServer.equals("stun-test.sip5060.net")) {
+			if(_ltc != null && _stunServer.equals("stun-test.sip5060.net")) {
 				_ltc = new LongTermCredential("test", "notasecret");
 				printLog("*** Using TEST credentials ***");
 			}
 				
 			printLog("Adding TURN server: [" + _stunServer + "]");
 				
-			iceAgent.addCandidateHarvester(
-                new TurnCandidateHarvester(
-                        new TransportAddress(_stunServer, _port, transport),
-                        _ltc));
+			if(_ltc == null) {
+				iceAgent.addCandidateHarvester(
+						new StunCandidateHarvester(
+								new TransportAddress(_stunServer, _port, transport)));				
+			} else {
+				iceAgent.addCandidateHarvester(
+						new TurnCandidateHarvester(
+								new TransportAddress(_stunServer, _port, transport),
+									_ltc));
+			}
 			
 		}            
 			
