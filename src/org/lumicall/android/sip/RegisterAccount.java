@@ -91,10 +91,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class RegisterAccount extends Activity {
+public class RegisterAccount extends RegistrationActivity {
 
-	protected final static int PASSWORD_LEN = 12;
-	
 	public static final String PREFS_FILE = "org.opentelecoms.prefs.enrol";
 	public static final String PREF_PHONE_NUMBER = "phoneNumber";
 	public static final String PREF_ADVANCED_SETUP = "advancedSetupMode";
@@ -104,7 +102,6 @@ public class RegisterAccount extends Activity {
 	private static final int ABOUT_MENU_ITEM = 1;
 	
 	SharedPreferences settings;
-	String password;
 	
 	int statusLine;
 	
@@ -115,49 +112,6 @@ public class RegisterAccount extends Activity {
 			//setCancelable(true);
     	}
     };
-
-    String generatePassword(int length)	{
-	    String availableCharacters = "";
-	    StringBuilder password = new StringBuilder("");
-	    
-	    // Generate the appropriate character set
-	    availableCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	    availableCharacters = availableCharacters + "0123456789";
-	    
-	    // Generate the random number generator
-	    SecureRandom selector = new SecureRandom();
-	    
-	    // Generate the password
-	    int i;
-	    for(i = 0; i < length; i++)
-	    {
-	            password.append(availableCharacters.charAt(selector.nextInt(availableCharacters.length())));
-	    }
-	    
-	    return password.toString();
-    }
-    
-    protected String getPassword() {
-    	if(password == null)
-    		password = generatePassword(PASSWORD_LEN);
-    	return password;
-    }
-	
-    protected void storeSettings() {
-    	
-    	SIP5060ProvisioningRequest req = new SIP5060ProvisioningRequest();
-    	req.setAuthPassword(getPassword());
-    	
-    	LumicallDataSource db = new LumicallDataSource(this);
-    	db.open();
-    	// clear out any previous incomplete request
-    	List<SIP5060ProvisioningRequest> reqs = db.getSIP5060ProvisioningRequests();
-    	for(SIP5060ProvisioningRequest _req : reqs)
-    		db.deleteSIP5060ProvisioningRequest(_req);
-    	// Now put in the new request we are starting
-    	db.persistSIP5060ProvisioningRequest(req);
-    	db.close();
-    }
 
 	private void doValidationActivity() {
 		final Intent intent = new Intent(RegisterAccount.this,
@@ -189,7 +143,7 @@ public class RegisterAccount extends Activity {
 	
 	protected void doSIP5060Provisioning() {
 		buttonOK.setEnabled(false);
-		storeSettings();
+		storeSettings(null);
 		
 		final Intent intent = new Intent(this, EnrolmentService.class);
 		intent.setAction(EnrolmentService.ACTION_ENROL_SMS);
@@ -199,8 +153,16 @@ public class RegisterAccount extends Activity {
 		//doValidationActivity();  // FIXME - hiding the SMS validation temporarily
 		finish();
 	}
+	
+	protected void doManualVerification() {
+		//storeSettings();
+		final Intent intent = new Intent(this, ManualVerification.class);
+		startActivity(intent);
+		finish();
+	}
 			
 	Button buttonOK;
+	Button buttonManual;
 	TextView advancedSettings;
 
 	private Dialog m_AlertDlg;
@@ -232,6 +194,12 @@ public class RegisterAccount extends Activity {
 		buttonOK.setOnClickListener(new Button.OnClickListener() {
 			public void onClick(View v) {
 				doSIP5060Provisioning();
+			}
+		});
+		buttonManual = (Button) findViewById(R.id.ButtonTryManual);
+		buttonManual.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				doManualVerification();
 			}
 		});
 		advancedSettings = (TextView) findViewById(R.id.AdvancedSetup);

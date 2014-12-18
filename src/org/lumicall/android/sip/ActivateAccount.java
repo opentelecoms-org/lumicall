@@ -30,6 +30,7 @@ public class ActivateAccount extends Activity {
 	private Button buttonOK;
 
 	private Button buttonRegAgain;
+	private Button buttonManual;
 	
 	private static final String TAG = "ActAcct";
 	
@@ -113,6 +114,25 @@ public class ActivateAccount extends Activity {
 		    	ed.commit();
 				final Intent intent = new Intent(ActivateAccount.this, RegisterAccount.class);
 		        Log.v(TAG, "user wants to try registration form again");
+		        startActivity(intent);
+		        finish();
+			}
+		});
+		
+		buttonManual = (Button) findViewById(R.id.ButtonActivateTryManual);
+		buttonManual.setOnClickListener(new Button.OnClickListener() {
+			public void onClick(View v) {
+				LumicallDataSource ds = new LumicallDataSource(ActivateAccount.this);
+				ds.open();
+				for(SIP5060ProvisioningRequest req : ds.getSIP5060ProvisioningRequests())
+					ds.deleteSIP5060ProvisioningRequest(req);
+				ds.close();
+				SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, MODE_PRIVATE);
+		    	Editor ed = settings.edit();
+		    	ed.putBoolean(RegisterAccount.PREF_ADVANCED_SETUP, false);
+		    	ed.commit();
+				final Intent intent = new Intent(ActivateAccount.this, ManualVerification.class);
+		        Log.v(TAG, "user wants to try manual registration");
 		        startActivity(intent);
 		        finish();
 			}

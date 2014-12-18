@@ -193,7 +193,7 @@ public class EnrolmentService extends IntentService {
             }
             SIP5060ProvisioningRequest req = reqs.get(0);
 			String enrolmentMessage = getEnrolmentBodyXml(req);
-			String numberToDial = RegistrationUtil.submitMessage(props, "enrol", enrolmentMessage, req);
+			String responseText = RegistrationUtil.submitMessage(props, "enrol", enrolmentMessage, req);
 			ds.persistSIP5060ProvisioningRequest(req);
 			
 			notification = new Notification(R.drawable.icon22, getText(R.string.enrolment_requested_detail), new Date().getTime());
@@ -202,9 +202,12 @@ public class EnrolmentService extends IntentService {
 			notification.setLatestEventInfo(this, getText(R.string.enrolment_request_title), getText(R.string.enrolment_requested_detail), contentIntent);
             nm.notify(10, notification);
             
-			logger.info("HTTP response: " + numberToDial);
-			if(numberToDial.charAt(0) == '+') {
+			logger.info("HTTP response: " + responseText);
+			if(responseText.charAt(0) == '+') {
+				String numberToDial = responseText;
 				sendValidationSMS(context, numberToDial, req.getValidationCode1(), DEFAULT_RETRY_COUNT);
+			} else if(responseText.equals("OK")) {
+				logger.info("waiting for SMS");
 			}
 			ds.close();
 
@@ -327,8 +330,6 @@ public class EnrolmentService extends IntentService {
 		
 		SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
 		
-    	String enrolmentNum = settings.getString(RegisterAccount.PREF_PHONE_NUMBER, "");
-
 		XmlSerializer serializer = Xml.newSerializer();
 		StringWriter writer = new StringWriter();
 		try {
@@ -337,6 +338,11 @@ public class EnrolmentService extends IntentService {
 			String ns = RegistrationUtil.NS;
 			serializer.startTag(ns, "enrolment");
 		
+			String enrolmentNum = req.getPhoneNumber();
+			if(enrolmentNum == null) {
+				enrolmentNum = "";
+			}
+			
 			RegistrationUtil.serializeProperty(serializer, ns, "phoneNumber", enrolmentNum);
 			RegistrationUtil.serializeProperty(serializer, ns, "secret", req.getAuthPassword());
 			RegistrationUtil.serializeProperty(serializer, ns, "firstName", "");

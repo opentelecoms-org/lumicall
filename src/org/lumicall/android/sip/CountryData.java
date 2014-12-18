@@ -35,5 +35,10 @@ public class CountryData {
 	public void setItuCountryCode(String ituCountryCode) {
 		this.ituCountryCode = ituCountryCode;
 	}
+	
+	@Override
+	public String toString() {
+		return getName() + " (+" + getItuCountryCode() + ")";
+	}
 
 }

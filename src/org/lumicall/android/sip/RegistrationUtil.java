@@ -130,7 +130,9 @@ public class RegistrationUtil {
 			HttpResponse response = httpclient.execute(httppost);
 			responseText = inputStreamToString(response.getEntity().getContent());
 			
-			if(req != null) {
+			boolean parseResponse = req != null &&
+				(req.getPhoneNumber() == null || req.getPhoneNumber().length() == 0);
+			if(parseResponse) {
 				Pattern p = Pattern.compile(PHASE1_PATTERN);
 				Matcher m = p.matcher(responseText);
 				if(!m.matches()) {

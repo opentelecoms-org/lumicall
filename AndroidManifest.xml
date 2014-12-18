@@ -95,6 +95,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="org.lumicall.android.sip.ManualVerification"
+            android:label="@string/app_name" android:launchMode="singleInstance"
+        	android:configChanges="orientation|keyboardHidden">
+        </activity>
+        <activity
             android:name="org.lumicall.android.sip.ActivateAccount"
             android:label="@string/app_name" android:launchMode="singleInstance"
         	android:configChanges="orientation|keyboardHidden">
