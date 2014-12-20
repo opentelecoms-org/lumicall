@@ -30,6 +30,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.sipdroid.media.RtpStreamReceiver;
 import org.lumicall.android.R;
+import org.lumicall.android.Util;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.ENUMProviderForSIP;
@@ -252,20 +253,25 @@ public class Caller extends BroadcastReceiver {
 
 				// Try and convert the target to an E.164 number
 				// If it is already E.164 then this will remove punctuation too
-				PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-				try {
-					// FIXME - should prompt the user to check the number
-					// FIXME - should update the contact DB
-					TelephonyManager mTelephonyMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-					// FIXME - what about CDMA and roaming here:
-					String countryIsoCode = mTelephonyMgr.getSimCountryIso();
+				// FIXME - should prompt the user to check the number
+				// FIXME - should update the contact DB
+				String countryIsoCode = Util.detectCountry(context);
+				if(countryIsoCode == null && number.charAt(0) == '+') {
+					countryIsoCode = "CH";
+				}
+				if(countryIsoCode != null) {
 					Log.v(TAG, "Converting number: " + number + ", country ISO = " + countryIsoCode);
-					PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode.toUpperCase());
-					if(phoneUtil.isValidNumber(numberProto)) {
-						e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
+					try {
+						PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+						PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode.toUpperCase());
+						if(phoneUtil.isValidNumber(numberProto)) {
+							e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
+						}
+					} catch (NumberParseException e) {
+						Log.w(TAG, "Error parsing number", e);
 					}
-				} catch (NumberParseException e) {
-					Log.w(TAG, "Error parsing number", e);
+				} else {
+					Log.w(TAG, "Unable to resolve number to E.164 as country is unknown");
 				}
 
 				// Display a popup for the user to choose a candidate
