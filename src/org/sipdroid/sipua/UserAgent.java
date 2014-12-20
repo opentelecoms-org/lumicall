@@ -1315,6 +1315,9 @@ public class UserAgent extends CallListenerAdapter {
 					// We are the caller - maybe show an ICE completed message?
 				}
 				break;
+			case TERMINATED:
+				// We don't currently do anything on the TERMINATED event.
+				break;
 			case FAILED:
 				Receiver.call_end_reason = R.string.card_title_ended_ICE_failure;
 				if(Receiver.call_state == UA_STATE_OUTGOING_CALL)
