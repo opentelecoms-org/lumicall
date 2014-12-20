@@ -98,6 +98,7 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
 	   if (msg.isRequest()) {
 		   TransactionServer ts = new TransactionServer(sip_provider,msg,null);
 		   int responseCode = 500;
+		   String responseText = "Internal error";
 		   try {
 			   NameAddress sender=msg.getFromHeader().getNameAddress();
 			   NameAddress recipient=msg.getToHeader().getNameAddress();
@@ -111,11 +112,12 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
 				   listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,content,msg);
 			   }
 			   responseCode = 200;
+			   responseText = "OK";
 		   } catch (Exception ex) {
 			   logger.severe("Exception while handling message: " + ex.toString());
 			   ex.printStackTrace();
 		   }
-		   ts.respondWith(MessageFactory.createResponse(msg,responseCode,null,null));
+		   ts.respondWith(MessageFactory.createResponse(msg,responseCode,responseText,null));
 	   }
    }
  
