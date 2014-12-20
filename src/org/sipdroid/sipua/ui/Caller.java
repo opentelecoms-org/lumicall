@@ -34,9 +34,7 @@ import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.ENUMProviderForSIP;
 import org.lumicall.android.sip.ENUMUtil;
-import org.lumicall.android.sip.EmailCandidateHarvester;
 import org.lumicall.android.sip.DialCandidate;
-import org.lumicall.android.sip.HarvestDirector;
 import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.UserAgent;
 
@@ -45,18 +43,13 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Contacts;
@@ -77,11 +70,13 @@ public class Caller extends BroadcastReceiver {
 		long last_time;
 		
 		public class ChooserThread extends Thread {
-			DialCandidate[] candidates;
+			String number;
+			String e164Number;
 			Context context;
-			public ChooserThread(Context context, DialCandidate[] candidates) {
+			public ChooserThread(Context context, String number, String e164Number) {
 				this.context = context;
-				this.candidates = candidates;
+				this.number = number;
+				this.e164Number = e164Number;
 			}
 			public void run() {
 				try {
@@ -89,9 +84,10 @@ public class Caller extends BroadcastReceiver {
 				} catch (InterruptedException e) {
 				}
 		        Intent intent = new Intent(Intent.ACTION_CALL,
-		                Uri.fromParts(Settings.URI_SCHEME, Uri.decode(candidates[0].getAddress()), null));
+		                Uri.fromParts(Settings.URI_SCHEME, number, null));
 		        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		        intent.putExtra("dialCandidates", candidates);
+		        intent.putExtra("number", number);
+		        intent.putExtra("e164Number", e164Number);
 		        context.startActivity(intent);					
 			}
         }
@@ -242,140 +238,40 @@ public class Caller extends BroadcastReceiver {
 					setResultData(null);
 					abortBroadcast();
 					return;
-				} else if(number.startsWith("+")) {
-					// Just assume it is an E.164 number already
-					e164Number = number;
-				} else {
-					// Try and convert to an E.164 number
-					PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-					try {
-						// FIXME - should prompt the user to check the number
-						// FIXME - should update the contact DB
-						TelephonyManager mTelephonyMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-						String countryIsoCode = mTelephonyMgr.getSimCountryIso().toUpperCase();
-						Log.v(TAG, "Converting number: " + number + ", country ISO = " + countryIsoCode);
-						PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode);
-						if(phoneUtil.isValidNumber(numberProto))
-							e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
-					} catch (NumberParseException e) {
-						Log.w(TAG, "Error parsing number", e);
+				}
+				
+				// FIXME - should not depend on the ENUM code like this
+				boolean online = ENUMUtil.updateNotification(context);
+				if(!online) {
+					// Don't try to bother the user with the Lumicall dialing popup
+					// if they are not connected to any Internet access.
+					// Fall through to next event handler
+					setResultData(number);
+					return;
+				}
+
+				// Try and convert the target to an E.164 number
+				// If it is already E.164 then this will remove punctuation too
+				PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+				try {
+					// FIXME - should prompt the user to check the number
+					// FIXME - should update the contact DB
+					TelephonyManager mTelephonyMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+					// FIXME - what about CDMA and roaming here:
+					String countryIsoCode = mTelephonyMgr.getSimCountryIso();
+					Log.v(TAG, "Converting number: " + number + ", country ISO = " + countryIsoCode);
+					PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode.toUpperCase());
+					if(phoneUtil.isValidNumber(numberProto)) {
+						e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
 					}
-				}
-				
-				HarvestDirector hd = new HarvestDirector();
-				List<DialCandidate> candidates = hd.getCandidates(context, number, e164Number);
-				
-				if(candidates.size() == 0) {
-					setResultData(null);
-					abortBroadcast();
-					return;
-				}
-				
-				DialCandidate target = candidates.get(0);
-				if(candidates.size() > 1) {
-					// Display a popup for the user to choose a candidate
-					
-					(new ChooserThread(context, candidates.toArray(new DialCandidate[] {}))).start();  
-					setResultData(null);
-					abortBroadcast();
-					return;
-				}
-				
-				// Only 1 candidate - so just dial it
-				if(!candidates.get(0).call(context)) {
-					// ignore error
-				}
-				if(true) {
-					setResultData(null);
-					abortBroadcast();
-					return;
-				}
-				
-				/* if(doENUMRouting(context, number)) {
-					setResultData(null);
-					return;
-				} */
-				
-				// Look for numbers that are excluded from SIP routing
-				// e.g. user can exclude SIP routing for calls
-				// to PSTN voicemail number
-				if (sip_type && !force) {
-	    			//String sExPat = PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_EXCLUDEPAT, Settings.DEFAULT_EXCLUDEPAT);
-					String sExPat = "";
-	   				boolean bExNums = false;
-					boolean bExTypes = false;
-					if (sExPat.length() > 0) 
-					{					
-						Vector<String> vExPats = getTokens(sExPat, ",");
-						Vector<String> vPatNums = new Vector<String>();
-						Vector<Integer> vTypesCode = new Vector<Integer>();					
-				    	for(int i = 0; i < vExPats.size(); i++)
-			            {
-				    		if (vExPats.get(i).startsWith("h") || vExPats.get(i).startsWith("H"))
-			        			vTypesCode.add(Integer.valueOf(People.Phones.TYPE_HOME));
-				    		else if (vExPats.get(i).startsWith("m") || vExPats.get(i).startsWith("M"))
-			        			vTypesCode.add(Integer.valueOf(People.Phones.TYPE_MOBILE));
-				    		else if (vExPats.get(i).startsWith("w") || vExPats.get(i).startsWith("W"))
-			        			vTypesCode.add(Integer.valueOf(People.Phones.TYPE_WORK));
-				    		else 
-				    			vPatNums.add(vExPats.get(i));     
-			            }
-						if(vTypesCode.size() > 0)
-							bExTypes = isExcludedType(vTypesCode, number, context);
-						if(vPatNums.size() > 0)
-							bExNums = isExcludedNum(vPatNums, number);   					
-					}	
-					if (bExTypes || bExNums)
-						sip_type = false;
+				} catch (NumberParseException e) {
+					Log.w(TAG, "Error parsing number", e);
 				}
 
-    			if (!sip_type) {
-    				// PSTN call - let the normal handler dial it
-    				setResultData(number);
-    			} else {
-    				// SIP call - start the dial process
-	        		if (number != null && !intent.getBooleanExtra("android.phone.extra.ALREADY_CALLED",false)) {
-
-	        		    	SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-		        				        		    	
-	        		    	// Search & replace.
-	    				// String search = sp.getString(Settings.PREF_SEARCH, Settings.DEFAULT_SEARCH);
-		        		String search = "";
-	    				// String callthru_number = searchReplaceNumber(search, number);
-		        		String callthru_number = number;
-	    				String callthru_prefix;
-	    				
-	    				// if "par" is true, get all numbers from the contact, concatenate with "&"
-	    				// boolean par = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Settings.PREF_PAR, Settings.DEFAULT_PAR);
-	    				boolean par = false;  // SIP forking / parallel dialing
-	    				if (!ask && !force && par) {
-							number = concatenateNumbers(context, number, callthru_number, search);
-	    				} else
-	    					number = callthru_number;
-						
-						if (PreferenceManager.getDefaultSharedPreferences(context).getString(Settings.PREF_PREF, Settings.DEFAULT_PREF).equals(Settings.VAL_PREF_SIPONLY))
-							force = true;
-	    				if (!ask && Receiver.engine(context).call(number,force))
-	    					setResultData(null);
-	    				else if (ask || force) {
-	    					// Try the call another way?
-	    					setResultData(null);
-	    					final String n = number;
-	    			        (new Thread() {
-	    						public void run() {
-			    					try {
-										Thread.sleep(200);
-									} catch (InterruptedException e) {
-									}
-			    			        Intent intent = new Intent(Intent.ACTION_CALL,
-			    			                Uri.fromParts(Settings.URI_SCHEME, Uri.decode(n), null));
-			    			        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			    			        context.startActivity(intent);					
-	    						}
-	    			        }).start();  
-	    				}
-	        		}
-	            }
+				// Display a popup for the user to choose a candidate
+				(new ChooserThread(context, number, e164Number)).start();  
+				setResultData(null);
+				abortBroadcast();
 	        }
 	    }
 

@@ -29,37 +29,47 @@ import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.DialCandidateHarvester;
+import org.lumicall.android.sip.DialCandidateListener;
+import org.lumicall.android.sip.HarvestDirector;
 import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
 import org.sipdroid.sipua.Constants;
-import org.sipdroid.sipua.SipdroidEngine;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class SIPUri extends Activity {
+public class SIPUri extends Activity implements DialCandidateListener {
 	
 	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
+	private MyArrayAdapter adapter;
+	HarvestDirector hd = null;
+	FrameLayout frameView = null;
+	AlertDialog _dialog = null;
+	LinearLayout harvestStatus = null;
 
 	void call(String target) {
 		String _domain = target.substring(target.indexOf('@') + 1);
@@ -93,9 +103,11 @@ public class SIPUri extends Activity {
 		final int SIP_COLOUR = Color.rgb(50, 205, 50);
 		final static int VOIP_CARRIER_COLOUR = Color.BLUE;
 		final static int GSM_COLOUR = Color.RED;
+		final static int BACKGROUND_COLOUR = Color.WHITE;
 
-		public MyArrayAdapter(Context context, DialCandidate[] objects) {
-			super(context, R.layout.candidate_list_item, objects);
+		public MyArrayAdapter(Context context) {
+			super(context, R.layout.candidate_list_item);
+			
 		}
 		
 		@Override
@@ -111,64 +123,106 @@ public class SIPUri extends Activity {
 			// view.setBackgroundColor(routeColour);
 			// view.setTextColor(Color.WHITE);
 			view.setTextColor(routeColour);
+			view.setBackgroundColor(BACKGROUND_COLOUR);
 			return view;
 		}
 		
 		protected DialCandidate getDialCandidate(int position) {
 			return getItem(position);
 		}
-		
 	}
 	
-	public class MyListener implements OnItemClickListener {
-		DialCandidate[] candidates;
-		DialCandidate candidate;
-		public MyListener(DialCandidate[] candidates) {
-			this.candidates = candidates;
-			this.candidate = null;
-		}
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
-			candidate = candidates[position];
-			if(!candidate.call(SIPUri.this)) {
-				// ignoring error
-			}
+	private void dialEntry(int position) {
+		DialCandidate candidate = adapter.getItem(position);
+		if(candidate.call(SIPUri.this)) {
 			finish();
-		}
-		public DialCandidate getCandidate() {
-			return candidate;
-		}
+		} else {
+			logger.severe("error occurred while trying to start call");
+		}		
 	}
-	
-	protected DialCandidate[] getDialCandidates(Bundle bundle) {
-		Parcelable[] _candidates = bundle.getParcelableArray("dialCandidates");
-		DialCandidate[] candidates = new DialCandidate[_candidates.length];
-		for(int i = 0; i < _candidates.length; i++) {
-			candidates[i] = (DialCandidate)_candidates[i];
-		}
-		return candidates;
-	}
-	
+		
+	@Override
 	protected void onPrepareDialog(int id, Dialog dialog, Bundle bundle) {
 		if(id != 0)
 			return;
-		DialCandidate[] candidates = getDialCandidates(bundle);
-		MyListener l = new MyListener(candidates);
-		AlertDialog _dialog = (AlertDialog)dialog;
-		_dialog.getListView().setAdapter(new MyArrayAdapter(this, candidates));
-		_dialog.getListView().setOnItemClickListener(l);
+		adapter = new MyArrayAdapter(this);
+		
+		_dialog = (AlertDialog)dialog;
+		
+		LayoutInflater inflater = getLayoutInflater();
+		//final FrameLayout frameView = new FrameLayout(this);
+		View layout = inflater.inflate(R.layout.dialog_popup_view, frameView);
+		_dialog.setView(frameView);
+		
+		ListView routeList = (ListView) layout.findViewById(R.id.route_list);
+		routeList.setAdapter(adapter);
+		
+		routeList.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				dialEntry(position);
+			}
+		});
+		
+		String number = bundle.getString("number");
+		String e164Number = bundle.getString("e164Number");
+		
+		harvestStatus = (LinearLayout) layout.findViewById(R.id.route_search_status);
+		ProgressBar progress = new ProgressBar(this);
+		progress.setIndeterminate(true);
+		harvestStatus.removeAllViews();
+		harvestStatus.addView(progress);
+		
+		hd = new HarvestDirector(this);
+		hd.addListener(this);
+		hd.getCandidatesForNumber(number, e164Number);
 	}
 	
+	@Override
+	public void onDialCandidate(DialCandidateHarvester h, final DialCandidate dc) {
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				adapter.add(dc);
+			}
+		});
+	}
+	
+	@Override
+	public void onHarvestCompletion(DialCandidateHarvester h, final int resultCount) {
+		h.removeListener(this);
+		if(h == hd) {
+			hd = null;
+		}
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Resources res = getResources();
+				String status = String.format(res.getString(R.string.dial_popup_done), resultCount);
+				harvestStatus.removeAllViews();
+				TextView statusView = new TextView(SIPUri.this);
+				statusView.setText(status);
+				statusView.setGravity(Gravity.CENTER | Gravity.BOTTOM);
+				harvestStatus.addView(statusView);
+				if(resultCount == 1) {
+					// Only one result - dial automatically
+					dialEntry(0);
+				}
+			}
+		});
+	}
+
 	protected Dialog onCreateDialog(int id) {
 		if(id != 0)
 			return null;
+		frameView = new FrameLayout(this);
 		Dialog dialog = new AlertDialog.Builder(this)
 			.setIcon(R.drawable.icon22)
 			.setTitle(R.string.choose_route)
 			.setOnCancelListener(new OnCancelListener() {
 				public void onCancel(DialogInterface dialog) {	finish();	} })
-			.setItems(new CharSequence[] {}, null)
+			.setView(frameView)
 			.create();
 		return dialog;
 	}
@@ -184,10 +238,12 @@ public class SIPUri extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		Uri uri = getIntent().getData();
-		Parcelable[] _candidates = getIntent().getParcelableArrayExtra("dialCandidates");
-		if(_candidates != null) {
+		String number = getIntent().getStringExtra("number");
+		if(number != null) {
 			Bundle bundle = new Bundle();
-			bundle.putParcelableArray("dialCandidates", _candidates);
+			bundle.putString("number", number);
+			String e164Number = getIntent().getStringExtra("e164Number");
+			bundle.putString("e164Number", e164Number);
 			showDialog(0, bundle);
 			return;
 		}
@@ -284,6 +340,15 @@ public class SIPUri extends Activity {
 	    public void onPause() {
 	        super.onPause();
 	        //finish();
+	    }
+	    
+	    @Override
+	    public void onDestroy() {
+	    	if(hd != null) {
+	    		hd.removeListener(this);
+	    		hd = null;
+	    	}
+	    	super.onDestroy();
 	    }
 	 
 }

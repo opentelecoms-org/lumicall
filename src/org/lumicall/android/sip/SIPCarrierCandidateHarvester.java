@@ -1,22 +1,25 @@
 package org.lumicall.android.sip;
 
 import java.util.List;
-import java.util.Vector;
 
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 
 import android.content.Context;
 
-public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
+public class SIPCarrierCandidateHarvester extends DialCandidateHarvester {
 	
 	public final static String SOURCE_INFO = "VoIP Carrier";
+	
+	Context context;
+	
+	public SIPCarrierCandidateHarvester(Context context) {
+		this.context = context;
+	}
 
 	@Override
-	public List<DialCandidate> getCandidatesForNumber(Context context,
-			String dialedNumber, String e164Number) {
-		
-		List<DialCandidate> candidates = new Vector<DialCandidate>();
+	public void getCandidatesForNumber(String dialedNumber,
+			String e164Number) {
 		
 		String number = dialedNumber;
 		boolean usePrefix = false;
@@ -38,13 +41,13 @@ public class SIPCarrierCandidateHarvester implements DialCandidateHarvester {
 				String sipAddress = ((usePrefix && prefix != null) ? prefix : "")
 						+ number
 						+ "@" + domain;
-				candidates.add(new DialCandidate("sip", sipAddress, "", SOURCE_INFO, s));
+				onDialCandidateFound(new DialCandidate("sip", sipAddress, "", SOURCE_INFO, s));
 			}
 		}
 		
 		ds.close();
 		
-		return candidates;
+		onHarvestCompletion();
 	}
 
 }

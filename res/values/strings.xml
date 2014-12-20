@@ -482,4 +482,6 @@
 
 <string name="add">Add</string>
 
+<string name="dial_popup_done">Found %1$d route(s).</string>
+
 </resources>
