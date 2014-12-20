@@ -16,7 +16,7 @@ public class HarvestDirector extends DialCandidateHarvester implements DialCandi
 		harvesters.add(new ENUMCandidateHarvester(context));
 		harvesters.add(new AndroidEmailCandidateHarvester(context));
 		harvesters.add(new SIPCarrierCandidateHarvester(context));
-		harvesters.add(new GSMCandidateHarvester());
+		harvesters.add(new TelCandidateHarvester());
 		
 		// The dnsjava stuff gives `bad address family' exceptions on the emulator
 		// if IPv6 is preferred (for Android 2.2)
