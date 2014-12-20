@@ -13,6 +13,7 @@ import org.lumicall.android.sip.MessageIndex;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.sip.address.NameAddress;
+import org.zoolu.sip.message.Message;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -43,7 +44,7 @@ public class MessageManager implements MessageAgentListener {
 	@Override
 	public void onMaReceivedMessage(MessageAgent ma, NameAddress sender,
 			NameAddress recipient, String subject, String content_type,
-			String body) {
+			String body, Message message) {
 		
 		logger.info("incoming message from: " + sender + " to: " + recipient + " size: " + body.length());
 		logger.fine("body text: " + body);
@@ -51,6 +52,10 @@ public class MessageManager implements MessageAgentListener {
 		UserMessage um = new UserMessage();
 		um.setOriginLocal(false);
 		um.setReceivedTimestamp(System.currentTimeMillis()/1000);
+		if(message.hasDateHeader()) {
+			Date messageTimestamp = message.getDateHeader().getDate();
+			um.setMessageTimestamp(messageTimestamp.getTime()/1000);
+		}
 		um.setSenderName(sender.getDisplayName());
 		um.setSenderUri(sender.getAddress().toString());
 		um.setRecipientName(recipient.getDisplayName());

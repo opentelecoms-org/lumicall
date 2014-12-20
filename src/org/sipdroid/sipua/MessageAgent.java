@@ -108,7 +108,7 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
 			   String content=msg.getBody();
 			   if (listener!=null) {
 
-				   listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,content);
+				   listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,content,msg);
 			   }
 			   responseCode = 200;
 		   } catch (Exception ex) {
