@@ -19,7 +19,7 @@
  * Luca Veltri (luca.veltri@unipr.it)
  */
 
-package local.ua;
+package org.sipdroid.sipua;
 
 
 import org.zoolu.sip.address.*;
@@ -30,6 +30,7 @@ import org.zoolu.sip.message.*;
 import org.zoolu.tools.Log;
 
 import java.io.*;
+import java.util.logging.Logger;
 
 
 /** Simple Message Agent (MA).
@@ -39,7 +40,7 @@ import java.io.*;
 public class MessageAgent implements SipProviderListener, TransactionClientListener
 {     
    /** Log */
-   protected Log log;
+   private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
    /** UserProfile */
    protected UserAgentProfile user_profile;
@@ -54,11 +55,10 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    /** Costructs a new MessageAgent. */
    public MessageAgent(SipProvider sip_provider, UserAgentProfile user_profile, MessageAgentListener listener)
    {  this.sip_provider=sip_provider;
-      this.log=sip_provider.getLog();
       this.listener=listener;
       this.user_profile=user_profile;
       // init unconfigured user params
-      user_profile.setUnconfiguredAttributes(sip_provider);
+      //user_profile.setUnconfiguredAttributes(sip_provider);
    }   
 
    
@@ -71,7 +71,7 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    /** Sends a new message. */
    public void send(String recipient, String subject, String content_type, String content)
    {  NameAddress to_url=new NameAddress(recipient);
-      NameAddress from_url=user_profile.getUserURI();
+      NameAddress from_url=new NameAddress(user_profile.from_url);
       Message req=MessageFactory.createMessageRequest(sip_provider,to_url,from_url,subject,content_type,content);
       TransactionClient t=new TransactionClient(sip_provider,req,this);
       t.request();
@@ -80,13 +80,13 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
 
    /** Waits for incoming message. */
    public void receive()
-   {  sip_provider.addSelectiveListener(new MethodId(SipMethods.MESSAGE),this);
+   {  sip_provider.addSipProviderListener(new MethodIdentifier(SipMethods.MESSAGE),this);
    } 
    
 
    /** Stops receiving messages. */
    public void halt()
-   {  sip_provider.removeSelectiveListener(new MethodId(SipMethods.MESSAGE));  
+   {  sip_provider.removeSipProviderListener(new MethodIdentifier(SipMethods.MESSAGE));  
    } 
 
 
@@ -95,17 +95,28 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    /** When a new Message is received by the SipProvider. */
    public void onReceivedMessage(SipProvider provider, Message msg)
    {  //printLog("Message received: "+msg.getFirstLine().substring(0,msg.toString().indexOf('\r')));
-      if (msg.isRequest())
-      {  (new TransactionServer(sip_provider,msg,null)).respondWith(MessageFactory.createResponse(msg,200,null,null));
-         NameAddress sender=msg.getFromHeader().getNameAddress();
-         NameAddress recipient=msg.getToHeader().getNameAddress();
-         String subject=null;
-         if (msg.hasSubjectHeader()) subject=msg.getSubjectHeader().getSubject();
-         String content_type=null;
-         if (msg.hasContentTypeHeader()) content_type=msg.getContentTypeHeader().getContentType();
-         String content=msg.getBody();
-         if (listener!=null) listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,content);
-      }
+	   if (msg.isRequest()) {
+		   TransactionServer ts = new TransactionServer(sip_provider,msg,null);
+		   int responseCode = 500;
+		   try {
+			   NameAddress sender=msg.getFromHeader().getNameAddress();
+			   NameAddress recipient=msg.getToHeader().getNameAddress();
+			   String subject=null;
+			   if (msg.hasSubjectHeader()) subject=msg.getSubjectHeader().getSubject();
+			   String content_type=null;
+			   if (msg.hasContentTypeHeader()) content_type=msg.getContentTypeHeader().getContentType();
+			   String content=msg.getBody();
+			   if (listener!=null) {
+
+				   listener.onMaReceivedMessage(this,sender,recipient,subject,content_type,content);
+			   }
+			   responseCode = 200;
+		   } catch (Exception ex) {
+			   logger.severe("Exception while handling message: " + ex.toString());
+			   ex.printStackTrace();
+		   }
+		   ts.respondWith(MessageFactory.createResponse(msg,responseCode,null,null));
+	   }
    }
  
 
@@ -131,7 +142,7 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
  
    /** When the delivery successes. */
    private void onDeliverySuccess(TransactionClient tc, String result)
-   {  printLog("Message successfully delivered ("+result+").");
+   {  logger.info("Message successfully delivered ("+result+").");
       Message req=tc.getRequestMessage();
       NameAddress recipient=req.getToHeader().getNameAddress();
       String subject=null;
@@ -141,25 +152,12 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
 
    /** When the delivery fails. */
    private void onDeliveryFailure(TransactionClient tc, String result)
-   {  printLog("Message delivery failed ("+result+").");
+   {  logger.warning("Message delivery failed ("+result+").");
       Message req=tc.getRequestMessage();
       NameAddress recipient=req.getToHeader().getNameAddress();
       String subject=null;
       if (req.hasSubjectHeader()) subject=req.getSubjectHeader().getSubject();
       if (listener!=null) listener.onMaDeliveryFailure(this,recipient,subject,result);
-   }
-
-   //**************************** Logs ****************************/
-
-   /** Adds a new string to the default Log */
-   private void printLog(String str)
-   {  printLog(str,Log.LEVEL_HIGH);
-   }
-
-   /** Adds a new string to the default Log */
-   private void printLog(String str, int level)
-   {  if (log!=null) log.println("MessageAgent: "+str,UserAgent.LOG_OFFSET+level);
-      //System.out.println("MA: "+str);  
    }
 
 }

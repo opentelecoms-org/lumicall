@@ -89,4 +89,20 @@ public class LumicallDataSource {
 		sIP5060ProvisioningRequest.delete(db);
 	}
 
+	public UserMessage getUserMessage(long id) {
+		return UserMessage.loadFromDatabase(db, id);
+	}
+	
+	public List<UserMessage> getUserMessages() {
+		return UserMessage.loadFromDatabase(db);
+	}
+	
+	public void persistUserMessage(UserMessage userMessage) {
+		userMessage.commit(db);
+	}
+	
+	public void deleteUserMessage(UserMessage userMessage) {
+		userMessage.delete(db);
+	}
+
 }

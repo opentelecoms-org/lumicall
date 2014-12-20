@@ -38,6 +38,8 @@ import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.PTTChannel;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.MessageIndex;
+import org.lumicall.android.sip.RegisterAccount;
 import org.opentelecoms.media.rtp.secure.SRTP;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.RtpStreamReceiver;
@@ -72,6 +74,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.CallLog.Calls;
 import android.provider.Contacts.People;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -127,6 +130,8 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	Button buttonPTTSend;
 	
 	LinearLayout pttControls;
+	
+	Button smsButton;
 	
 	@Override
 	public void onStart() {
@@ -337,6 +342,17 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		final OnDismissListener listener = this;
 		
 		updatePTTChannel();
+		
+		smsButton = (Button) findViewById(R.id.sms_button);
+		smsButton.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				final Intent intent = new Intent(Sipdroid.this,
+						MessageIndex.class);
+				startActivity(intent);
+				finish();
+			}
+		});
 		
 	}
 	

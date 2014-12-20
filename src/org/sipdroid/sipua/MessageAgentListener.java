@@ -1,4 +1,4 @@
-package local.ua;
+package org.sipdroid.sipua;
 
 
 import org.zoolu.sip.address.NameAddress;

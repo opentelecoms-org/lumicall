@@ -11,7 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private Logger logger = Logger.getLogger(getClass().getName());
 	
 	private final static String DB_NAME = "lumicall";
-	private final static int DB_VERSION = 6;
+	private final static int DB_VERSION = 7;
 	
 	public DatabaseHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
@@ -23,6 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		PTTChannel.onCreate(db);
 		ENUMSuffix.onCreate(db);
 		SIP5060ProvisioningRequest.onCreate(db);
+		UserMessage.onCreate(db);
 	}
 
 	@Override
@@ -32,5 +33,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		PTTChannel.onUpgrade(db, oldVersion, newVersion);
 		ENUMSuffix.onUpgrade(db, oldVersion, newVersion);
 		SIP5060ProvisioningRequest.onUpgrade(db, oldVersion, newVersion);
+		UserMessage.onUpgrade(db, oldVersion, newVersion);
 	}
 }

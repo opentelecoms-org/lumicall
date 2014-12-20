@@ -484,4 +484,7 @@
 
 <string name="dial_popup_done">Found %1$d route(s).</string>
 
+<string name="notify_sms_received">SIP SMS received</string>
+<string name="sms_index">SIP SMS list</string>
+
 </resources>

@@ -75,6 +75,9 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 	/** Register Agent */
 	public RegisterAgent[] ras;
+	
+	/** Messaging */
+	public MessageAgent[] mas;
 
 	private KeepAliveSip[] kas;
 	
@@ -239,9 +242,12 @@ public class SipdroidEngine implements RegisterAgentListener {
 				pwl = new PowerManager.WakeLock[lineCount];
 			}
 			pref = ChangeAccount.getPref(Receiver.mContext);
+			
+			MessageManager messageManager = new MessageManager();
 
 			uas = new UserAgent[lineCount];
 			ras = new RegisterAgent[lineCount];
+			mas = new MessageAgent[lineCount];
 			kas = new KeepAliveSip[lineCount];
 			lastmsgs = new String[lineCount];
 			sip_providers = new SipProvider[lineCount];
@@ -298,8 +304,11 @@ public class SipdroidEngine implements RegisterAgentListener {
 							user_profile.contact_url, user_profile.username,
 							user_profile.realm, user_profile.passwd, this, user_profile,
 							user_profile.qvalue, icsi, user_profile.pub, user_profile.mwi);
+						mas[i] = new MessageAgent(sip_providers[i], user_profile, messageManager);
+						mas[i].receive();
 					} else {
 						ras[i] = null;
+						mas[i] = null;
 					}
 					kas[i] = new KeepAliveSip(sip_providers[i],100000);
 				} catch (Exception E) {
