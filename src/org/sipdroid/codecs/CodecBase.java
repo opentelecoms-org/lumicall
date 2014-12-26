@@ -19,6 +19,8 @@
  */
 package org.sipdroid.codecs;
 
+import java.util.logging.Logger;
+
 import org.sipdroid.sipua.ui.Receiver;
 
 import android.content.Context;
@@ -29,6 +31,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 
 abstract class CodecBase implements Preference.OnPreferenceChangeListener, Codec {
+	Logger logger = Logger.getLogger(getClass().getCanonicalName());
 	protected String CODEC_NAME;
 	protected String CODEC_USER_NAME;
 	protected int CODEC_NUMBER;
@@ -81,6 +84,7 @@ abstract class CodecBase implements Preference.OnPreferenceChangeListener, Codec
 	}
 	
 	public void fail() {
+		logger.warning("fail() invoked, codec will not be used");
 		update();
 		failed = true;
 	}
