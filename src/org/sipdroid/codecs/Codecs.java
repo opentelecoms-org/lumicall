@@ -153,6 +153,7 @@ public class Codecs {
 					e.putString(c.key(), old.get(c.name()));
 					e.commit();
 					c.init();
+					c.update();
 				} else
 					c.fail();
 			}
