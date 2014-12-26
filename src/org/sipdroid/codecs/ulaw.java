@@ -34,6 +34,10 @@ class ulaw extends CodecBase implements Codec {
 	public void init() {
 		G711.init();
 	}
+	
+	public int open() {
+		return 0;
+	}
     
 	public int decode(byte enc[], short lin[], int frames) {
 		G711.ulaw2linear(enc, lin, frames);

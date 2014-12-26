@@ -40,33 +40,17 @@ class G729 extends CodecBase implements Codec {
 		CODEC_DEFAULT_SETTING = "always";
 		CODEC_FRAME_SIZE = 80 * 2;          // FIXME - hack - send two frames in each packet
 		CODEC_FRAMES_PER_PACKET = 2;
+		CODEC_JNI_LIB = "g729_jni";
 		super.update();
 	}
 	
 	Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
 
-	void load() {
-		try {
-			System.loadLibrary("g729_jni");
-			super.load();
-		} catch (Throwable e) {
-			if (!Sipdroid.release) e.printStackTrace();
-		}
-    
-	}  
- 
 	public native int open();
 	public native int decode(byte encoded[], short lin[], int size);
 	public native int encode(short lin[], int offset, byte encoded[], int size);
 	public native void close();
-
-	public void init() {
-		if(!isLoaded())
-			load();
-		if (isLoaded())
-			open();
-	}
 	
 	final static String hexChars = "0123456789abcdef";
 	public String byteToHexString(byte[] buffer, int offset, int length) {

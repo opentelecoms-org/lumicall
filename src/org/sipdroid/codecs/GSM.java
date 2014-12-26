@@ -33,6 +33,7 @@ class GSM extends CodecBase implements Codec {
 		CODEC_DESCRIPTION = "13kbit";
 		CODEC_NUMBER = 3;
 		CODEC_DEFAULT_SETTING = "always";
+		CODEC_JNI_LIB = "gsm_jni";
 		/* up convert original compression parameter for this codec */
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
 		String pref = sp.getString(Settings.PREF_COMPRESSION, Settings.DEFAULT_COMPRESSION);
@@ -44,26 +45,10 @@ class GSM extends CodecBase implements Codec {
 		}
 		super.update();
 	}
-
-	void load() {
-		try {
-			System.loadLibrary("gsm_jni");
-			super.load();
-		} catch (Throwable e) {
-			if (!Sipdroid.release) e.printStackTrace();
-		}
-    
-	}  
  	
 	public native int open();
 	public native int decode(byte encoded[], short lin[], int size);
 	public native int encode(short lin[], int offset, byte encoded[], int size);
 	public native void close();
 	
-	public void init() {
-		load();
-		if (isLoaded())
-			open();
-	}
-
 }

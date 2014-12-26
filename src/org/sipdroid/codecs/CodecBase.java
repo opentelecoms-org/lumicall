@@ -22,6 +22,7 @@ package org.sipdroid.codecs;
 import java.util.logging.Logger;
 
 import org.sipdroid.sipua.ui.Receiver;
+import org.sipdroid.sipua.ui.Sipdroid;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -40,6 +41,7 @@ abstract class CodecBase implements Preference.OnPreferenceChangeListener, Codec
 	protected String CODEC_DESCRIPTION;
 	protected String CODEC_DEFAULT_SETTING = "never";
 	protected int CODEC_FRAMES_PER_PACKET = 1;
+	protected String CODEC_JNI_LIB = null;
 
 	private boolean loaded = false,failed = false;
 	private boolean enabled = false;
@@ -59,8 +61,30 @@ abstract class CodecBase implements Preference.OnPreferenceChangeListener, Codec
 	}
 	
 	void load() {
-		update();
-		loaded = true;
+		try {
+			if(CODEC_JNI_LIB != null) {
+				logger.info("trying to load shared object: " + CODEC_JNI_LIB);
+				System.loadLibrary(CODEC_JNI_LIB);
+			} else {
+				logger.info("no shared object to be loaded");
+			}
+			update();
+			loaded = true;
+		} catch (Throwable e) {
+			logger.severe("Loading failed: " + e.getClass().getCanonicalName()
+					+ ": " + e.getMessage());
+			if (!Sipdroid.release) e.printStackTrace();
+		}  
+	}
+	
+	public abstract int open();
+	
+	public void init() {
+		logger.info("trying to init()");
+		if(!isLoaded())
+			load();
+		if (isLoaded())
+			open();
 	}
 	
 	public int samp_rate() {

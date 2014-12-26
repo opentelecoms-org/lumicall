@@ -47,29 +47,19 @@ class SILK16 extends CodecBase implements Codec {
 		CODEC_DEFAULT_SETTING = "wlanor3g";
 		CODEC_SAMPLE_RATE = 16000;
 		CODEC_FRAME_SIZE = 320;
+		CODEC_JNI_LIB = "silk16_jni";
 		super.update();
 	}
-
-
-	void load() {
-		try {
-//			System.loadLibrary("silkcommon");
-			System.loadLibrary("silk16_jni");
-			super.load();
-		} catch (Throwable e) {
-			if (!Sipdroid.release) e.printStackTrace();
-		}
-    
-	}  
  
 	public native int open(int compression);
 	public native int decode(byte encoded[], short lin[], int size);
 	public native int encode(short lin[], int offset, byte encoded[], int size);
 	public native void close();
 
-	public void init() {
-		load();
-		if (isLoaded())
-			open(DEFAULT_COMPLEXITY);
+	public int open() {
+		if(!isLoaded()) {
+			throw new IllegalStateException("not loaded yet");
+		}
+		return open(DEFAULT_COMPLEXITY);
 	}
 }
