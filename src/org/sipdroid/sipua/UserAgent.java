@@ -1372,7 +1372,9 @@ public class UserAgent extends CallListenerAdapter {
 		updatePeerUserAgent(resp);
 		
 		String _remote_sdp = call.getRemoteSessionDescriptor();
-		if (_remote_sdp==null || _remote_sdp.length()==0) {
+		if (_remote_sdp==null || _remote_sdp.length()==0 ||
+				!resp.hasBody() || resp.getBody() == null ||
+				resp.getBody().length() == 0) {
 			printLog("RINGING", LogLevel.HIGH);
 			RtpStreamReceiver.ringback(true);
 		}
