@@ -1389,25 +1389,22 @@ public class UserAgent extends CallListenerAdapter {
 					iceAgent.startConnectivityEstablishment();
 				}
 			} else {
-				// No ICE... local ICE agent not needed
-				// actually, it IS needed, if a TURN relay is in use as the default candidate
-				/* printLog("peer has not indicated support for ICE, destroying local ICE agent");
-				if(iceAgent != null) {
-					iceAgent.free();
-					iceAgent = null;
-				} */
-			}
-			
-			if (! user_profile.no_offer && 
-					(iceAgent == null || iceProcessingState == IceProcessingState.COMPLETED)) {
+				if (! user_profile.no_offer) {
 				
-				printLog("Provisional SDP/must receive media");
-				RtpStreamReceiver.ringback(false);
-				// Update the local SDP along with offer/answer 
-				sessionProduct(remote_sdp);
+					printLog("Provisional SDP/must receive media");
+					RtpStreamReceiver.ringback(false);
+					// Update the local SDP along with offer/answer 
+					sessionProduct(remote_sdp);
+					
+					if(iceAgent != null && (
+							iceAgent.getState() == IceProcessingState.WAITING ||
+							iceAgent.getState() == IceProcessingState.COMPLETED ||
+							iceAgent.getState() == IceProcessingState.TERMINATED)) {
+						mediaStreams.get("audio").handleAnswer();
+					}
 				
-				// FIXME: should launch early media?  one direction or both?
-				//launchMediaApplication();
+					launchMediaApplication();
+				}
 			}
 		}
 	}
