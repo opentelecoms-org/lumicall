@@ -9,19 +9,39 @@ import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.UserMessage;
 import org.sipdroid.sipua.ui.Receiver;
+import org.sipdroid.sipua.ui.RegisterService;
+import org.sipdroid.sipua.ui.SIPUri;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class MessageIndex extends Activity {
+	
+	public static final int FIRST_MENU_ID = Menu.FIRST;
+	public static final int NEW_MESSAGE = FIRST_MENU_ID + 1;
+	public static final String MESSAGE_LIST_CHANGE = "org.lumicall.android.sip.MESSAGE_LIST_CHANGE";
+	
+	ListView smsList;
+	ArrayAdapter<UserMessage> adapter;
+	
+	private MyReceiver mReceiver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -30,22 +50,69 @@ public class MessageIndex extends Activity {
 		setContentView(R.layout.sms_index);
         setTitle(R.string.sms_index);
         
+        smsList = (ListView)findViewById(R.id.sms_list);
+		
+        adapter = null;
         loadMessages();
+        
+		smsList.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				replyTo(position);
+			}
+		});
+		smsList.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		boolean result = super.onCreateOptionsMenu(menu);
+
+		MenuItem m = menu.add(0, NEW_MESSAGE, 0, R.string.menu_new_sms);
+						
+		return result;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		boolean result = super.onOptionsItemSelected(item);
+		Intent intent = null;
+
+		switch (item.getItemId()) {
+		case NEW_MESSAGE: {
+			intent = new Intent(this, org.lumicall.android.sip.NewMessage.class);
+			startActivity(intent);
+		}
+		break;
+		}
+
+		return result;
+	}
+	
 	private void loadMessages() {
-		ListView smsList = (ListView)findViewById(R.id.sms_list);
 		LumicallDataSource ds = new LumicallDataSource(this);
 		ds.open();
 		List<UserMessage> messages = ds.getUserMessages();
 		ds.close();
 		
-		ArrayAdapter<UserMessage> adapter = new MessageArrayAdapter(this);
+		if(adapter == null) {
+			adapter = new MessageArrayAdapter(this);
+			smsList.setAdapter(adapter);
+		} else {
+			adapter.clear();
+		}
 		for(UserMessage um : messages) {
 			adapter.add(um);
 		}
-		
-		smsList.setAdapter(adapter);
+	}
+	
+	private void replyTo(int position) {
+		UserMessage um = adapter.getItem(position);
+		Intent intent = new Intent(this, org.lumicall.android.sip.NewMessage.class);
+		intent.putExtra(NewMessage.DEFAULT_RECIPIENT, um.getSenderUri());
+		startActivity(intent);
+		finish();
 	}
 	
 	public class MessageArrayAdapter extends ArrayAdapter<UserMessage> {
@@ -109,5 +176,36 @@ public class MessageIndex extends Activity {
 			return view;
 		}
 	}
+	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter mFilter = new IntentFilter();
+        // add action to this filters
+        mFilter.addAction(MESSAGE_LIST_CHANGE);
+
+        // Initialize receiver
+        mReceiver = new MyReceiver();
+        // register when activity is resumed
+        registerReceiver(mReceiver, mFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // unregister when activity is paused
+        if(mReceiver != null){
+            unregisterReceiver(mReceiver);
+        }
+    }
+
+    class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            loadMessages();
+        }
+
+    }
 
 }

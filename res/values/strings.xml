@@ -487,4 +487,9 @@
 <string name="notify_sms_received">SIP SMS received</string>
 <string name="sms_index">SIP SMS list</string>
 
+<string name="menu_new_sms">Send SMS</string>
+<string name="sms_compose">Compose SMS</string>
+<string name="sms_recipient">To:</string>
+<string name="sms_send">Send</string>
+
 </resources>

@@ -209,6 +209,11 @@
             android:label="@string/app_name" android:launchMode="singleInstance"
         	android:configChanges="orientation|keyboardHidden">
         </activity>
+        <activity
+            android:name="org.lumicall.android.sip.NewMessage"
+            android:label="@string/app_name" android:launchMode="singleInstance"
+        	android:configChanges="orientation|keyboardHidden">
+        </activity>
         <receiver android:name="org.sipdroid.sipua.ui.OneShotAlarm"/>
 	    <receiver android:name="org.sipdroid.sipua.ui.OneShotAlarm2"/>
 	    <receiver android:name="org.sipdroid.sipua.ui.LoopAlarm"/>

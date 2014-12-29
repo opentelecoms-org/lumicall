@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#736f6e"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#736f6e"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dip"
+            android:text="@string/sms_recipient"
+            android:textColor="#ffffff"
+            android:textStyle="bold" >
+        </TextView>
+
+        <EditText
+            android:id="@+id/sms_recipient"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="textEmailAddress"
+            android:singleLine="true"
+            android:text="" />
+
+        <Button
+            android:id="@+id/sms_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/sms_send" />
+    </LinearLayout>
+    
+    <EditText
+        android:id="@+id/sms_body"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:inputType="text"
+        android:singleLine="false"
+        android:text="" />
+
+</LinearLayout>

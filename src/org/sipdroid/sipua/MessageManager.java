@@ -74,6 +74,10 @@ public class MessageManager implements MessageAgentListener {
 		ds.close();
 		
 		makeNotification(Receiver.mContext, body);
+		
+		// If the MessageIndex is visible, update it
+		Intent intent = new Intent(MessageIndex.MESSAGE_LIST_CHANGE);
+		Receiver.mContext.sendBroadcast(intent);
 	}
 		
 	protected void makeNotification(Context ctx, String detail) {

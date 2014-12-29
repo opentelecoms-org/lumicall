@@ -740,6 +740,22 @@ public class SipdroidEngine implements RegisterAgentListener {
 		return false;
 	}
 	
+	public boolean sendMessage(SIPIdentity sender, String recipient, String body) {
+		int p = 0;
+		for(p = 0; p < lineCount; p++) {
+			if(user_profiles[p].sipIdentityId == sender.getId()) {
+				MessageAgent ma = mas[p];
+				ma.send(recipient, "", body);
+				return true;
+			}
+		}
+		
+		lastError = "Failed to find profile for SIP identity: " + sender.getId();
+		if(ua != null)
+			ua.printLog(lastError);
+		return false;
+	}
+	
 	public boolean call(String target_url, boolean force, int p) {
 		
 		if((ua = uas[p]) == null) {

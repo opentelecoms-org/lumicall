@@ -1,0 +1,104 @@
+package org.lumicall.android.sip;
+
+import org.lumicall.android.R;
+import org.lumicall.android.db.LumicallDataSource;
+import org.lumicall.android.db.SIPIdentity;
+import org.sipdroid.sipua.ui.Receiver;
+import org.sipdroid.sipua.ui.Settings;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class NewMessage extends Activity {
+	
+	private static final String TAG = "NewMessage";
+
+	static final String DEFAULT_RECIPIENT = "recipient";
+	
+	EditText recipient;
+	EditText body;
+	Button sendButton;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.sms_compose);
+        setTitle(R.string.sms_compose);
+        
+        recipient = (EditText)findViewById(R.id.sms_recipient);
+        body = (EditText)findViewById(R.id.sms_body);
+        
+        sendButton = (Button)findViewById(R.id.sms_send);
+        sendButton.setOnClickListener(new Button.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				sendMessage();
+			}
+		});
+        
+        Intent intent = getIntent();
+        String defaultRecipient = intent.getStringExtra(DEFAULT_RECIPIENT);
+        if(defaultRecipient != null) {
+        	recipient.setText(defaultRecipient);
+        }
+        
+        if(recipient.getText().length() > 0) {
+        	body.requestFocus();
+        }
+        
+        sendButton.setEnabled(true);
+   	}
+
+	protected void sendMessage() {
+		String _recipient = recipient.getText().toString();
+		String _body = body.getText().toString();
+		Log.i(TAG, "Message for: " + _recipient);
+		Log.i(TAG, "Body: " + _body);
+		
+		sendButton.setEnabled(false);
+		
+		SIPIdentity sender = getSIPIdentity();
+		
+		if(Receiver.engine(this).sendMessage(sender, _recipient, _body)) {
+			Intent intent = new Intent(this, org.lumicall.android.sip.MessageIndex.class);
+			startActivity(intent);
+			finish();
+		} else {
+			sendButton.setEnabled(true);
+		}
+	}
+	
+	protected SIPIdentity getSIPIdentity() {
+		// Must use the default SIP identity for SIP-SIP calls
+		SharedPreferences sipSettings = getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
+		long 	_sipIdentityId = Long.parseLong(sipSettings.getString(Settings.PREF_SIP, "-1"));
+		LumicallDataSource ds = new LumicallDataSource(this);
+		ds.open();
+		SIPIdentity sipIdentity = null;
+		if(_sipIdentityId >= 0) {
+			sipIdentity = ds.getSIPIdentity(_sipIdentityId);
+		}
+		if(sipIdentity == null) {
+			// No default SIP identity selected in the prefs, just use the first one
+			for(SIPIdentity _sipIdentity : ds.getSIPIdentities()) {
+				if(_sipIdentity.isEnable()) {
+					sipIdentity = _sipIdentity;
+					break;
+				}
+			}
+		}
+		ds.close();
+		if(!sipIdentity.isEnable())
+			return null;
+		return sipIdentity;
+	}
+
+}
