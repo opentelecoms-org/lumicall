@@ -161,7 +161,7 @@ public class DateFormat {
 		// return df.format(date);
 		Calendar cal = Calendar.getInstance();
 		char[] delim = { ' ', ',', ':' };
-		Parser par = new Parser(str, index);
+		Parser par = new Parser(str, index+5);
 		int day = par.getInt(); // day of the month
 		String MMM = par.getString(); // month
 		int month = 0;
