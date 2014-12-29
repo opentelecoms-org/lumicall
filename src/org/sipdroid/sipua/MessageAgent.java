@@ -23,11 +23,18 @@ package org.sipdroid.sipua;
 
 
 import org.zoolu.sip.address.*;
+import org.zoolu.sip.authentication.DigestAuthentication;
 import org.zoolu.sip.provider.*;
 import org.zoolu.sip.transaction.*;
+import org.zoolu.sip.header.AuthorizationHeader;
+import org.zoolu.sip.header.ProxyAuthenticateHeader;
+import org.zoolu.sip.header.ProxyAuthorizationHeader;
 import org.zoolu.sip.header.StatusLine;
+import org.zoolu.sip.header.ViaHeader;
+import org.zoolu.sip.header.WwwAuthenticateHeader;
 import org.zoolu.sip.message.*;
 import org.zoolu.tools.Log;
+import org.zoolu.tools.LogLevel;
 
 import java.io.*;
 import java.util.logging.Logger;
@@ -39,7 +46,9 @@ import java.util.logging.Logger;
   */
 public class MessageAgent implements SipProviderListener, TransactionClientListener
 {     
-   /** Log */
+   private static final int MAX_ATTEMPTS = 5;
+
+/** Log */
    private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 
    /** UserProfile */
@@ -51,6 +60,10 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    /** Message listener */
    protected MessageAgentListener listener;
 
+   private int attempts;
+
+   /** Qop for the next authentication. */
+   String qop;
    
    /** Costructs a new MessageAgent. */
    public MessageAgent(SipProvider sip_provider, UserAgentProfile user_profile, MessageAgentListener listener)
@@ -74,6 +87,7 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
       NameAddress from_url=new NameAddress(user_profile.from_url);
       Message req=MessageFactory.createMessageRequest(sip_provider,to_url,from_url,subject,content_type,content);
       TransactionClient t=new TransactionClient(sip_provider,req,this);
+      attempts = 0;  // FIXME - what if sending multiple messages?
       t.request();
    }
 
@@ -128,8 +142,12 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    }
 
    /** When the TransactionClient goes into the "Completed" state receiving a 300-699 response */
-   public void onTransFailureResponse(TransactionClient tc, Message resp) 
-   {  onDeliveryFailure(tc,resp.getStatusLine().getReason());
+   public void onTransFailureResponse(TransactionClient tc, Message resp) {
+	   StatusLine status = resp.getStatusLine();
+	   int code = status.getCode();
+	   if (!processAuthenticationResponse(tc, resp, code)) {
+		   onDeliveryFailure(tc,resp.getStatusLine().getReason());
+	   }
    }
     
    /** When the TransactionClient is (or goes) in "Proceeding" state and receives a new 1xx provisional response */
@@ -161,5 +179,104 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
       if (req.hasSubjectHeader()) subject=req.getSubjectHeader().getSubject();
       if (listener!=null) listener.onMaDeliveryFailure(this,recipient,subject,result);
    }
+   
+   
+   /**
+    * The methods below were copied from RegisterAgent
+    * 
+    * Key differences
+    * - attempts should be per-message (FIXME)
+    * - TransactionClient should be per-message (FIXME)
+    */
+   
+   
+   
+	private boolean generateRequestWithProxyAuthorizationheader(
+			Message resp, Message req){
+		if(resp.hasProxyAuthenticateHeader()
+				&& resp.getProxyAuthenticateHeader().getRealmParam()
+				.length() > 0){
+			user_profile.realm = resp.getProxyAuthenticateHeader().getRealmParam();
+			ProxyAuthenticateHeader pah = resp.getProxyAuthenticateHeader();
+			String qop_options = pah.getQopOptionsParam();
+			
+			logger.fine("qop-options: " + qop_options);
+			
+			qop = (qop_options != null) ? "auth" : null;
+			
+			ProxyAuthorizationHeader ah = (new DigestAuthentication(
+							req.getTransactionMethod(), req.getRequestLine().getAddress()
+							.toString(), pah, qop, null, user_profile.username, user_profile.passwd))
+					.getProxyAuthorizationHeader();
+			req.setProxyAuthorizationHeader(ah);
+			
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean generateRequestWithWwwAuthorizationheader(
+			Message resp, Message req){
+		if(resp.hasWwwAuthenticateHeader()
+				&& resp.getWwwAuthenticateHeader().getRealmParam()
+				.length() > 0){		
+			user_profile.realm = resp.getWwwAuthenticateHeader().getRealmParam();
+			WwwAuthenticateHeader wah = resp.getWwwAuthenticateHeader();
+			String qop_options = wah.getQopOptionsParam();
+			
+			logger.fine("qop-options: " + qop_options);
+			
+			qop = (qop_options != null) ? "auth" : null;
+			
+			AuthorizationHeader ah = (new DigestAuthentication(
+							req.getTransactionMethod(), req.getRequestLine().getAddress()
+							.toString(), wah, qop, null, user_profile.username, user_profile.passwd))
+					.getAuthorizationHeader();
+			req.setAuthorizationHeader(ah);
+			return true;
+		}
+		return false;
+	}
+
+	private boolean handleAuthentication(int respCode, Message resp,
+					     Message req) {
+		
+		if (user_profile.username == null || user_profile.username.length() == 0) {
+			return false;
+		}
+		if (user_profile.passwd == null || user_profile.passwd.length() == 0) {
+			return false;
+		}
+		
+		switch (respCode) {
+		case 407:
+			return generateRequestWithProxyAuthorizationheader(resp, req);
+		case 401:
+			return generateRequestWithWwwAuthorizationheader(resp, req);
+		}
+		return false;
+	}
+		
+	
+	private boolean processAuthenticationResponse(TransactionClient transaction,
+			Message resp, int respCode) {
+		if (attempts < MAX_ATTEMPTS){
+			attempts++;
+			Message req = transaction.getRequestMessage();
+			req.setCSeqHeader(req.getCSeqHeader().incSequenceNumber());
+			ViaHeader vh=req.getViaHeader();
+			String newbranch = SipProvider.pickBranch();
+			vh.setBranch(newbranch);	
+			req.removeViaHeader();
+			req.addViaHeader(vh);
+
+			if (handleAuthentication(respCode, resp, req)) {
+				TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
+				t.request();
+				return true;
+			}
+		}
+		return false;
+	}
 
 }
