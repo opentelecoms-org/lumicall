@@ -21,10 +21,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
@@ -128,7 +130,8 @@ public class MessageIndex extends Activity {
 			UserMessage um = getItem(position);
 			String peerUri = null;
 			String peerName = null;
-			if(um.isOriginLocal()) {
+			boolean outgoing = um.isOriginLocal();
+			if(outgoing) {
 				peerUri = um.getRecipientUri();
 				peerName = um.getRecipientName();
 			} else {
@@ -172,6 +175,17 @@ public class MessageIndex extends Activity {
 			}
 			bodyView.setText(um.getBody());
 			dateView.setText(fDate);
+			
+			// Right-align the outgoing messages
+			if(outgoing) {
+				LayoutParams lp = new LinearLayout.LayoutParams(
+		                LinearLayout.LayoutParams.FILL_PARENT,
+		                LinearLayout.LayoutParams.WRAP_CONTENT);
+				for(TextView v : new TextView[] { peerView, subjectView, bodyView, dateView }) {
+					v.setLayoutParams(lp);
+					v.setGravity(Gravity.RIGHT);
+				}
+			}
 			
 			return view;
 		}
