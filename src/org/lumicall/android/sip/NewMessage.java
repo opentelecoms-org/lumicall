@@ -1,8 +1,11 @@
 package org.lumicall.android.sip;
 
+import java.util.Date;
+
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
+import org.lumicall.android.db.UserMessage;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 
@@ -21,6 +24,8 @@ public class NewMessage extends Activity {
 	private static final String TAG = "NewMessage";
 
 	static final String DEFAULT_RECIPIENT = "recipient";
+
+	private static final String DEFAULT_CONTENT_TYPE = "application/text";
 	
 	EditText recipient;
 	EditText body;
@@ -68,6 +73,7 @@ public class NewMessage extends Activity {
 		SIPIdentity sender = getSIPIdentity();
 		
 		if(Receiver.engine(this).sendMessage(sender, _recipient, _body)) {
+			storeMessage(sender, _recipient, _body);
 			Intent intent = new Intent(this, org.lumicall.android.sip.MessageIndex.class);
 			startActivity(intent);
 			finish();
@@ -99,6 +105,27 @@ public class NewMessage extends Activity {
 		if(!sipIdentity.isEnable())
 			return null;
 		return sipIdentity;
+	}
+
+	private void storeMessage(SIPIdentity sender, String _recipient,
+			String _body) {
+		UserMessage um = new UserMessage();
+		um.setOriginLocal(true);
+		um.setReceivedTimestamp(System.currentTimeMillis()/1000);
+		Date messageTimestamp = new Date();
+		um.setMessageTimestamp(messageTimestamp.getTime()/1000);
+		//um.setSenderName( );
+		um.setSenderUri(sender.getUri());
+		//um.setRecipientName( );
+		um.setRecipientUri(_recipient);
+		//um.setSubject( );
+		um.setContentType(DEFAULT_CONTENT_TYPE);
+		um.setBody(_body);
+		
+		LumicallDataSource ds = new LumicallDataSource(Receiver.mContext);
+		ds.open();
+		ds.persistUserMessage(um);
+		ds.close();
 	}
 
 }
