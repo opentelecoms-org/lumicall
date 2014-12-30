@@ -20,6 +20,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
 /**
  * This is a basic messaging manager that logs messages to an SQLite
@@ -85,6 +87,9 @@ public class MessageManager implements MessageAgentListener {
 		Intent notificationIntent = new Intent(ctx, MessageIndex.class);
 		PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
 		notification.setLatestEventInfo(ctx, ctx.getText(R.string.notify_sms_received), detail, contentIntent);
+		Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		notification.sound = alarmSound;
+		notification.flags |= Notification.FLAG_AUTO_CANCEL;
         nm.notify(10, notification);
 	}
 
