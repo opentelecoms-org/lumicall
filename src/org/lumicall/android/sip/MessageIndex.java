@@ -112,8 +112,17 @@ public class MessageIndex extends Activity {
 	
 	private void replyTo(int position) {
 		UserMessage um = adapter.getItem(position);
+		String recipient = null;
+		if(um.isOriginLocal()) {
+			// If it is a message we sent, we don't reply to ourselves,
+			// we send another message to the same recipient
+			recipient = um.getRecipientUri();
+		} else {
+			// If it is a message we received, reply to the sender
+			recipient = um.getSenderUri();
+		}
 		Intent intent = new Intent(this, org.lumicall.android.sip.NewMessage.class);
-		intent.putExtra(NewMessage.DEFAULT_RECIPIENT, um.getSenderUri());
+		intent.putExtra(NewMessage.DEFAULT_RECIPIENT, recipient);
 		startActivity(intent);
 		finish();
 	}
