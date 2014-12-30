@@ -64,6 +64,7 @@ public class MessageIndex extends Activity {
 				replyTo(position);
 			}
 		});
+		smsList.smoothScrollToPosition(adapter.getCount());
 		smsList.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
 	}
 
