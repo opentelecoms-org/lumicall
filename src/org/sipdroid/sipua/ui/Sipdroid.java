@@ -436,7 +436,12 @@ public class Sipdroid extends Activity implements OnDismissListener {
 			srtp.setTxMasterSalt(key.getSalt());
 			srtp.setRxMasterKey(key.getMaster());
 			srtp.setRxMasterSalt(key.getSalt());
-			srtp.setReplayProtection(false);
+			// FIXME: PTT conflicts with SRTP replay protection
+			// A branch of the ZORG ZRTP library makes it
+			// possible to disable replay protection with this SRTP API call
+			// but it is not a supported feature at present and PTT won't
+			// work without it.
+			//srtp.setReplayProtection(false);
 			if(srtp.startNewSession() != SRTP.SESSION_OK) {
 				throw new RuntimeException("Failed to start SRTP session");
 			}
