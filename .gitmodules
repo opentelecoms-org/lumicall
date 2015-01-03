@@ -1,9 +1,6 @@
 [submodule "zrtp"]
 	path = zrtp
 	url = git://github.com/opentelecoms-org/zrtp.git
-[submodule "pbkdf2"]
-	path = pbkdf2
-	url = git://github.com/opentelecoms-org/PBKDF2-for-lumicall.git
 [submodule "opentelecoms.org-util"]
 	path = opentelecoms.org-util
 	url = git://github.com/opentelecoms-org/util.git
