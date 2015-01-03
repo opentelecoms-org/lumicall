@@ -40,6 +40,7 @@ import org.lumicall.android.sip.DialCandidate;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
 import org.sipdroid.sipua.ui.LoopAlarm;
+import org.sipdroid.sipua.ui.MessageSendingRequest;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
@@ -740,12 +741,12 @@ public class SipdroidEngine implements RegisterAgentListener {
 		return false;
 	}
 	
-	public boolean sendMessage(SIPIdentity sender, String recipient, String body) {
+	public boolean sendMessage(SIPIdentity sender, String recipient, String body, MessageSendingRequest msr) {
 		int p = 0;
 		for(p = 0; p < lineCount; p++) {
 			if(user_profiles[p].sipIdentityId == sender.getId()) {
 				MessageAgent ma = mas[p];
-				ma.send(recipient, "", body);
+				ma.send(recipient, "", body, msr);
 				return true;
 			}
 		}

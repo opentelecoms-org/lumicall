@@ -6,6 +6,7 @@ import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.db.UserMessage;
+import org.sipdroid.sipua.ui.MessageSendingRequest;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class NewMessage extends Activity {
 	
@@ -72,8 +74,9 @@ public class NewMessage extends Activity {
 		
 		SIPIdentity sender = getSIPIdentity();
 		
-		if(Receiver.engine(this).sendMessage(sender, _recipient, _body)) {
-			storeMessage(sender, _recipient, _body);
+		long id = storeMessage(sender, _recipient, _body);
+		MessageSendingRequest msr = new MyMessageSendingRequest(id);
+		if(Receiver.engine(this).sendMessage(sender, _recipient, _body, msr)) {
 			Intent intent = new Intent(this, org.lumicall.android.sip.MessageIndex.class);
 			startActivity(intent);
 			finish();
@@ -107,7 +110,7 @@ public class NewMessage extends Activity {
 		return sipIdentity;
 	}
 
-	private void storeMessage(SIPIdentity sender, String _recipient,
+	private long storeMessage(SIPIdentity sender, String _recipient,
 			String _body) {
 		UserMessage um = new UserMessage();
 		um.setOriginLocal(true);
@@ -126,6 +129,34 @@ public class NewMessage extends Activity {
 		ds.open();
 		ds.persistUserMessage(um);
 		ds.close();
+		
+		return um.getId();
+	}
+	
+	public class MyMessageSendingRequest implements MessageSendingRequest {
+		
+		long messageId;
+
+		public MyMessageSendingRequest(long id) {
+			this.messageId = id;
+		}
+
+		@Override
+		public void onSuccess() {
+			// FIXME - mark the message as sent in the database?
+		}
+
+		@Override
+		public void onFailure() {
+			// FIXME - mark the message as unsent in the database?
+			NewMessage.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(NewMessage.this, R.string.sms_send_failure, Toast.LENGTH_LONG).show();
+				}
+			});
+		}
+		
 	}
 
 }

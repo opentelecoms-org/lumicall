@@ -491,5 +491,6 @@
 <string name="sms_compose">Compose SMS</string>
 <string name="sms_recipient">To:</string>
 <string name="sms_send">Send</string>
+<string name="sms_send_failure">SIP SMS sending failed</string>
 
 </resources>

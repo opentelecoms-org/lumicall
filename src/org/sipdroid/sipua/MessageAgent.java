@@ -22,6 +22,7 @@
 package org.sipdroid.sipua;
 
 
+import org.sipdroid.sipua.ui.MessageSendingRequest;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.authentication.DigestAuthentication;
 import org.zoolu.sip.provider.*;
@@ -75,18 +76,20 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    }   
 
    
-   /** Sends a new text message. */
-   public void send(String recipient, String subject, String content)
-   {  send(recipient,subject,"application/text",content);
+   /** Sends a new text message. 
+ * @param msr */
+   public void send(String recipient, String subject, String content, MessageSendingRequest msr)
+   {  send(recipient,subject,"application/text",content, msr);
    }   
 
 
-   /** Sends a new message. */
-   public void send(String recipient, String subject, String content_type, String content)
+   /** Sends a new message. 
+ * @param msr */
+   public void send(String recipient, String subject, String content_type, String content, MessageSendingRequest msr)
    {  NameAddress to_url=new NameAddress(recipient);
       NameAddress from_url=new NameAddress(user_profile.from_url);
       Message req=MessageFactory.createMessageRequest(sip_provider,to_url,from_url,subject,content_type,content);
-      TransactionClient t=new TransactionClient(sip_provider,req,this);
+      TransactionClient t=new MessageTransactionClient(sip_provider,req,this,msr);
       attempts = 0;  // FIXME - what if sending multiple messages?
       t.request();
    }
@@ -161,23 +164,27 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
    }
  
    /** When the delivery successes. */
-   private void onDeliverySuccess(TransactionClient tc, String result)
-   {  logger.info("Message successfully delivered ("+result+").");
+   private void onDeliverySuccess(TransactionClient tc, String result) {  
+	   logger.info("Message successfully delivered ("+result+").");
+	   MessageTransactionClient mtc = (MessageTransactionClient)tc;
       Message req=tc.getRequestMessage();
       NameAddress recipient=req.getToHeader().getNameAddress();
       String subject=null;
       if (req.hasSubjectHeader()) subject=req.getSubjectHeader().getSubject();
       if (listener!=null) listener.onMaDeliverySuccess(this,recipient,subject,result);
+      mtc.getMessageSendingRequest().onSuccess();
    }
 
    /** When the delivery fails. */
-   private void onDeliveryFailure(TransactionClient tc, String result)
-   {  logger.warning("Message delivery failed ("+result+").");
+   private void onDeliveryFailure(TransactionClient tc, String result) {  
+	   logger.warning("Message delivery failed ("+result+").");
+	   MessageTransactionClient mtc = (MessageTransactionClient)tc;
       Message req=tc.getRequestMessage();
       NameAddress recipient=req.getToHeader().getNameAddress();
       String subject=null;
       if (req.hasSubjectHeader()) subject=req.getSubjectHeader().getSubject();
       if (listener!=null) listener.onMaDeliveryFailure(this,recipient,subject,result);
+      mtc.getMessageSendingRequest().onFailure();
    }
    
    
@@ -271,7 +278,8 @@ public class MessageAgent implements SipProviderListener, TransactionClientListe
 			req.addViaHeader(vh);
 
 			if (handleAuthentication(respCode, resp, req)) {
-				TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
+				MessageTransactionClient mtc = (MessageTransactionClient)transaction;
+				TransactionClient t = new MessageTransactionClient(sip_provider, req, this, 30000, mtc.getMessageSendingRequest());
 				t.request();
 				return true;
 			}
