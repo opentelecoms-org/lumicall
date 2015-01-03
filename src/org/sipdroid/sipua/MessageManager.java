@@ -89,7 +89,10 @@ public class MessageManager implements MessageAgentListener {
 		notification.setLatestEventInfo(ctx, ctx.getText(R.string.notify_sms_received), detail, contentIntent);
 		Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 		notification.sound = alarmSound;
-		notification.flags |= Notification.FLAG_AUTO_CANCEL;
+		notification.flags |= (Notification.FLAG_AUTO_CANCEL | Notification.FLAG_SHOW_LIGHTS);
+		notification.ledOnMS = 1;
+		notification.ledOffMS = 0;
+		notification.ledARGB = 0xff0011ff;
         nm.notify(10, notification);
 	}
 
