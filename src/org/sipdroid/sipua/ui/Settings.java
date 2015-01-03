@@ -116,6 +116,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_EDGE = "edge";
 	public static final String PREF_VPN = "vpn";
 	public static final String PREF_PREF = "pref";
+	public static final String PREF_DIALING_INTEGRATION = "dialing_integration";
 	public static final String PREF_SIP = "sip_pref_sip_identity";
 	public static final String PREF_TEL = "tel_pref_sip_identity";
 	public static final String PREF_AUTO_ON = "auto_on";
@@ -189,6 +190,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final boolean	DEFAULT_3G = false;
 	public static final boolean	DEFAULT_EDGE = false;
 	public static final boolean	DEFAULT_VPN = false;
+	public static final boolean	DEFAULT_DIALING_INTEGRATION = true;
 	public static final String	DEFAULT_PREF = VAL_PREF_SIP;
 	public static final boolean	DEFAULT_AUTO_ON = false;
 	public static final boolean	DEFAULT_AUTO_ONDEMAND = false;

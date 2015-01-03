@@ -125,6 +125,17 @@ public class Caller extends BroadcastReceiver {
         			return;
 	        	}
         		
+        		boolean dialingIntegration =
+        				PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+        						Settings.PREF_DIALING_INTEGRATION, Settings.DEFAULT_DIALING_INTEGRATION);
+        		boolean nonSIP = originalUri.length() > 4 &&
+        				originalUri.startsWith("tel:") &&
+        				(originalUri.charAt(4) == '+' ||
+        				Character.isDigit(originalUri.charAt(4)));
+        		if(!dialingIntegration && nonSIP) {
+        			Log.d(TAG, "dialing integration not enabled");
+        			return;
+        		}
         		
         		// If the user has chosen a GSM route in the chooser, we should
         		// not do anything, just let the next handler deal with it

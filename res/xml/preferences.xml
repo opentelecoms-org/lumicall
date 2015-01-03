@@ -35,6 +35,11 @@
 	                android:targetClass="org.lumicall.android.preferences.PTTChannelsSettings" />
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_options">
+			<CheckBoxPreference
+				android:key="dialing_integration"
+				android:defaultValue="true"
+				android:title="@string/settings_dialing_integration"
+				android:summary="@string/settings_dialing_integration_info" />
 			<ListPreference
 				android:key="pref"
 				android:title="@string/settings_pref"

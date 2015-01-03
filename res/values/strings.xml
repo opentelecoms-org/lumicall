@@ -164,6 +164,9 @@
 <string name="no">No</string>
 <string name="dontask">Don\'t ask me again</string>
 
+<string name="settings_dialing_integration">Dialing popup</string>
+<string name="settings_dialing_integration_info">When dialing, display the popup to select SIP and ENUM routes</string>
+
 <string name="settings_pref">Preferred Call Type</string>
 <string name="settings_pref2">Override by adding \'+\' behind a number in Dialer, or by selecting \'text to\' in Contacts</string>
     <string-array name="pref_display_values">
