@@ -1,6 +1,6 @@
 [submodule "zrtp"]
 	path = zrtp
-	url = git://github.com/opentelecoms-org/zrtp.git
+	url = git://github.com/opentelecoms-org/zrtp-java.git
 [submodule "opentelecoms.org-util"]
 	path = opentelecoms.org-util
 	url = git://github.com/opentelecoms-org/util.git

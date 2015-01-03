@@ -40,7 +40,7 @@ import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.MessageIndex;
 import org.lumicall.android.sip.RegisterAccount;
-import org.opentelecoms.media.rtp.secure.SRTP;
+import zorg.SRTP;
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
@@ -429,9 +429,9 @@ public class Sipdroid extends Activity implements OnDismissListener {
 		if(srtp == null && _key != null && _key.length() == 40) {
 			logger.info("Setting up SRTP");
 			SRTPKeySpec key = new SRTPKeySpec(_key);
-			srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
+			srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
 			srtp.setKDR(48);
-			srtp.setAuthTagSize(UserAgent.SUPPORTED_CRYPTO_SUITE_TAG_SIZE);  // FIXME
+			srtp.setHmacAuthSizeBytes(UserAgent.SUPPORTED_CRYPTO_SUITE_TAG_SIZE);  // FIXME
 			srtp.setTxMasterKey(key.getMaster());
 			srtp.setTxMasterSalt(key.getSalt());
 			srtp.setRxMasterKey(key.getMaster());

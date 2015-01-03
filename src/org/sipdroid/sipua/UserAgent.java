@@ -54,8 +54,8 @@ import org.ice4j.security.LongTermCredential;
 import org.ice4j.socket.DelegatingDatagramSocket;
 import org.lumicall.android.R;
 import org.lumicall.android.db.SecurityMode;
-import org.opentelecoms.media.rtp.secure.SRTP;
-import org.opentelecoms.media.rtp.secure.ZRTP;
+import zorg.SRTP;
+import zorg.ZRTP;
 import org.opentelecoms.util.dns.SRVRecordHelper;
 import org.sipdroid.codecs.Codec;
 import org.sipdroid.codecs.Codecs;
@@ -865,13 +865,13 @@ public class UserAgent extends CallListenerAdapter {
 			printLog("Using RX key: " + rxAudioKey);
 			if(txAudioKey == null || rxAudioKey == null)
 				throw new RuntimeException("RTP/SAVP(F) detected in SDP, but insufficient crypto keys");
-			srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
+			srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
 			if(!srtp.testEncryption())
 				throw new RuntimeException("SRTP.testEncryption() failed, platform not compatible");
 			if(!srtp.testReplayCheckVector())
 				throw new RuntimeException("SRTP.testReplayCheckVector() failed, platform not compatible");
 			srtp.setKDR(48);
-			srtp.setAuthTagSize(SUPPORTED_CRYPTO_SUITE_TAG_SIZE);  // FIXME
+			srtp.setHmacAuthSizeBytes(SUPPORTED_CRYPTO_SUITE_TAG_SIZE);  // FIXME
 			srtp.setFirstRtpSeqNum(RtpStreamSender.FIRST_SEQ_NUM);  // From RTP Sender
 			srtp.setTxMasterKey(txAudioKey.getMaster());
 			srtp.setTxMasterSalt(txAudioKey.getSalt());
@@ -886,7 +886,7 @@ public class UserAgent extends CallListenerAdapter {
 			// talking to other implementations such as Jitsi, so let's make sure
 			// we are talking to another Lumicall
 			if(isCompatibleUserAgent()) {
-				zrtp = new ZRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
+				zrtp = new ZRTP(new zorg.platform.j2se.PlatformImpl());
 				zrtp.setPhoneNumber("+999999999");  // FIXME ZRTP - E.164 number not in use
 			} else {
 				printLog("not trying ZRTP, peer User-Agent (" + peerUserAgent + ") not known to be compatible");

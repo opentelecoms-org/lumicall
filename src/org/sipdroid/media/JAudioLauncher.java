@@ -23,10 +23,12 @@ import java.net.DatagramSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.opentelecoms.media.rtp.secure.AuthenticationMode;
-import org.opentelecoms.media.rtp.secure.CipherType;
-import org.opentelecoms.media.rtp.secure.SRTP;
-import org.opentelecoms.media.rtp.secure.ZRTP;
+import zorg.AuthenticationMode;
+import zorg.CipherType;
+import zorg.SRTP;
+import zorg.ZRTP;
+import zorg.platform.ZrtpListener;
+
 import org.sipdroid.codecs.Codecs;
 import org.sipdroid.net.SipdroidSocket;
 import org.sipdroid.sipua.UserAgent;
@@ -215,7 +217,7 @@ public class JAudioLauncher implements MediaLauncher
 	   // FIXME - should pass the SaS up to the User Agent / screen
    }
    
-   public class ZRTPListener implements org.opentelecoms.media.rtp.secure.platform.ZrtpListener {
+   public class ZRTPListener implements zorg.platform.ZrtpListener {
 
 	@Override
 	   public void sessionNegotiationCompleted(boolean success, String msg) {
@@ -252,15 +254,14 @@ public class JAudioLauncher implements MediaLauncher
 			   int firstSeqNum) {
 		   logger.info("*********** Got master keys from ZRTP!!!  *******************");
 		   
-		   srtp = new SRTP(new org.opentelecoms.media.rtp.secure.platform.j2se.PlatformImpl());
-		   srtp.setKDR(48);
 		   CipherType cipherType = zrtp.getCipherType();
-		   if(cipherType != CipherType.AES1)
+		   if(cipherType != CipherType.AES1)  // FIXME - should support AES3 too
 			   throw new RuntimeException("Unsupported cipher type: " + cipherType);
 		   AuthenticationMode authMode = zrtp.getAuthenticationMode();
 		   if(authMode != AuthenticationMode.HS32 && authMode != AuthenticationMode.HS80)
 			   throw new RuntimeException("Unsupported auth mode: " + authMode);
-		   srtp.setAuthTagSize(authMode.getTagBytes());
+		   srtp = new SRTP(new zorg.platform.j2se.PlatformImpl(), authMode.getTagBytes());
+		   srtp.setKDR(48);
 		   srtp.setTxMasterKey(txMasterKey);
 		   srtp.setTxMasterSalt(txMasterSalt);
 		   srtp.setRxMasterKey(rxMasterKey);

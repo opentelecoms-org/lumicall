@@ -31,8 +31,8 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import org.opentelecoms.media.rtp.secure.SRTP;
-import org.opentelecoms.media.rtp.secure.ZRTP;
+import zorg.SRTP;
+import zorg.ZRTP;
 import org.opentelecoms.util.CRC32C;
 import org.sipdroid.net.RtpPacket;
 import org.sipdroid.net.RtpSocket;
@@ -628,7 +628,7 @@ public class RtpStreamSender extends Thread {
 		return rtp_packet.getSscr();
 	}
 	
-	public class ZRTPHelper implements org.opentelecoms.media.rtp.secure.platform.RtpStack {
+	public class ZRTPHelper implements zorg.platform.RtpStack {
 		
 		// We could be invoked from a different thread to the main sender,
 		// so keep our own packet buffer
