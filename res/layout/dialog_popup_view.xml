@@ -22,5 +22,18 @@
 	    android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"/>
+	
+	<LinearLayout
+	    android:orientation="vertical"
+	    android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+    	<CheckBox
+    	    android:id="@+id/route_popup_enable"
+    	    android:text="@string/dial_popup_enable"
+    	    android:layout_width="match_parent"
+    	    android:layout_height="wrap_content"
+    	    />
+    </LinearLayout>
 
 </LinearLayout>

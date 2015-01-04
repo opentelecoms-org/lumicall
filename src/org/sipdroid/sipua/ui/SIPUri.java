@@ -40,7 +40,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences.Editor;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -56,6 +58,8 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -173,6 +177,21 @@ public class SIPUri extends Activity implements DialCandidateListener {
 		progress.setIndeterminate(true);
 		harvestStatus.removeAllViews();
 		harvestStatus.addView(progress);
+		
+		CheckBox alwaysShow = (CheckBox)layout.findViewById(R.id.route_popup_enable);
+		boolean dialingIntegration =
+				PreferenceManager.getDefaultSharedPreferences(this).getBoolean(
+						Settings.PREF_DIALING_INTEGRATION, Settings.DEFAULT_DIALING_INTEGRATION);
+		alwaysShow.setChecked(dialingIntegration);
+		alwaysShow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(SIPUri.this);
+				Editor edit = sp.edit();
+				edit.putBoolean(Settings.PREF_DIALING_INTEGRATION, isChecked);
+				edit.commit();
+			}
+		});
 		
 		hd = new HarvestDirector(this);
 		hd.addListener(this);
