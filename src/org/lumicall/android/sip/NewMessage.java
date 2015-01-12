@@ -26,6 +26,8 @@ public class NewMessage extends Activity {
 	private static final String TAG = "NewMessage";
 
 	static final String DEFAULT_RECIPIENT = "recipient";
+	
+	static final String EMPTY_RECIPIENT_VALUE = "sip:";
 
 	private static final String DEFAULT_CONTENT_TYPE = "application/text";
 	
@@ -55,6 +57,8 @@ public class NewMessage extends Activity {
         String defaultRecipient = intent.getStringExtra(DEFAULT_RECIPIENT);
         if(defaultRecipient != null) {
         	recipient.setText(defaultRecipient);
+        } else {
+        	recipient.setText(EMPTY_RECIPIENT_VALUE);
         }
         
         if(recipient.getText().length() > 0) {
