@@ -31,10 +31,6 @@
       <subant buildpath="${opentelecoms.org-util.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-util.absolute.dir}/opentelecoms.org-util.jar" todir="${jar.libs.absolute.dir}"/>
 
-      <property name="pbkdf2.absolute.dir" location="pbkdf2"/>
-      <subant buildpath="${pbkdf2.absolute.dir}" antfile="build.xml"/>
-      <copy file="${pbkdf2.absolute.dir}/pbkdf2.jar" todir="${jar.libs.absolute.dir}"/>
-
       <property name="opentelecoms.org-zrtp.absolute.dir" location="zrtp/zorg-java"/>
       <subant buildpath="${opentelecoms.org-zrtp.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-zrtp.absolute.dir}/opentelecoms.org-zrtp.jar" todir="${jar.libs.absolute.dir}"/>
