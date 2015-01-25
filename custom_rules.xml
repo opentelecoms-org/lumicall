@@ -31,7 +31,7 @@
       <subant buildpath="${opentelecoms.org-util.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-util.absolute.dir}/opentelecoms.org-util.jar" todir="${jar.libs.absolute.dir}"/>
 
-      <property name="opentelecoms.org-zrtp.absolute.dir" location="zrtp/zorg-java"/>
+      <property name="opentelecoms.org-zrtp.absolute.dir" location="zrtp"/>
       <subant buildpath="${opentelecoms.org-zrtp.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-zrtp.absolute.dir}/opentelecoms.org-zrtp.jar" todir="${jar.libs.absolute.dir}"/>
 
