@@ -87,9 +87,10 @@ public class ManualVerification extends RegistrationActivity {
 				}
 				
 				if(!validNumber) {
-					Log.i(TAG, "Number not valid, asking user to correct it");
-					Toast.makeText(ManualVerification.this, R.string.reg_num_invalid_message_brief, Toast.LENGTH_LONG).show();
-					return;
+					//Log.i(TAG, "Number not valid, asking user to correct it");
+					//Toast.makeText(ManualVerification.this, R.string.reg_num_invalid_message_brief, Toast.LENGTH_LONG).show();
+					//return;
+					Log.w(TAG, "Number does not appear valid, using anyway");
 				}
 				
 				String phoneNumberE164 = pnu.format(pn, PhoneNumberFormat.E164); 

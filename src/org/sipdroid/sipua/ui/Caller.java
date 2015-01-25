@@ -275,9 +275,11 @@ public class Caller extends BroadcastReceiver {
 					try {
 						PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
 						PhoneNumber numberProto = phoneUtil.parse(number, countryIsoCode.toUpperCase());
-						if(phoneUtil.isValidNumber(numberProto)) {
-							e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
+						if(!phoneUtil.isValidNumber(numberProto)) {
+							// FIXME, should we really allow these numbers to be used?
+							Log.w(TAG, "Number doesn't pass isValidNumber, using anyway");
 						}
+						e164Number = phoneUtil.format(numberProto, PhoneNumberFormat.E164);
 					} catch (NumberParseException e) {
 						Log.w(TAG, "Error parsing number", e);
 					}
