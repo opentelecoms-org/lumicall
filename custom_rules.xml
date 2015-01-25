@@ -35,6 +35,8 @@
       <subant buildpath="${opentelecoms.org-zrtp.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-zrtp.absolute.dir}/opentelecoms.org-zrtp.jar" todir="${jar.libs.absolute.dir}"/>
 
+        <!-- doesn't seem to build with this, fails to resolve
+             project.target.apilevel, so it is just commented out
         <dependency
                 libraryFolderPathOut="project.library.folder.path"
                 libraryPackagesOut="project.library.packages"
@@ -45,7 +47,7 @@
                 libraryNativeFolderPathOut="project.library.native.folder.path"
                 jarLibraryPathOut="project.all.jars.path"
                 targetApi="${project.target.apilevel}"
-                verbose="${verbose}" />
+                verbose="${verbose}" /> -->
 
     </target>
 
