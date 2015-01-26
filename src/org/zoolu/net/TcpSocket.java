@@ -164,7 +164,14 @@ public class TcpSocket {
 			
 			try {
 				SSLSocketFactory socketFactory = getSSLContext().getSocketFactory();
-				socket = socketFactory.createSocket();
+				SSLSocket _socket = (SSLSocket)socketFactory.createSocket();
+                if(android.os.Build.VERSION.SDK_INT >= 16) {
+                    // FIXME: could also do this for BouncyCastle
+                    _socket.setEnabledProtocols(new String[] { "SSLv2Hello", "TLSv1", "TLSv1.1", "TLSv1.2" });
+                } else {
+                    _socket.setEnabledProtocols(new String[] { "SSLv2Hello", "TLSv1" });
+                }
+                socket = _socket;
 			} catch (Exception e) {
 				e.printStackTrace();
 				logger.warning("IOException/failure in the SSL init: " + e.getClass().getCanonicalName() + ": " + e.getMessage());
