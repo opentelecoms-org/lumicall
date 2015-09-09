@@ -63,6 +63,10 @@ public class ViaHeader extends ParametricHeader {
 
 	public ViaHeader(String host, int port) {
 		super(SipHeaders.Via, "SIP/2.0/UDP " + host + ":" + port);
+		if (host.contains(":") && !(host.startsWith("[") && host.endsWith("]"))) {
+			java.util.logging.Logger logger = java.util.logging.Logger.getLogger(getClass().getCanonicalName());
+			logger.info("host contains : but is not IPv6 reference: " + host + "\n" + android.util.Log.getStackTraceString(new RuntimeException("ipv6 needs [ ]")));
+		}
 	}
 
 	/*
@@ -73,6 +77,10 @@ public class ViaHeader extends ParametricHeader {
 	public ViaHeader(String proto, String host, int port) {
 		super(SipHeaders.Via, "SIP/2.0/" + proto.toUpperCase() + " " + host
 				+ ":" + port); // modified
+		if (host.contains(":") && !(host.startsWith("[") && host.endsWith("]"))) {
+			java.util.logging.Logger logger = java.util.logging.Logger.getLogger(getClass().getCanonicalName());
+			logger.info("host contains : but is not IPv6 reference: " + host + "\n" + android.util.Log.getStackTraceString(new RuntimeException("ipv6 needs [ ]")));
+		}
 	}
 
 	/*

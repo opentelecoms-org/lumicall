@@ -93,6 +93,14 @@ public abstract class BaseMessageFactory {
 		Message req = new Message();
 		// mandatory headers first (To, From, Via, Max-Forwards, Call-ID, CSeq):
 		req.setRequestLine(new RequestLine(method, request_uri));
+		if (via_addr.contains(":") && !(via_addr.startsWith("[") && via_addr.endsWith("]"))) {
+			// If this via_addr is an IPv6 address, then it MUST be wrapped
+			// with [ ] to separate it from the port.
+			via_addr = "[" + via_addr + "]";
+			// If this via_addr string was NOT an IPv6 address, then why does
+			// it contain a colon?  This will get confused with the port when
+			// ViaHeader appends via_addr + ":" + host_port.
+		}
 		ViaHeader via = new ViaHeader(proto, via_addr, host_port);
 		if (rport)
 			via.setRport();
