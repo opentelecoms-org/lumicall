@@ -94,6 +94,11 @@ public abstract class BaseMessageFactory {
 		// mandatory headers first (To, From, Via, Max-Forwards, Call-ID, CSeq):
 		req.setRequestLine(new RequestLine(method, request_uri));
 		if (via_addr.contains(":") && !(via_addr.startsWith("[") && via_addr.endsWith("]"))) {
+			// Remove zone index from IPv6 addresses
+			int p = via_addr.indexOf('%');
+			if(p != -1) {
+				via_addr = via_addr.substring(0, p);
+			}
 			// If this via_addr is an IPv6 address, then it MUST be wrapped
 			// with [ ] to separate it from the port.
 			via_addr = "[" + via_addr + "]";
