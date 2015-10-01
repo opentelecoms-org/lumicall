@@ -35,6 +35,11 @@
       <subant buildpath="${opentelecoms.org-zrtp.absolute.dir}" antfile="build.xml"/>
       <copy file="${opentelecoms.org-zrtp.absolute.dir}/opentelecoms.org-zrtp.jar" todir="${jar.libs.absolute.dir}"/>
 
+      <property name="MjSIP-fork.absolute.dir" location="MjSIP-fork"/>
+      <symlink link="${MjSIP-fork.absolute.dir}/lib/opentelecoms.org-util.jar" resource="${jar.libs.absolute.dir}/opentelecoms.org-util.jar"/>
+      <subant buildpath="${MjSIP-fork.absolute.dir}" antfile="build.xml"/>
+      <copy file="${MjSIP-fork.absolute.dir}/MjSIP-fork.jar" todir="${jar.libs.absolute.dir}"/>
+
         <!-- doesn't seem to build with this, fails to resolve
              project.target.apilevel, so it is just commented out
         <dependency

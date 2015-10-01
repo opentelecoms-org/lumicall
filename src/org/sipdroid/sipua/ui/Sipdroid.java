@@ -46,6 +46,7 @@ import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
 import org.sipdroid.sipua.SipdroidEngine;
 import org.sipdroid.sipua.UserAgent;
+import org.zoolu.net.TcpSocket;
 import org.zoolu.sdp.SRTPKeySpec;
 import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.tools.Random;
@@ -136,6 +137,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	@Override
 	public void onStart() {
 		super.onStart();
+		TcpSocket.setUseRecentTLSVersions(android.os.Build.VERSION.SDK_INT >= 16);
 		Receiver.engine(this).registerMore();
 	    ContentResolver content = getContentResolver();
 	    Cursor cursor = content.query(Calls.CONTENT_URI,

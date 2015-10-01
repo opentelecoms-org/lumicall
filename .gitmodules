@@ -13,3 +13,6 @@
 [submodule "jni"]
 	path = jni
 	url = git://github.com/opentelecoms-org/codecs.git
+[submodule "MjSIP-fork"]
+	path = MjSIP-fork
+	url = git://github.com/opentelecoms-org/MjSIP-fork.git
