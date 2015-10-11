@@ -1,8 +1,32 @@
-language: java
-script:
+language: android
+
+sudo: false
+
+env:
+  global:
+    # Initiating clean Gradle output
+    - TERM=dumb
+    # Amount of memory granted to Gradle JVM
+    - GRADLE_OPTS="-Xmx512m -XX:MaxPermSize=512m"
+    # General Android settings used in builds
+    - ANDROID_TARGET=android-19
+
+before_install:
  - ln -s app.properties-prod assets/app.properties
  - if [ `uname -m` = x86_64]; then wget http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86_64.bin -O ndk.bin; else wget http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86.bin -O ndk.bin; fi
  - chmod a+x ndk.bin
- - ./ndk.bin  -y | grep -v Extracting
- - android-ndk-r10d/ndk-build
+ - ./ndk.bin  -y | egrep -v ^Extracting
+ - export ANDROID_NDK_HOME=`pwd`/android-ndk-r10d
+ - export PATH=${PATH}:${ANDROID_NDK_HOME}
+
+android:
+ components:
+   # We are using the latest revision of Android SDK Tools
+    - platform-tools
+    - tools
+    # The BuildTools version we are using for our project
+    - build-tools-19.1
+
+script:
+ - ${ANDROID_NDK_HOME}/ndk-build
  - gradle assembleDebug
