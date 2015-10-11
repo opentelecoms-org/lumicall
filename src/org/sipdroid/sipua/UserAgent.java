@@ -318,6 +318,8 @@ public class UserAgent extends CallListenerAdapter {
 				avpvec.add(String.valueOf(i));
 				if (codec.number() == 9)
 					afvec.add(new AttributeField("rtpmap", String.format("%d %s/%d", i, codec.userName(), 8000))); // kludge for G722. See RFC3551.
+				else if (codec.userName().equals("opus"))
+					afvec.add(new AttributeField("rtpmap", String.format("%d %s/%d/%d", i, codec.userName(), 48000, 2)));
 				else
 					afvec.add(new AttributeField("rtpmap", String.format("%d %s/%d", i, codec.userName(), codec.samp_rate())));
 			}
@@ -326,6 +328,8 @@ public class UserAgent extends CallListenerAdapter {
 			avpvec.add(String.valueOf(c.number));
 			if (c.codec.number() == 9)
 				afvec.add(new AttributeField("rtpmap", String.format("%d %s/%d", c.number, c.codec.userName(), 8000))); // kludge for G722. See RFC3551.
+			else if (c.codec.userName().equals("opus"))
+                                afvec.add(new AttributeField("rtpmap", String.format("%d %s/%d/%d", c.number, c.codec.userName(), 48000, 2)));
 			else
 				afvec.add(new AttributeField("rtpmap", String.format("%d %s/%d", c.number, c.codec.userName(), c.codec.samp_rate())));
 		}

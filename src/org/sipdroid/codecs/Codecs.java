@@ -54,6 +54,7 @@ public class Codecs {
 	/* The default codec preference order is based on the order
 	   of the elements in this vector */
     	private static final Vector<Codec> codecs = new Vector<Codec>() {{			
+			add(new Opus());
 			add(new G722());
 //			add(new SILK24());		save space (until a common library for all bitrates gets available?)
 //			add(new SILK16());

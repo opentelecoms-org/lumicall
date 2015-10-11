@@ -76,7 +76,7 @@ public class RtpStreamReceiver extends Thread {
 	/** Size of the read buffer */
 	public static final int PACKET_BUFFER_SIZE = 2048;
 	
-	public static final int AUDIO_BUFFER_SIZE = 1024;
+	public static final int AUDIO_BUFFER_SIZE = 16384;
 
 	/** Maximum blocking time, spent waiting for reading new bytes [milliseconds] */
 	public static final int SO_TIMEOUT = 1000;
