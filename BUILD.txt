@@ -21,6 +21,7 @@ b) build the JNI code using the `ndk-build' tool
 
 c) generate local.properties and other stuff:
 
+  $ export ANDROID_HOME=${HOME}/android/android-sdk-linux_86
   $ android update project --path . --target android-8
 
 d) make sure you create a properties file:
