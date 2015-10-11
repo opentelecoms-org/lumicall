@@ -10,10 +10,10 @@ import org.sipdroid.sipua.ui.Settings;
 
 import android.content.Context;
 
-import ganglia.GSampler;
-import ganglia.Publisher;
-import ganglia.gmetric.GMetricSlope;
-import ganglia.gmetric.GMetricType;
+import info.ganglia.gmetric4j.GSampler;
+import info.ganglia.gmetric4j.Publisher;
+import info.ganglia.gmetric4j.gmetric.GMetricSlope;
+import info.ganglia.gmetric4j.gmetric.GMetricType;
 
 public class UserAgentSampler extends GSampler {
 	

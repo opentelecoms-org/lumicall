@@ -11,7 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
-import ganglia.GScheduler;
+import info.ganglia.gmetric4j.GScheduler;
 
 public class AndroidGScheduler extends BroadcastReceiver implements GScheduler {
 	

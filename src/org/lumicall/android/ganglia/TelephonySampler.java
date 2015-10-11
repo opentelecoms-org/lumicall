@@ -6,10 +6,10 @@ import android.content.Context;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import ganglia.GSampler;
-import ganglia.Publisher;
-import ganglia.gmetric.GMetricSlope;
-import ganglia.gmetric.GMetricType;
+import info.ganglia.gmetric4j.GSampler;
+import info.ganglia.gmetric4j.Publisher;
+import info.ganglia.gmetric4j.gmetric.GMetricSlope;
+import info.ganglia.gmetric4j.gmetric.GMetricType;
 
 public class TelephonySampler extends GSampler {
 	

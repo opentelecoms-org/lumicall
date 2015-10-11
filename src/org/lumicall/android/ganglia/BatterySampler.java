@@ -6,10 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import ganglia.GSampler;
-import ganglia.Publisher;
-import ganglia.gmetric.GMetricSlope;
-import ganglia.gmetric.GMetricType;
+import info.ganglia.gmetric4j.GSampler;
+import info.ganglia.gmetric4j.Publisher;
+import info.ganglia.gmetric4j.gmetric.GMetricSlope;
+import info.ganglia.gmetric4j.gmetric.GMetricType;
 
 public class BatterySampler extends GSampler {
 	

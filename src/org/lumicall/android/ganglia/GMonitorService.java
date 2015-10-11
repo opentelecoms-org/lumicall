@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 
 import org.sipdroid.sipua.ui.Settings;
 
-import ganglia.CoreSampler;
-import ganglia.GMonitor;
-import ganglia.gmetric.GMetric;
-import ganglia.gmetric.GMetric.UDPAddressingMode;
+import info.ganglia.gmetric4j.CoreSampler;
+import info.ganglia.gmetric4j.GMonitor;
+import info.ganglia.gmetric4j.gmetric.GMetric;
+import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;

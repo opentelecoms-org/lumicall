@@ -9,10 +9,10 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.PowerManager;
-import ganglia.GSampler;
-import ganglia.Publisher;
-import ganglia.gmetric.GMetricSlope;
-import ganglia.gmetric.GMetricType;
+import info.ganglia.gmetric4j.GSampler;
+import info.ganglia.gmetric4j.Publisher;
+import info.ganglia.gmetric4j.gmetric.GMetricSlope;
+import info.ganglia.gmetric4j.gmetric.GMetricType;
 
 public class LocationSampler extends GSampler {
 	
