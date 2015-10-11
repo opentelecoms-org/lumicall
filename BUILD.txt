@@ -1,14 +1,14 @@
 
 
-Building with Eclipse or Ant:
+Building with IDE:
 
-   http://www.lumicall.org/source-code-and-build-instructions
+   http://lumicall.org/source-code-and-build-instructions
 
 
-Building lumicall from the command line with Ant:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Building Lumicall from the command line with Gradle:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build the project from the command line, run:
+To build the project from the command line:
 
 a) make sure you fetched the git submodules:
 
@@ -25,9 +25,14 @@ c) generate local.properties and other stuff:
 
 d) make sure you create a properties file:
 
-  $ ln -s assets/app.properties-prod assets/app.properties
+  $ ln -s app.properties-prod assets/app.properties
 
 e) build Lumicall itself (automatically builds submodules)
 
-  $ ant debug
+  $ gradle assembleDebug
+
+f) for a release build, specify the name of the signing key in
+   an environment variable
+
+  $ SIGNING_KEY=release-key gradle assembleRelease
 

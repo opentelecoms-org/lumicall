@@ -1,18 +1,3 @@
-[submodule "zrtp"]
-	path = zrtp
-	url = git://github.com/opentelecoms-org/zrtp-java.git
-[submodule "opentelecoms.org-util"]
-	path = opentelecoms.org-util
-	url = git://github.com/opentelecoms-org/util.git
-[submodule "gmetric4j"]
-	path = gmetric4j
-	url = git://github.com/ganglia/gmetric4j.git
-[submodule "ice4j"]
-	path = ice4j
-	url = git://github.com/opentelecoms-org/ice4j.git
 [submodule "jni"]
 	path = jni
 	url = git://github.com/opentelecoms-org/codecs.git
-[submodule "MjSIP-fork"]
-	path = MjSIP-fork
-	url = git://github.com/opentelecoms-org/MjSIP-fork.git
