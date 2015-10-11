@@ -25,7 +25,7 @@ android:
     - platform-tools
     - tools
     # The BuildTools version we are using for our project
-    - build-tools-19.1
+    - build-tools-19.1.0
 
 script:
  - ${ANDROID_NDK_HOME}/ndk-build
