@@ -28,6 +28,7 @@ import java.net.URL;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 import java.util.List;
@@ -104,6 +105,10 @@ public class RegisterAccount extends RegistrationActivity {
 	SharedPreferences settings;
 	
 	int statusLine;
+
+	static {
+		Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+	}
 	
     Handler mHandler = new Handler() {
     	public void handleMessage(Message msg) {

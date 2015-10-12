@@ -18,7 +18,13 @@ dependencies {
     compile 'info.ganglia.gmetric4j:gmetric4j:1.0.10'
     compile 'de.rtner:PBKDF2:1.1.1'
     compile 'org.opentelecoms.sip:mjsip-fork:1.6+lumicall.1'
-    compile 'org.opentelecoms.zrtp:zorg-zrtp:1.0.0+f.1'
+    compile ('org.opentelecoms.zrtp:zorg-zrtp:1.0.0+f.1') {
+        // We exclude the transitive dependency Bouncy Castle and
+        // use Spongy Castle instead because of the classpath issues
+        // with Bouncy Castle on Android
+        exclude module: 'bcprov-jdk16'
+    }
+    compile 'com.madgag.spongycastle:prov:1.52.0.0'
     compile ('org.opentelecoms.ice:ice4j-fork:1.0+f.1') {
         // nist-sdp and jain-sip-ri are transitive dependencies, must exclude
         // them here or we get errors about duplicate classes later.  Some
