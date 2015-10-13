@@ -25,7 +25,7 @@ dependencies {
         exclude module: 'bcprov-jdk16'
     }
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
-    compile ('org.opentelecoms.ice:ice4j-fork:1.0+f.1') {
+    compile ('org.opentelecoms.ice:ice4j-fork:1.0+f.4') {
         // nist-sdp and jain-sip-ri are transitive dependencies, must exclude
         // them here or we get errors about duplicate classes later.  Some
         // of these classes may be part of the Android platform.
