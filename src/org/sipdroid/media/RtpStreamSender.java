@@ -203,8 +203,9 @@ public class RtpStreamSender extends Thread {
 			this.frame_size = frame_size;
 		this.do_sync = do_sync;
 		try {
-			rtp_socket = new RtpSocket(src_socket, InetAddress
-					.getByName(dest_addr), dest_port);
+			InetAddress dest = InetAddress.getByName(dest_addr);
+			logger.info("dest_addr: " + dest_addr + "(" + dest + ") port: " + dest_port);
+			rtp_socket = new RtpSocket(src_socket, dest, dest_port);
 		} catch (Exception e) {
 			if (!Sipdroid.release) e.printStackTrace();
 		}
