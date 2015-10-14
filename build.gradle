@@ -35,8 +35,8 @@ dependencies {
 
 android {
     defaultConfig {
-        versionCode 176
-        versionName "1.12.4"
+        versionCode 177
+        versionName "1.12.5"
 
         minSdkVersion 8
         targetSdkVersion 8
