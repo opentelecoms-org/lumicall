@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     compile 'com.googlecode.libphonenumber:libphonenumber:7.1.0'
+    compile 'org.opentelecoms.ddds:nominet-ddds:1.0'
     compile 'info.ganglia.gmetric4j:gmetric4j:1.0.10'
     compile 'de.rtner:PBKDF2:1.1.1'
     compile 'org.opentelecoms.sip:mjsip-fork:1.6+lumicall.2'
