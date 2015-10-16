@@ -34,6 +34,25 @@ dependencies {
     }
 }
 
+// Manually copy or symlink to the app.properties-prod file before building
+//
+//   e.g.
+//          $ ln -s app.properties-prod assets/app.properties
+//
+preBuild.doFirst {
+    assert file("./assets/app.properties").exists()
+}
+
+// run the ndk-build before running gradle.  See the BUILD.txt file for
+// more details
+//
+//   e.g.
+//          $ ${NDK_HOME}/ndk-build
+//
+preBuild.doFirst {
+    assert file("./libs/armeabi-v7a/libopus_jni.so").exists()
+}
+
 android {
     defaultConfig {
         versionCode 177
