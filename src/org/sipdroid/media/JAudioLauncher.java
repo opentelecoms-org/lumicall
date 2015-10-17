@@ -222,7 +222,7 @@ public class JAudioLauncher implements MediaLauncher
 	@Override
 	   public void sessionNegotiationCompleted(boolean success, String msg) {
 		   logger.info("*********** Got callback from ZRTP: " + success + ", " + msg);
-		   logger.info("*********** Got SaS from ZRTP: " + zrtp.getSasString());
+		   //logger.info("*********** Got SaS from ZRTP: " + zrtp.getSasString());
 		   
 		   if(success) {
 			   if(sender != null) {

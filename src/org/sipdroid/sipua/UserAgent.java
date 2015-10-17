@@ -864,9 +864,9 @@ public class UserAgent extends CallListenerAdapter {
 		ZRTP zrtp = null;
 		if(mustEncrypt == true) {
 			SRTPKeySpec txAudioKey = localKeys.get("audio");
-			printLog("Using TX key: " + txAudioKey);
+			//printLog("Using TX key: " + txAudioKey);
 			SRTPKeySpec rxAudioKey = remoteKeys.get("audio");
-			printLog("Using RX key: " + rxAudioKey);
+			//printLog("Using RX key: " + rxAudioKey);
 			if(txAudioKey == null || rxAudioKey == null)
 				throw new RuntimeException("RTP/SAVP(F) detected in SDP, but insufficient crypto keys");
 			srtp = new SRTP(new zorg.platform.j2se.PlatformImpl());
