@@ -494,12 +494,12 @@ public class UserAgent extends CallListenerAdapter {
 		
 		
 		
-		String stunServer = user_profile.stun_server_name;
+		String iceServer = user_profile.stun_server_name;
 		int port = user_profile.stun_server_port;
-		if(stunServer != null && stunServer.length() > 0) {
+		if(iceServer != null && iceServer.length() > 0) {
 			
-			String stunUser = user_profile.from_url;
-			String stunPassword = user_profile.passwd;
+			String turnUser = user_profile.from_url;
+			String turnnPassword = user_profile.passwd;
 		
 			LongTermCredential longTermCredential = null;
 			
@@ -517,17 +517,34 @@ public class UserAgent extends CallListenerAdapter {
 			 */
 			boolean sip5060Caller = (caller != null && caller.getAddress().getHost().equals("sip5060.net"));
 			if(!sip5060Caller) {
-				longTermCredential = new LongTermCredential(stunUser, stunPassword); 
+				longTermCredential = new LongTermCredential(turnUser, turnnPassword);
 			}
         
-        	/* iceAgent.addCandidateHarvester(
-                new StunCandidateHarvester(
-                        new TransportAddress("stun.lvdx.com", port, Transport.UDP))); */
-			
 			// FIXME - should happen in parallel
-			findStunServers(longTermCredential, stunServer, port, Transport.UDP);
-			findStunServers(longTermCredential, stunServer, port, Transport.TLS);
-			
+			int iceServerCount = 0;
+			if(longTermCredential != null) {
+				/* FIXME
+				 * If there is an SRV record for UDP and none for TLS, the
+				 * default behavior of SRVRecordHelper returns the UDP TURN
+				 * server but also returns the A or AAAA record for the TLS
+				 * search, using the default port given below.  Results from
+				 * A/AAAA lookup should ONLY be used if no SRV records are
+				 * found for any protocol.
+				 *
+				 * The solution involves refactoring the code to use the
+				 * algorithm described in RFC 5928
+				 * https://tools.ietf.org/html/rfc5928
+				 */
+				iceServerCount += findIceServers(longTermCredential, iceServer, port, Transport.UDP);
+				iceServerCount += findIceServers(longTermCredential, iceServer, port, Transport.TLS);
+			}
+			if(iceServerCount == 0) {
+				logger.warning("no TURN servers found by SRV lookup, looking for STUN servers");
+				iceServerCount += findIceServers(null, iceServer, port, Transport.UDP);
+			}
+			if(iceServerCount == 0) {
+				logger.warning("no STUN or TURN servers found");
+			}
 		}
 
         //STREAMS
@@ -546,44 +563,50 @@ public class UserAgent extends CallListenerAdapter {
 	}
 	
 
-	protected void findStunServers(LongTermCredential ltc, String stunServer, int port, Transport transport) {
+	protected int findIceServers(LongTermCredential ltc, String iceServer, int port, Transport transport) {
 		String querySvc = "stun";
+		if(ltc != null) {
+			querySvc = "turn";
+		}
 		String queryProto = "udp";
 		if(transport == Transport.TLS) {
-			querySvc = "stuns";
+			querySvc = querySvc + "s";
 			queryProto = "tcp";
 		}
 		
-		SRVRecordHelper srh = new SRVRecordHelper(querySvc, queryProto, stunServer, port);
+		int count = 0;
+		SRVRecordHelper srh = new SRVRecordHelper(querySvc, queryProto, iceServer, port);
 		for(InetSocketAddress sa : srh) {
 			
-			String _stunServer = sa.getHostName();
+			String _iceServer = sa.getHostName();
 			int _port = sa.getPort();
 			LongTermCredential _ltc = ltc;
 			
-			int len = _stunServer.length();
-			if(len > 0 && _stunServer.charAt(len - 1) == '.')
-				_stunServer = _stunServer.substring(0, len - 1);
+			int len = _iceServer.length();
+			if(len > 0 && _iceServer.charAt(len - 1) == '.')
+				_iceServer = _iceServer.substring(0, len - 1);
 			
-			if(_ltc != null && _stunServer.equals("stun-test.sip5060.net")) {
+			if(_ltc != null && _iceServer.equals("stun-test.sip5060.net")) {
 				_ltc = new LongTermCredential("test", "notasecret");
-				printLog("*** Using TEST credentials ***");
+				logger.info("*** Using TEST credentials ***");
 			}
-				
-			printLog("Adding TURN server: [" + _stunServer + "]");
 				
 			if(_ltc == null) {
+				logger.info("Adding STUN server: [" + _iceServer + "]");
 				iceAgent.addCandidateHarvester(
 						new StunCandidateHarvester(
-								new TransportAddress(_stunServer, _port, transport)));				
+								new TransportAddress(_iceServer, _port, transport)));
 			} else {
+				logger.info("Adding TURN server: [" + _iceServer + "]");
 				iceAgent.addCandidateHarvester(
 						new TurnCandidateHarvester(
-								new TransportAddress(_stunServer, _port, transport),
+								new TransportAddress(_iceServer, _port, transport),
 									_ltc));
 			}
+			count++;
 			
 		}            
+		return count;
 			
 	}
 	
