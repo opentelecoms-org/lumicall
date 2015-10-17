@@ -134,16 +134,12 @@ public class RegisterAccount extends RegistrationActivity {
 		finish();
 	}
 	
-	void advancedSetup() {
-
-		settings = getSharedPreferences(PREFS_FILE, MODE_PRIVATE);
-		Editor ed = settings.edit();
-		long ts = new Date().getTime() / 1000;
-		ed.putBoolean(PREF_ADVANCED_SETUP, true);
-		ed.commit();
-		
-		doMainActivity();
-		
+	void otherProviderSetup() {
+		final Intent intent = new Intent(RegisterAccount.this,
+				RegisterOtherAccount.class);
+		Log.v(TAG, "going to register other service account");
+		startActivity(intent);
+		finish();
 	}
 	
 	protected void doSIP5060Provisioning() {
@@ -168,7 +164,7 @@ public class RegisterAccount extends RegistrationActivity {
 			
 	Button buttonOK;
 	Button buttonManual;
-	TextView advancedSettings;
+	TextView otherProviderSetup;
 
 	private Dialog m_AlertDlg;
 	
@@ -207,11 +203,11 @@ public class RegisterAccount extends RegistrationActivity {
 				doManualVerification();
 			}
 		});
-		advancedSettings = (TextView) findViewById(R.id.AdvancedSetup);
-		advancedSettings.setOnClickListener(new View.OnClickListener() {
+		otherProviderSetup = (TextView) findViewById(R.id.OtherProviderSetup);
+		otherProviderSetup.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				advancedSetup();
+				otherProviderSetup();
 			}
 		});
     }

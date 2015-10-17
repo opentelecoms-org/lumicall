@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * Copyright (C) 2010 The Sipdroid Open Source Project
+ * Copyright (C) 2015 The Lumicall Open Source Project
  * 
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://lumicall.org)
  * 
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -31,16 +31,8 @@
 
     <TextView
     	android:layout_height="wrap_content"
-    	android:text="@string/reg_instructions"
+    	android:text="@string/reg_other_account_instructions"
     	android:layout_width="wrap_content"
-    	android:textColor="#000000">
-    </TextView>
-    
-    <TextView
-    	android:layout_height="wrap_content"
-    	android:text="@string/reg_instructions2"
-    	android:layout_width="wrap_content"
-    	android:paddingTop="10dip"
     	android:textColor="#000000">
     </TextView>
     
@@ -54,25 +46,40 @@
 		    			android:layout_weight="1"
 		    >
 
-		    <Button
-		        android:id="@+id/Button01"
-		        android:layout_width="wrap_content"
+		    <EditText
+		        android:id="@+id/OtherAccountID"
+		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
-		        android:drawableLeft="@drawable/ic_incall_ongoing"
-		        android:text="@string/reg_proceed" >
+		        android:hint="@string/reg_other_account_sip_address"
+		        android:inputType="textEmailAddress" >
 
-		        </Button>
+		    </EditText>
+		</LinearLayout>
+	</LinearLayout>
+		
+	<LinearLayout
+	    android:layout_width="fill_parent" android:layout_height="wrap_content"
+    	android:paddingTop="10dip"
+	    android:orientation="horizontal">
+		
+		<LinearLayout
+		    android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    android:orientation="horizontal" android:gravity="left"
+		    			android:layout_weight="1"
+		    >
+		    
+		    <EditText
+		        android:id="@+id/OtherAccountPassword"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:hint="@string/reg_other_account_sip_password"
+		        android:inputType="textPassword" >
+
+		    </EditText>
+		    
 		</LinearLayout>
 	</LinearLayout>
 
-    <TextView
-    	android:layout_height="wrap_content"
-    	android:text="@string/reg_failed_help"
-    	android:layout_width="wrap_content"
-    	android:paddingTop="10dip"
-    	android:textColor="#000000">
-    </TextView>
-
 	<LinearLayout
 	    android:layout_width="fill_parent" android:layout_height="wrap_content"
     	android:paddingTop="10dip"
@@ -84,21 +91,21 @@
 		    >
 
 		    <Button
-		        android:id="@+id/ButtonTryManual"
+		        android:id="@+id/ButtonDone"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:text="@string/reg_manual" >
+		        android:text="@string/reg_other_account_done" >
 
 		        </Button>
 		</LinearLayout>
 	</LinearLayout>
 			
     <TextView
-        android:id="@+id/OtherProviderSetup"
+        android:id="@+id/AdvancedSetup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="10dip"
-        android:text="@string/reg_other"
+        android:text="@string/reg_advanced"
         android:textColor="#3366ee"
         android:textSize="11dp" >
     </TextView>	

@@ -373,7 +373,15 @@
 <string name="reg_failed_help">If the automated verification failed, please try</string>
 <string name="reg_manual">Manual number verification</string>
 
-<string name="reg_advanced"><u>Manual SIP account setup (experts only)</u></string>
+<string name="reg_other"><u>Other SIP service setup</u></string>
+
+<string name="reg_other_account_title">Account setup</string>
+<string name="reg_other_account_instructions">If you have an account with a SIP service and the service supports rapid setup (see the Lumicall FAQ) then you only need to provide the following details to get started.</string>
+<string name="reg_other_account_sip_address">Your SIP address</string>
+<string name="reg_other_account_sip_password">Your password</string>
+<string name="reg_other_account_done">Done</string>
+
+<string name="reg_advanced"><u>Custom SIP account setup (experts only)</u></string>
 
 <string name="reg_please_wait">One moment...</string>
 <string name="reg_submit_failed">Failed to submit registration details</string>

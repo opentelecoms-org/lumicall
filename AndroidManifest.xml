@@ -107,6 +107,11 @@
                 <action android:name="org.lumicall.android.extra.VALIDATION_ATTEMPTED" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.lumicall.android.sip.RegisterOtherAccount"
+            android:label="@string/app_name" android:launchMode="singleInstance"
+                android:configChanges="orientation|keyboardHidden">
+        </activity>
         <activity android:name="org.sipdroid.sipua.ui.PSTN" android:label="@string/pstn_name"
         	android:icon="@drawable/ic_launcher_phone">
             <intent-filter>
