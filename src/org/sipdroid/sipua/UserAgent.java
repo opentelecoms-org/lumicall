@@ -1802,7 +1802,7 @@ public class UserAgent extends CallListenerAdapter {
 	/** Adds a new string to the default Log */
 	void printLog(String str, int level) {
 		if (logger != null)
-			logger.info("UA: " + str);
+			logger.info("UA: " + str); // FIXME - must use level argument
 	}
 
 	/** Adds the Exception message to the default Log */
