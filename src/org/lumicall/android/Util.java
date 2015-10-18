@@ -37,7 +37,21 @@ public class Util {
 			return null;
 		}
 	}
-	
+
+	final static String hexChars = "0123456789abcdef";
+	public static String byteToHexString(byte[] buffer, int offset, int length) {
+		if(buffer == null)
+			return "<null buffer>";
+		// FIXME - performance
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < length; i++) {
+			byte b = buffer[offset + i];
+			sb.append(hexChars.charAt((b & 0xf0) >> 4));
+			sb.append(hexChars.charAt(b&0xf));
+		}
+		return sb.toString();
+	}
+
 	public static String detectCountry(Context context) {
 		
 		try {
