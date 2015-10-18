@@ -47,13 +47,18 @@ public class ManualVerification extends RegistrationActivity {
         setTitle(R.string.reg_title);
         
         countrySpinner = (Spinner) findViewById(R.id.NumberCountrySpinner);
+        if(countrySpinner == null) {
+        	Log.e(TAG, "countrySpinner == null");
+        }
         countries = new ArrayAdapter<CountryData>(this, android.R.layout.simple_spinner_item);
         loadCountryCodes();
         countrySpinner.setAdapter(countries);
         String countryIso2 = Util.detectCountry(this);
         if(countryIso2 != null) {
         	countryIso2 = countryIso2.toLowerCase();
-        	countrySpinner.setSelection(countriesByPosition.get(countryIso2));
+        	Log.i(TAG, "Setting spinner to country: " + countryIso2);
+        	Integer position = countriesByPosition.get(countryIso2);
+        	countrySpinner.setSelection(position);
         }
         
         detectLine1Number();
