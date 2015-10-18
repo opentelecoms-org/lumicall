@@ -1,17 +1,27 @@
 package org.lumicall.android.reg;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.lumicall.android.AppProperties;
 import org.lumicall.android.R;
+import org.lumicall.android.Util;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIP5060ProvisioningRequest;
 import org.lumicall.android.db.SIPIdentity;
@@ -37,6 +47,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -326,6 +337,33 @@ public class EnrolmentService extends IntentService {
 		return Locale.getDefault().toString();
 	}
 
+	protected String getHexEncodedKeySignatures() throws NameNotFoundException, NoSuchAlgorithmException, CertificateException {
+		PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+		logger.fine("APK has " + packageInfo.signatures.length + " signature(s).");
+		Set<String> signatures = new HashSet<String>();
+		for (Signature signature : packageInfo.signatures) { // actually contains the public keys of the signers, not the signatures
+			byte[] certificateBytes = signature.toByteArray();
+			InputStream input = new ByteArrayInputStream(certificateBytes);
+		    CertificateFactory cf = null;
+		    cf = CertificateFactory.getInstance("X509");
+		    X509Certificate c = null;
+		    c = (X509Certificate) cf.generateCertificate(input);
+		    MessageDigest md = MessageDigest.getInstance("SHA-1");
+			md.update(c.getEncoded());
+			byte[] digest = md.digest();
+			signatures.add(Util.byteToHexString(digest, 0, digest.length));
+		}
+		StringBuffer result = new StringBuffer("");
+		for(String signature : signatures) {
+			if(result.length() > 0) {
+				result.append(':');
+			}
+			result.append(signature);
+		}
+		logger.info("SHA-1 Signature(s) of keys used to sign the APK: " + result);
+		return result.toString();
+	}
+
 	protected String getEnrolmentBodyXml(SIP5060ProvisioningRequest req) {
 		
 		SharedPreferences settings = getSharedPreferences(RegisterAccount.PREFS_FILE, Context.MODE_PRIVATE);
@@ -349,6 +387,11 @@ public class EnrolmentService extends IntentService {
 			RegistrationUtil.serializeProperty(serializer, ns, "lastName", "");
 			RegistrationUtil.serializeProperty(serializer, ns, "emailAddress", "");
 			RegistrationUtil.serializeProperty(serializer, ns, "language", getLanguage());
+			try {
+				RegistrationUtil.serializeProperty(serializer, ns, "signingKeys", getHexEncodedKeySignatures());
+			} catch (Exception ex) {
+				Log.w(TAG, "failed to get signing keys for myself", ex);
+			}
 
 			try {
 				TelephonyManager mTelephonyMgr;
