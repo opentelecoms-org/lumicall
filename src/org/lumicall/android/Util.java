@@ -91,7 +91,7 @@ public class Util {
 					Map<String,String> countriesByMCC = loadCountriesByMCC(context);
 					if(countriesByMCC != null) {
 						String iso2 = countriesByMCC.get(mcc);
-						if(iso2 != null) {
+						if(iso2 != null && iso2.length() == 2) {
 							return iso2;
 						}
 					}
@@ -102,7 +102,7 @@ public class Util {
 			}
 			try {
 				String simCountry = mTelephonyMgr.getSimCountryIso();
-				if(simCountry != null) {
+				if(simCountry != null && simCountry.length() == 2) {
 					return simCountry;
 				}
 			} catch (Exception ex) {
@@ -111,7 +111,7 @@ public class Util {
 			}
 			try {
 				String networkCountry = mTelephonyMgr.getNetworkCountryIso();
-				if(networkCountry != null) {
+				if(networkCountry != null && networkCountry.length() == 2) {
 					return networkCountry;
 				}
 			} catch (Exception ex) {
@@ -124,7 +124,7 @@ public class Util {
 		
 		String locale = Locale.getDefault().toString();
 		
-		if(locale != null) {
+		if(locale != null && locale.length() > 1) {
 			int i = locale.indexOf('_');
 			if(i >= 0) {
 				return locale.substring(i, i+2);
