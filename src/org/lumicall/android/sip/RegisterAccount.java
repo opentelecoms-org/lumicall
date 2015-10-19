@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2010 The Sipdroid Open Source Project
+ * Copyright (C) 2012-2015 The Lumicall Open Source Project
  * 
- * This file is part of Sipdroid (http://www.sipdroid.org)
+ * This file is part of Lumicall (http://lumicall.org)
  * 
- * Sipdroid is free software; you can redistribute it and/or modify
+ * Lumicall is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
