@@ -75,6 +75,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.CallLog.Calls;
 import android.provider.Contacts.People;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -101,7 +102,7 @@ import android.widget.AdapterView.OnItemClickListener;
 // for modifying it additional terms according to section 7, GPL apply
 // see ADDITIONAL_TERMS.txt
 /////////////////////////////////////////////////////////////////////
-public class Sipdroid extends Activity implements OnDismissListener {
+public class Sipdroid extends ActionBarActivity implements OnDismissListener {
 	
 	Logger logger = Logger.getLogger(getClass().getName());
 
@@ -239,7 +240,7 @@ public class Sipdroid extends Activity implements OnDismissListener {
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.sipdroid);
 		sip_uri_box = (AutoCompleteTextView) findViewById(R.id.txt_callee);
 		//sip_uri_box2 = (AutoCompleteTextView) findViewById(R.id.txt_callee2);
