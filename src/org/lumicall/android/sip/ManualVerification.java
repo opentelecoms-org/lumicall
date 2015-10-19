@@ -58,7 +58,15 @@ public class ManualVerification extends RegistrationActivity {
         	countryIso2 = countryIso2.toLowerCase();
         	Log.i(TAG, "Setting spinner to country: " + countryIso2);
         	Integer position = countriesByPosition.get(countryIso2);
-        	countrySpinner.setSelection(position);
+        	if(position != null) {
+        		countrySpinner.setSelection(position);
+        	} else {
+        		// TODO - should we disable countrySpinner and insist that
+        		//        the user enters their number in E.164 format?
+        		//      - can we keep the list up-to-date using
+        		//        libphonenumber, do they provide an ISO2 list?
+        		Log.w(TAG, "unknown country/not in CSV country code list: " + countryIso2);
+        	}
         }
         
         detectLine1Number();
