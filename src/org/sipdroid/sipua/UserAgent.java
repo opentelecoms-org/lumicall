@@ -498,8 +498,8 @@ public class UserAgent extends CallListenerAdapter {
 		int port = user_profile.stun_server_port;
 		if(iceServer != null && iceServer.length() > 0) {
 			
-			String turnUser = user_profile.from_url;
-			String turnnPassword = user_profile.passwd;
+			String turnUser = user_profile.username;
+			String turnPassword = user_profile.passwd;
 		
 			LongTermCredential longTermCredential = null;
 			
@@ -516,8 +516,9 @@ public class UserAgent extends CallListenerAdapter {
 			 * would know there is always at least one relay.
 			 */
 			boolean sip5060Caller = (caller != null && caller.getAddress().getHost().equals("sip5060.net"));
-			if(!sip5060Caller) {
-				longTermCredential = new LongTermCredential(turnUser, turnnPassword);
+			if(turnUser != null && turnPassword != null && !sip5060Caller) {
+				printLog("username for TURN: " + turnUser);
+				longTermCredential = new LongTermCredential(turnUser, turnPassword);
 			}
         
 			// FIXME - should happen in parallel
