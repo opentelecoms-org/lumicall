@@ -114,6 +114,7 @@ public class Sipdroid extends ActionBarActivity implements OnDismissListener {
 	public static final int CONFIGURE_MENU_ITEM = FIRST_MENU_ID + 1;
 	public static final int ABOUT_MENU_ITEM = FIRST_MENU_ID + 2;
 	public static final int EXIT_MENU_ITEM = FIRST_MENU_ID + 3;
+	public static final int ADD_ACCOUNT_MENU_ITEM = FIRST_MENU_ID + 4;
 	
 	private static final int DLG_IDENTITY_ID = 1;
 	private static final int DLG_PTT_CHANNEL_ID = 2;
@@ -729,6 +730,8 @@ public class Sipdroid extends ActionBarActivity implements OnDismissListener {
 		m.setIcon(android.R.drawable.ic_menu_info_details);
 		m = menu.add(0, EXIT_MENU_ITEM, 0, R.string.menu_exit);
 		m.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+		m = menu.add(0, ADD_ACCOUNT_MENU_ITEM, 0, R.string.menu_add_account);
+		m.setIcon(android.R.drawable.ic_menu_preferences);
 		m = menu.add(0, CONFIGURE_MENU_ITEM, 0, R.string.menu_settings);
 		m.setIcon(android.R.drawable.ic_menu_preferences);
 						
@@ -786,6 +789,14 @@ public class Sipdroid extends ActionBarActivity implements OnDismissListener {
 			finish();
 			break;
 			
+		case ADD_ACCOUNT_MENU_ITEM:
+			try {
+				intent = new Intent(this, org.lumicall.android.sip.RegisterOtherAccount.class);
+				startActivity(intent);
+			} catch (ActivityNotFoundException e) {
+			}
+			break;
+
 		case CONFIGURE_MENU_ITEM: {
 			try {
 				intent = new Intent(this, org.sipdroid.sipua.ui.Settings.class);
