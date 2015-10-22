@@ -51,6 +51,7 @@ import org.lumicall.android.ganglia.GMonitorService;
 import org.lumicall.android.preferences.SIPIdentitiesSettings;
 import org.lumicall.android.reg.EnrolmentService;
 import org.sipdroid.sipua.SipdroidEngine;
+import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.xmlpull.v1.XmlSerializer;
@@ -189,6 +190,10 @@ public class RegisterOtherAccount extends Activity {
 		else {
 			Log.e(TAG, "error while committing preferences");
 		}
+		
+		//Receiver.engine(this).updateDNS();
+   		Receiver.engine(this).halt();
+		Receiver.engine(this).StartEngine();
 		
 		doMainActivity();
 	}
