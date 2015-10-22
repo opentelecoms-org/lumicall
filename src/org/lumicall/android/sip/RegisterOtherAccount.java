@@ -165,30 +165,33 @@ public class RegisterOtherAccount extends Activity {
 		}
 		ds.persistSIPIdentity(sipIdentity);
 		ds.close();
+		Log.v(TAG, "Configured account: " + sIPAccountId);
 		
 		SharedPreferences sipSettings = getSharedPreferences(Settings.sharedPrefsFile, Context.MODE_PRIVATE);
-		Editor edSIP = sipSettings.edit();
-		edSIP.putString(Settings.PREF_SIP, Long.toString(sipIdentity.getId()));
-		if(!sipSettings.contains(Settings.PREF_TEL))
-			edSIP.putString(Settings.PREF_TEL, "-1");
+		if(!sipSettings.contains(Settings.PREF_SIP)) {
+			Editor edSIP = sipSettings.edit();
+			edSIP.putString(Settings.PREF_SIP, Long.toString(sipIdentity.getId()));
+			if(!sipSettings.contains(Settings.PREF_TEL))
+				edSIP.putString(Settings.PREF_TEL, "-1");
 		
-		/* edSIP.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
-		edSIP.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
-		edSIP.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
-		edSIP.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
-		edSIP.putString(Settings.PREF_PROTOCOL, "tcp");  // FIXME - change to TLS
-		edSIP.putBoolean(Settings.PREF_STUN, true);
-		edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
-		edSIP.putString(Settings.PREF_STUN_SERVER_PORT, "" + DEFAULT_STUN_SERVER_PORT); */
-		edSIP.putBoolean(Settings.PREF_WLAN, true);
-		edSIP.putBoolean(Settings.PREF_EDGE, true);
-		edSIP.putBoolean(Settings.PREF_3G, true);
-		edSIP.putBoolean(Settings.PREF_ON, true);
+			/* edSIP.putString(Settings.PREF_USERNAME, settings.getString(RegisterAccount.PREF_PHONE_NUMBER, null));
+			edSIP.putString(Settings.PREF_PASSWORD, settings.getString(RegisterAccount.PREF_SECRET, null));
+			edSIP.putString(Settings.PREF_SERVER, DEFAULT_SIP_SERVER);
+			edSIP.putString(Settings.PREF_DOMAIN, DEFAULT_SIP_DOMAIN);
+			edSIP.putString(Settings.PREF_PROTOCOL, "tcp");  // FIXME - change to TLS
+			edSIP.putBoolean(Settings.PREF_STUN, true);
+			edSIP.putString(Settings.PREF_STUN_SERVER, DEFAULT_STUN_SERVER);
+			edSIP.putString(Settings.PREF_STUN_SERVER_PORT, "" + DEFAULT_STUN_SERVER_PORT); */
+			edSIP.putBoolean(Settings.PREF_WLAN, true);
+			edSIP.putBoolean(Settings.PREF_EDGE, true);
+			edSIP.putBoolean(Settings.PREF_3G, true);
+			edSIP.putBoolean(Settings.PREF_ON, true);
 		
-		if(edSIP.commit())
-			Log.v(TAG, "Configured prefs for account " + sIPAccountId);
-		else {
-			Log.e(TAG, "error while committing preferences");
+			if(edSIP.commit())
+				Log.v(TAG, "Configured prefs");
+			else {
+				Log.e(TAG, "error while committing preferences");
+			}
 		}
 		
 		//Receiver.engine(this).updateDNS();
