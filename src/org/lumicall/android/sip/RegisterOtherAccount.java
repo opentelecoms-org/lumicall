@@ -151,7 +151,7 @@ public class RegisterOtherAccount extends Activity {
 		sipIdentity.setOutboundServerName("");
 		sipIdentity.setOutboundServerPort(props.getSipPort());
 		sipIdentity.setOutboundServerProtocol(props.getSipProtocol());
-		sipIdentity.setCarrierRoute(false);
+		sipIdentity.setCarrierRoute(false); // FIXME - offer a checkbox for this?
 		//sipIdentity.setStunServerName(props.getStunServer());
 		sipIdentity.setStunServerName("");
 		sipIdentity.setStunServerPort(props.getStunPort());
