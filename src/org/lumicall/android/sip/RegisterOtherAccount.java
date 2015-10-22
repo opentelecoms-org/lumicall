@@ -140,7 +140,7 @@ public class RegisterOtherAccount extends Activity {
 
 		SIPIdentity sipIdentity = new SIPIdentity();
 		sipIdentity.setUri(sIPAccountId);
-		//sipIdentity.setAuthUser(uri);
+		sipIdentity.setAuthUser(sIPAccountId);   // do HA1b by default
 		sipIdentity.setAuthPassword(password);
 		sipIdentity.setReg(true);
 		//sipIdentity.setRegServerName(props.getSipServer());
