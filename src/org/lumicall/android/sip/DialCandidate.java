@@ -79,7 +79,7 @@ public class DialCandidate implements Parcelable {
 			}
 		}
 		ds.close();
-		if(!sipIdentity.isEnable())
+		if(sipIdentity == null || !sipIdentity.isEnable())
 			return null;
 		return sipIdentity;
 	}
