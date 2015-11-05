@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:18.0.+"
+    compile "com.android.support:appcompat-v7:21.0.+"
     compile 'com.googlecode.libphonenumber:libphonenumber:7.1.0'
     compile 'org.opentelecoms.ddds:nominet-ddds:1.0'
     compile 'info.ganglia.gmetric4j:gmetric4j:1.0.10'
@@ -63,8 +63,8 @@ android {
         targetSdkVersion 8
     }
 
-    compileSdkVersion 19
-    buildToolsVersion "19.1"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
 
     // FIXME: This project currently generates a lot of lint errors,
     // they need to be cleaned up at some point
