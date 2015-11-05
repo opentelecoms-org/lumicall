@@ -238,7 +238,7 @@ public class PlainDatagramSocketImpl extends DatagramSocketImpl {
                     .getLength(), receiveTimeout, true); // peek
             // to set the sender ,we now use a native function
             // sender.ipaddress = connectedAddress.getAddress();
-            netImpl.setInetAddress(sender, connectedAddress.getAddress());
+            netImpl.setInetAddress(sender, connectedAddress.getAddress()); // FIXME - ipaddress hack
             return connectedPort;
         }
         return netImpl.peekDatagram(fd, sender, receiveTimeout);
