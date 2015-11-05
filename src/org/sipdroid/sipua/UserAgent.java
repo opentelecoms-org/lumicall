@@ -426,9 +426,15 @@ public class UserAgent extends CallListenerAdapter {
 		
 		SessionDescriptor sdp = new SessionDescriptor(local_session);
 		
-		TransportAddress defaultAddress = iceAgent.getStreams().get(0)
-	            .getComponent(Component.RTP).getDefaultCandidate()
-	                .getTransportAddress();
+		IceMediaStream stream = iceAgent.getStreams().get(0);
+		TransportAddress defaultAddress = null;
+		if(stream != null) {
+			defaultAddress = stream.getComponent(Component.RTP)
+						.getDefaultCandidate()
+	                			.getTransportAddress();
+		} else {
+			throw new RuntimeException("Failed to find defaultAddress");
+		}
 		
 		printLog("Default candidate = " + defaultAddress);
 
@@ -1251,7 +1257,15 @@ public class UserAgent extends CallListenerAdapter {
 		changeStatus(UA_STATE_INCOMING_CALL,caller.toString()); */
 
 		if (sdp == null) {
-			createOffer();
+			try {
+				createOffer();
+			} catch (Exception e) {
+                                // only known exception is no local IP found
+                                Receiver.call_end_reason = R.string.card_title_ended_unknown;
+                                printException(e, LogLevel.HIGH);
+                                changeStatus(UA_STATE_IDLE);
+                                return;
+                        }
 		}
 		else { 
 			SessionDescriptor remote_sdp = new SessionDescriptor(sdp);
