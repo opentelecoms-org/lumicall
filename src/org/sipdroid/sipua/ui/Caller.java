@@ -116,19 +116,22 @@ public class Caller extends BroadcastReceiver {
         		}
         		
         		String originalUri = intent.getStringExtra("android.phone.extra.ORIGINAL_URI"); 
-        		String uriFragment = Uri.parse(originalUri).getFragment();
-        		if(uriFragment != null && uriFragment.contains(PSTN.BYPASS_LUMICALL)) {
-        			// Let the call go through to the next handler/GSM network
-        			Log.i(TAG, "*** Lumicall detected `lumicall-bypass' in URI, letting call go to next handler ***");
-        			setResultData(number);
-        			abortBroadcast();
-        			return;
+			if(originalUri != null) {
+        			String uriFragment = Uri.parse(originalUri).getFragment();
+        			if(uriFragment != null && uriFragment.contains(PSTN.BYPASS_LUMICALL)) {
+        				// Let the call go through to the next handler/GSM network
+        				Log.i(TAG, "*** Lumicall detected `lumicall-bypass' in URI, letting call go to next handler ***");
+        				setResultData(number);
+        				abortBroadcast();
+        				return;
+				}
 	        	}
         		
         		boolean dialingIntegration =
         				PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
         						Settings.PREF_DIALING_INTEGRATION, Settings.DEFAULT_DIALING_INTEGRATION);
-        		boolean nonSIP = originalUri.length() > 4 &&
+        		boolean nonSIP = originalUri != null &&
+					originalUri.length() > 4 &&
         				originalUri.startsWith("tel:") &&
         				(originalUri.charAt(4) == '+' ||
         				Character.isDigit(originalUri.charAt(4)));
