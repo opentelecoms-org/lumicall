@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class MessageIndex extends Activity {
+public class MessageIndex extends ActionBarActivity {
 	
 	public static final int FIRST_MENU_ID = Menu.FIRST;
 	public static final int NEW_MESSAGE = FIRST_MENU_ID + 1;
