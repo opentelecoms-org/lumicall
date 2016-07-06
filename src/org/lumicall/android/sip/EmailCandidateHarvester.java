@@ -12,9 +12,12 @@ import org.xbill.DNS.Resolver;
 import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Type;
 
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class EmailCandidateHarvester extends ThreadedDialCandidateHarvester {
+
+	private static final Logger logger = LoggerFactory.getLogger(EmailCandidateHarvester.class);
 	
 	private String[] protocols = { "_sips._tcp" };
 	private String[] services = { "SIP+D2T" };
@@ -27,8 +30,6 @@ public abstract class EmailCandidateHarvester extends ThreadedDialCandidateHarve
 			svcSet.add(svc.toLowerCase());
 		}
 	}
-	
-	final static String TAG = "EmailHarvester";
 	
 	private class LookupThread extends Thread {
 		
@@ -44,7 +45,7 @@ public abstract class EmailCandidateHarvester extends ThreadedDialCandidateHarve
 		}
 		
 		public void run() {
-			Log.v(TAG, "looking up " + key);
+			logger.debug("looking up " + key);
 
 			try {
 				Resolver resolver = new ExtendedResolver();
@@ -54,30 +55,30 @@ public abstract class EmailCandidateHarvester extends ThreadedDialCandidateHarve
 				Record[] records = lookup.run();
 
 				if (records != null) {
-					Log.v(TAG, "found " + records.length + " record(s)");
+					logger.debug("found " + records.length + " record(s)");
 					for (int i = 0; i < records.length; ++i) {
 						// type check necessary in case of other RRtypes in the
 						// Answer
 						// Section
 						if (records[i] instanceof SRVRecord) {
 							// Found an SRV record, candidate is good
-							Log.v(TAG, "found matching SRV record for: " + key);
+							logger.debug("found matching SRV record for: " + key);
 							onDialCandidateFound(sipCandidate);
 							return;
 						} else if(records[i] instanceof NAPTRRecord) {
 							NAPTRRecord r = (NAPTRRecord)records[i];
 							if(svcSet.contains(r.getService().toLowerCase())) {
-								Log.v(TAG, "found matching SRV record for: " + key);
+								logger.debug("found matching SRV record for: " + key);
 								onDialCandidateFound(sipCandidate);
 								return;
 							}
 						}
 					}
 				} else {
-					Log.v(TAG, "records == null, result = " + lookup.getErrorString());
+					logger.warn("records == null, result = " + lookup.getErrorString());
 				}
 			} catch (Exception ex) {
-				Log.w(TAG, "Exception during DNS lookup: ", ex);
+				logger.warn("Exception during DNS lookup: ", ex);
 			}
 		}
 	}

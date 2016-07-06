@@ -9,11 +9,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AndroidEmailCandidateHarvester extends EmailCandidateHarvester {
 	
 	Context context;
+	private static final Logger logger = LoggerFactory.getLogger(AndroidEmailCandidateHarvester.class);
 	
 	public AndroidEmailCandidateHarvester(Context context) {
 		this.context = context;
@@ -28,7 +31,7 @@ public class AndroidEmailCandidateHarvester extends EmailCandidateHarvester {
 		Uri contactRef = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, number);
 		Cursor personCursor = context.getContentResolver().query(contactRef, null, null, null, null);
 		if(personCursor == null) {
-			Log.v("Caller", "Number does not belong to a known contact");
+			logger.warn("Number does not belong to a known contact");
 			return v;
 		}
 		HashMap<String, String> person = new HashMap<String, String>();
@@ -36,10 +39,10 @@ public class AndroidEmailCandidateHarvester extends EmailCandidateHarvester {
 			String personId = personCursor.getString(personCursor.getColumnIndex(ContactsContract.PhoneLookup.LOOKUP_KEY));
 			String name = personCursor.getString(personCursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
 			person.put(personId, name);
-			Log.v("Caller", "ID = " + personId + ", name = " + name);
+			logger.debug("ID = " + personId + ", name = " + name);
 		}
 		personCursor.close();
-		Log.v("Caller", "Number of contacts with this number = " + person.size());
+		logger.debug("Number of contacts with this number = " + person.size());
 		
 		for(String personId : person.keySet()) {
 			Uri emailRef = ContactsContract.Data.CONTENT_URI;
@@ -57,7 +60,7 @@ public class AndroidEmailCandidateHarvester extends EmailCandidateHarvester {
 						v.add(new DialCandidate("sip", emailAddress, 
 								person.get(personId),
 								SOURCE_NAME));
-						Log.v("Caller", "found email address for contact: " + emailAddress);
+						logger.debug("found email address for contact: " + emailAddress);
 					}
 				}
 				emailsCursor.close();

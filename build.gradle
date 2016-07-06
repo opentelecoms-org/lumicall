@@ -16,6 +16,7 @@ repositories {
 dependencies {
     compile "com.android.support:appcompat-v7:21.0.+"
     compile 'com.googlecode.libphonenumber:libphonenumber:7.1.0'
+    compile 'org.slf4j:slf4j-android:1.6.1-RC1'
     compile 'org.opentelecoms.ddds:nominet-ddds:1.0'
     compile 'info.ganglia.gmetric4j:gmetric4j:1.0.10'
     compile 'de.rtner:PBKDF2:1.1.1'

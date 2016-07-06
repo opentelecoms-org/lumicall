@@ -40,12 +40,13 @@ import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ENUMProviderForSIP extends ContentProvider {
 
-	/* Log tag */
-	static private final String TAG = "ENUMProviderForSIP";
+	private static final Logger logger = LoggerFactory.getLogger(ENUMProviderForSIP.class);
 	
 	// These are the DNS servers - they will be tried by the DNS library, as well as trying resolv.conf and other methods
 	public final static String DNS_SERVERS = "195.8.117.5";
@@ -77,7 +78,7 @@ public class ENUMProviderForSIP extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		Log.d(TAG, "onCreate() called");
+		logger.debug("onCreate() called");
 		// FIXME - should we have a hardcoded DNS server?
         //System.setProperty("dns.server", ROOT_SERVERS);
 		return true;
@@ -101,7 +102,7 @@ public class ENUMProviderForSIP extends ContentProvider {
 					// record ID is just the current record count
 					Integer id = new Integer(c.getCount());
 					Object[] row = new Object[] { id, "sip", result };
-					Log.v(TAG, "sip" + " -> " + result);
+					logger.debug("sip" + " -> " + result);
 					c.addRow(row);
 				}
 			} 
@@ -128,7 +129,7 @@ public class ENUMProviderForSIP extends ContentProvider {
 
 		public void run() {
 			try {
-				Log.v(TAG, "looking up " + number + " in " + suffix);
+				logger.debug("looking up " + number + " in " + suffix);
 				mENUM = new ENUM(suffix);
 				rules = mENUM.lookup(number);
 
@@ -156,7 +157,7 @@ public class ENUMProviderForSIP extends ContentProvider {
 				suffixes.add(s.getSuffix());
 			}
 		} catch (SQLException e) {
-			Log.e(TAG, "failed to load ENUM suffixes from DB", e);
+			logger.warn("failed to load ENUM suffixes from DB", e);
 			return null;
 		}
 		
@@ -176,9 +177,9 @@ public class ENUMProviderForSIP extends ContentProvider {
 		try {
 			b.await();
 		} catch (InterruptedException e) {
-			Log.e(TAG, "InterruptedException", e);
+			logger.error("InterruptedException", e);
 		} catch (BrokenBarrierException e) {
-			Log.e(TAG, "BrokenBarrierException", e);
+			logger.error("BrokenBarrierException", e);
 		}
 		
 		// Process the results
