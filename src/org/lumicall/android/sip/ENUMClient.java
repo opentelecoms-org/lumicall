@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class ENUMClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(ENUMProviderForSIP.class);
+	private static final Logger logger = LoggerFactory.getLogger(ENUMClient.class);
 	
 	List<String> suffixes;
 
