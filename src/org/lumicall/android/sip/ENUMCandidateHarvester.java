@@ -1,20 +1,29 @@
 package org.lumicall.android.sip;
 
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.Vector;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ENUMCandidateHarvester extends DialCandidateHarvester implements Runnable {
+
+	private static final String ENUM_SUFFIX = "e164.arpa";
 	
-	Logger logger = Logger.getLogger(getClass().getCanonicalName());
-	private Context context;
+	private static final Logger logger = LoggerFactory.getLogger(ENUMCandidateHarvester.class);
 	private String e164Number;
 	
-	public ENUMCandidateHarvester(Context context) {
-		this.context = context;
+	public ENUMCandidateHarvester() {
+	}
+
+	protected boolean isOnline() {
+		return true;
+	}
+
+	protected List<String> getSuffixes() {
+		List<String> results = new Vector<String>();
+		results.add(ENUM_SUFFIX);
+		return results;
 	}
 
 	@Override
@@ -22,15 +31,13 @@ public class ENUMCandidateHarvester extends DialCandidateHarvester implements Ru
 		
 		boolean runHarvest = true;
 		
-		boolean online = ENUMUtil.updateNotification(context);
-		
-		if(!online) {
-			logger.info("ENUM not online");
+		if(!isOnline()) {
+			logger.warn("ENUM not online");
 			runHarvest = false;
 		}
 		
 		if(e164Number == null || !e164Number.startsWith("+")) {
-			logger.info("can't handle non-E.164 numbers");
+			logger.warn("can't handle non-E.164 numbers");
 			runHarvest = false;
 		}
 		
@@ -50,32 +57,27 @@ public class ENUMCandidateHarvester extends DialCandidateHarvester implements Ru
 	 */
 	@Override
 	public void run() {
-		/* ask the ENUM ContentProvider for the records */
-		Uri uri = Uri.withAppendedPath(ENUMProviderForSIP.CONTENT_URI, e164Number);
-		ContentResolver cr = context.getContentResolver();
-		Cursor mCursor = cr.query(uri, null, null, null, null);
+		ENUMClient client = new ENUMClient(getSuffixes());
+		List<ENUMResult> results = client.query(e164Number);
 		
 		/* none found - tell the user then dial the original number */
-		if (mCursor == null || mCursor.getCount() <= 0) {
-			if(mCursor != null)
-				mCursor.close();
-			logger.info("no ENUM result found");
+		if (results == null || results.size() <= 0) {
+			logger.debug("no ENUM result found");
 			onHarvestCompletion();
 			return;
 		}
 
 		int count = 0;
-		while(mCursor.moveToNext()) {
-			String destination = mCursor.getString(2);
+		for(ENUMResult result : results) {
+			String destination = result.getResult();
 			// Prevent prefix sip: from appearing twice (we add it again later)
 			if(destination.startsWith("sip:"))
 				destination = destination.substring(4);
 			onDialCandidateFound(new DialCandidate("sip", destination, "", "ENUM"));
 			count++;
 		}
-		mCursor.close();
 		
-		logger.info("ENUM results found, count = " + count);
+		logger.debug("ENUM results found, count = " + count);
 		
 		onHarvestCompletion();
 	}

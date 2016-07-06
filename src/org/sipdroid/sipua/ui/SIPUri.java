@@ -32,8 +32,8 @@ import org.lumicall.android.sip.AndroidEmailCandidateHarvester;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.DialCandidateHarvester;
 import org.lumicall.android.sip.DialCandidateListener;
-import org.lumicall.android.sip.ENUMCandidateHarvester;
 import org.lumicall.android.sip.HarvestDirector;
+import org.lumicall.android.sip.LumicallENUMCandidateHarvester;
 import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
 import org.lumicall.android.sip.TelCandidateHarvester;
 import org.sipdroid.sipua.Constants;
@@ -197,7 +197,7 @@ public class SIPUri extends Activity implements DialCandidateListener {
 		});
 		
 		hd = new HarvestDirector();
-		hd.addHarvester(new ENUMCandidateHarvester(this));
+		hd.addHarvester(new LumicallENUMCandidateHarvester(this));
 		hd.addHarvester(new AndroidEmailCandidateHarvester(this));
 		hd.addHarvester(new SIPCarrierCandidateHarvester(this));
 		hd.addHarvester(new TelCandidateHarvester());
