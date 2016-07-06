@@ -38,6 +38,7 @@ import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.PTTChannel;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.DialCandidateHelper;
 import org.lumicall.android.sip.MessageIndex;
 import org.lumicall.android.sip.RegisterAccount;
 import zorg.SRTP;
@@ -753,8 +754,12 @@ public class Sipdroid extends ActionBarActivity implements OnDismissListener {
 				.setCancelable(true)
 				.show();
 		else {
-			DialCandidate dc = new DialCandidate("sip", target, "", "Manual", chosenIdentity);
-			if (!dc.call(this)) {
+			long chosenIdentityId = -1;
+			if (chosenIdentity != null) {
+				chosenIdentityId = chosenIdentity.getId();
+			}
+			DialCandidate dc = new DialCandidate("sip", target, "", "Manual", chosenIdentity.getId());
+			if (!DialCandidateHelper.call(this, dc)) {
 				// ignoring error
 			}
 		}

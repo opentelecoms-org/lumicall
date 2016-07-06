@@ -37,6 +37,7 @@ import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.DialCandidateHelper;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
 import org.sipdroid.sipua.ui.LoopAlarm;
@@ -721,7 +722,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 		
 		String target_url = target.getAddress();
 		
-		SIPIdentity sipIdentity = target.getSIPIdentity(this.getUIContext());
+		SIPIdentity sipIdentity = DialCandidateHelper.getSIPIdentity(this.getUIContext(), target);
 		if(sipIdentity == null) {
 			lastError = "no SIP Identity found or no default SIP identity set in preferences";
 			if(ua != null)

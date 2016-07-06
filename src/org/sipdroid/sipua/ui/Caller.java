@@ -36,6 +36,7 @@ import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.ENUMProviderForSIP;
 import org.lumicall.android.sip.ENUMUtil;
 import org.lumicall.android.sip.DialCandidate;
+import org.lumicall.android.sip.DialCandidateHelper;
 import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.UserAgent;
 
@@ -234,20 +235,20 @@ public class Caller extends BroadcastReceiver {
 					
 					List<SIPIdentity> sipIdentities = ds.getSIPIdentities();
 					
-					SIPIdentity sipIdentity = null;
+					long sipIdentityId = -1;
 					for(SIPIdentity s : sipIdentities) {
 						String uri = s.getUri();
 						String domain = uri.substring(uri.indexOf('@') + 1);
 						if(domain.equals(_domain))
 						{
-							sipIdentity = s;
+							sipIdentityId = s.getId();
 							Log.d(TAG, "matched domain: " + domain + ", using identity: " + s.getUri());
 						}
 					}
 					
 					ds.close();
-					DialCandidate dc = new DialCandidate("sip", number, "", "Manual dial", sipIdentity);
-					if(!dc.call(context)) {
+					DialCandidate dc = new DialCandidate("sip", number, "", "Manual dial", sipIdentityId);
+					if(!DialCandidateHelper.call(context, dc)) {
 						// ignoring error
 					}
 					setResultData(null);

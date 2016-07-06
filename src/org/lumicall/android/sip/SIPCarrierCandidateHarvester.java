@@ -41,7 +41,7 @@ public class SIPCarrierCandidateHarvester extends DialCandidateHarvester {
 				String sipAddress = ((usePrefix && prefix != null) ? prefix : "")
 						+ number
 						+ "@" + domain;
-				onDialCandidateFound(new DialCandidate("sip", sipAddress, "", SOURCE_INFO, s));
+				onDialCandidateFound(new DialCandidate("sip", sipAddress, "", SOURCE_INFO, s.getId()));
 			}
 		}
 		

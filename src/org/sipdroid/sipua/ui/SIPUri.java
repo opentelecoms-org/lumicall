@@ -31,6 +31,7 @@ import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.sip.AndroidEmailCandidateHarvester;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.DialCandidateHarvester;
+import org.lumicall.android.sip.DialCandidateHelper;
 import org.lumicall.android.sip.DialCandidateListener;
 import org.lumicall.android.sip.HarvestDirector;
 import org.lumicall.android.sip.LumicallENUMCandidateHarvester;
@@ -85,20 +86,20 @@ public class SIPUri extends Activity implements DialCandidateListener {
 
 		List<SIPIdentity> sipIdentities = ds.getSIPIdentities();
 
-		SIPIdentity sipIdentity = null;
+		long sipIdentityId = -1;
 		for(SIPIdentity s : sipIdentities) {
 			String uri = s.getUri();
 			String domain = uri.substring(uri.indexOf('@') + 1);
 			if(domain.equals(_domain))
 			{
-				sipIdentity = s;
+				sipIdentityId = s.getId();
 				logger.fine("matched domain: " + domain + ", using identity: " + s.getUri());
 			}
 		}
 
 		ds.close();
-		DialCandidate dc = new DialCandidate("sip", target, "", "Manual dial", sipIdentity);
-		if(!dc.call(this)) {
+		DialCandidate dc = new DialCandidate("sip", target, "", "Manual dial", sipIdentityId);
+		if(!DialCandidateHelper.call(this, dc)) {
 			// ignoring error
 			logger.severe("DialCandidate failed to place call");
 		} else
@@ -141,7 +142,7 @@ public class SIPUri extends Activity implements DialCandidateListener {
 	
 	private void dialEntry(int position) {
 		DialCandidate candidate = adapter.getItem(position);
-		if(candidate.call(SIPUri.this)) {
+		if(DialCandidateHelper.call(SIPUri.this, candidate)) {
 			finish();
 		} else {
 			logger.severe("error occurred while trying to start call");
