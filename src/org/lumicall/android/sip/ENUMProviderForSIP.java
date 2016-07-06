@@ -26,7 +26,6 @@ import java.util.Vector;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import org.lumicall.android.AppProperties;
 import org.lumicall.android.db.ENUMSuffix;
 import org.lumicall.android.db.LumicallDataSource;
 
