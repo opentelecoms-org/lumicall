@@ -34,6 +34,7 @@ dependencies {
         // of these classes may be part of the Android platform.
         exclude module: 'nist-sdp'
     }
+    compile 'org.omnidial:omnidial-android:1.0.0'
 }
 
 // Manually copy or symlink to the app.properties-prod file before building

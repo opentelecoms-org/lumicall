@@ -18,6 +18,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.Toast;
 
+import org.omnidial.harvest.DialCandidate;
+
 public class DialCandidateHelper {
 	public static SIPIdentity getSIPIdentity(Context context, DialCandidate dc) {
 		long _sipIdentityId = dc.getSipIdentityId();

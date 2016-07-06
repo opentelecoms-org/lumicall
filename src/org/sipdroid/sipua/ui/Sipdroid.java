@@ -37,7 +37,6 @@ import org.lumicall.android.db.DBObject;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.PTTChannel;
 import org.lumicall.android.db.SIPIdentity;
-import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.DialCandidateHelper;
 import org.lumicall.android.sip.MessageIndex;
 import org.lumicall.android.sip.RegisterAccount;
@@ -97,6 +96,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+
+import org.omnidial.harvest.DialCandidate;
 
 /////////////////////////////////////////////////////////////////////
 // this the main activity of Sipdroid

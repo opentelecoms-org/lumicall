@@ -7,6 +7,9 @@ import org.lumicall.android.db.SIPIdentity;
 
 import android.content.Context;
 
+import org.omnidial.harvest.DialCandidate;
+import org.omnidial.harvest.DialCandidateHarvester;
+
 public class SIPCarrierCandidateHarvester extends DialCandidateHarvester {
 	
 	public final static String SOURCE_INFO = "VoIP Carrier";

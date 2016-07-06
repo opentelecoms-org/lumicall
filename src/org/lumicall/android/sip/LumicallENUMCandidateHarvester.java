@@ -9,6 +9,8 @@ import android.database.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.omnidial.harvest.ENUMCandidateHarvester;
+
 import org.lumicall.android.db.ENUMSuffix;
 import org.lumicall.android.db.LumicallDataSource;
 

@@ -8,7 +8,6 @@ import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.db.UserMessage;
-import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.MessageIndex;
 import org.sipdroid.sipua.ui.Receiver;
 import org.sipdroid.sipua.ui.Sipdroid;

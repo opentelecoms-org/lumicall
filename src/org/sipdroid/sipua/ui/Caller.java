@@ -33,9 +33,7 @@ import org.lumicall.android.R;
 import org.lumicall.android.Util;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
-import org.lumicall.android.sip.ENUMProviderForSIP;
 import org.lumicall.android.sip.ENUMUtil;
-import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.DialCandidateHelper;
 import org.sipdroid.sipua.Constants;
 import org.sipdroid.sipua.UserAgent;
@@ -62,6 +60,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
+import org.omnidial.harvest.DialCandidate;
 
 public class Caller extends BroadcastReceiver {
 
@@ -296,54 +296,6 @@ public class Caller extends BroadcastReceiver {
 	        }
 	    }
 
-		// Try to set up a call to the number by using ENUM
-		private boolean doENUMRouting(Context context, String number) {
-			
-			if(number == null)
-				return false;
-			
-			boolean online = ENUMUtil.updateNotification(context);
-			
-			if(!online) {
-				Log.i("SipUA:", "ENUM not online");
-				return false;
-			}
-			
-			if(!number.startsWith("+")) {
-				Log.w("SipUA:", "can't handle non-E.164 numbers yet");
-				return false;  // FIXME: translate numbers to E.164 format
-			}
-			
-			Toast toast = Toast.makeText(context, R.string.toast_progress, Toast.LENGTH_SHORT);
-			toast.show();
-
-			/* ask the ENUM ContentProvider for the records */
-			Uri uri = Uri.withAppendedPath(ENUMProviderForSIP.CONTENT_URI, number);
-			ContentResolver cr = context.getContentResolver();
-			Cursor mCursor = cr.query(uri, null, null, null, null);
-			
-			/* none found - tell the user then dial the original number */
-			if (mCursor == null || mCursor.getCount() <= 0) {
-				if(mCursor != null)
-					mCursor.close();
-				toast.setText(R.string.toast_notfound);
-				toast.show();
-				Log.i("SipUA:", "no ENUM result found, falling through to next routing choice");
-				return false;
-			}
-
-			toast.cancel();
-			
-			mCursor.moveToFirst();
-			String destination = mCursor.getString(2);
-			mCursor.close();
-			
-			Log.v("SipUA:", "ENUM result found, dialing SIP destination: " + destination);
-			
-			return Receiver.engine(context).call(destination, true);
-		}
-		
-		
 		private String concatenateNumbers(Context context, String _number, String callthru_number, String search) {
 			String number = _number;
 			/*	    					String orig = intent.getStringExtra("android.phone.extra.ORIGINAL_URI");	

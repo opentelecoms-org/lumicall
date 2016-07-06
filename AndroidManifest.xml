@@ -269,8 +269,6 @@
         </receiver>
         <receiver android:name="org.lumicall.android.AndroidTimer" android:enabled="true">
         </receiver>
-        <provider android:name="org.lumicall.android.sip.ENUMProviderForSIP" android:authorities="enum"
-                android:multiprocess="true" />
     	<service android:name="org.sipdroid.sipua.ui.RegisterService" />
     	<service android:name="org.lumicall.android.reg.EnrolmentService">
     	    <!--  <intent-filter android:priority="100">

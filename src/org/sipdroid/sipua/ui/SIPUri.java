@@ -28,15 +28,9 @@ import java.util.logging.Logger;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
-import org.lumicall.android.sip.AndroidEmailCandidateHarvester;
-import org.lumicall.android.sip.DialCandidate;
-import org.lumicall.android.sip.DialCandidateHarvester;
 import org.lumicall.android.sip.DialCandidateHelper;
-import org.lumicall.android.sip.DialCandidateListener;
-import org.lumicall.android.sip.HarvestDirector;
 import org.lumicall.android.sip.LumicallENUMCandidateHarvester;
 import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
-import org.lumicall.android.sip.TelCandidateHarvester;
 import org.sipdroid.sipua.Constants;
 
 import android.app.Activity;
@@ -69,6 +63,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.omnidial.harvest.AndroidEmailCandidateHarvester;
+import org.omnidial.harvest.DialCandidate;
+import org.omnidial.harvest.DialCandidateHarvester;
+import org.omnidial.harvest.DialCandidateListener;
+import org.omnidial.harvest.HarvestDirector;
+import org.omnidial.harvest.TelCandidateHarvester;
 
 public class SIPUri extends Activity implements DialCandidateListener {
 	

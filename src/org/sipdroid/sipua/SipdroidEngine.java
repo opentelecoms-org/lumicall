@@ -36,7 +36,6 @@ import org.lumicall.android.AndroidTimerFactory;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
-import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.DialCandidateHelper;
 import org.sipdroid.net.KeepAliveSip;
 import org.sipdroid.sipua.ui.ChangeAccount;
@@ -62,6 +61,8 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import org.omnidial.harvest.DialCandidate;
 
 public class SipdroidEngine implements RegisterAgentListener {
 
