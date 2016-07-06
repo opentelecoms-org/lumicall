@@ -28,11 +28,14 @@ import java.util.logging.Logger;
 import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
+import org.lumicall.android.sip.AndroidEmailCandidateHarvester;
 import org.lumicall.android.sip.DialCandidate;
 import org.lumicall.android.sip.DialCandidateHarvester;
 import org.lumicall.android.sip.DialCandidateListener;
+import org.lumicall.android.sip.ENUMCandidateHarvester;
 import org.lumicall.android.sip.HarvestDirector;
 import org.lumicall.android.sip.SIPCarrierCandidateHarvester;
+import org.lumicall.android.sip.TelCandidateHarvester;
 import org.sipdroid.sipua.Constants;
 
 import android.app.Activity;
@@ -193,7 +196,11 @@ public class SIPUri extends Activity implements DialCandidateListener {
 			}
 		});
 		
-		hd = new HarvestDirector(this);
+		hd = new HarvestDirector();
+		hd.addHarvester(new ENUMCandidateHarvester(this));
+		hd.addHarvester(new AndroidEmailCandidateHarvester(this));
+		hd.addHarvester(new SIPCarrierCandidateHarvester(this));
+		hd.addHarvester(new TelCandidateHarvester());
 		hd.addListener(this);
 		hd.getCandidatesForNumber(number, e164Number);
 	}
