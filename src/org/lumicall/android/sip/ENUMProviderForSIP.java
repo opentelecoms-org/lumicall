@@ -23,14 +23,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 import org.lumicall.android.db.ENUMSuffix;
 import org.lumicall.android.db.LumicallDataSource;
 
-import uk.nominet.DDDS.ENUM;
-import uk.nominet.DDDS.Rule;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
@@ -83,64 +79,14 @@ public class ENUMProviderForSIP extends ContentProvider {
 		return true;
 	}
 	
-	protected void parseRule(Rule rule, MatrixCursor c)
-	{
-		// split service field on '+' token
-		String[] services = rule.getService().toLowerCase().split("\\+");
-		
-		// check that resulting fields are valid
-		if (services.length != 2) return;	// not x+y
-		if (!services[0].equals("e2u")) return; // not E2U+...
-		
-		// Only parse SIP-compatible records, others are silently
-		// ignored
-		for(String s : services) {
-			if(s.equals("sip")) {
-				String result = rule.evaluate();
-				if (result != null) {
-					// record ID is just the current record count
-					Integer id = new Integer(c.getCount());
-					Object[] row = new Object[] { id, "sip", result };
-					logger.debug("sip" + " -> " + result);
-					c.addRow(row);
-				}
-			} 
+	protected void fillCursor(List<ENUMResult> results, MatrixCursor c) {
+		for(ENUMResult result : results) {
+			Integer id = new Integer(c.getCount());
+			Object[] row = new Object[] { id, "sip", result.getResult() };
+			logger.debug("sip" + " -> " + result);
+			c.addRow(row);
 		}
 	}
-	
-	private static class LookupThread extends Thread {
-		Rule[] rules;
-		CyclicBarrier barrier;
-		String suffix;
-		String number;
-		private ENUM mENUM = null;
-
-		LookupThread(CyclicBarrier barrier, String number, String suffix) {
-			this.barrier = barrier;
-			rules = new Rule[] {};
-			this.suffix = suffix;
-			this.number = number;
-		}
-
-		public Rule[] getRules() {
-			return rules;
-		}
-
-		public void run() {
-			try {
-				logger.debug("looking up " + number + " in " + suffix);
-				mENUM = new ENUM(suffix);
-				rules = mENUM.lookup(number);
-
-				barrier.await();
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			} catch (BrokenBarrierException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-	 
 	
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
@@ -162,33 +108,14 @@ public class ENUMProviderForSIP extends ContentProvider {
 		
 		// Setup variables
 		MatrixCursor c = new MatrixCursor(COLUMN_NAMES, 10);
-		CyclicBarrier b = new CyclicBarrier(suffixes.size() + 1);
-		Vector<LookupThread> v = new Vector<LookupThread>();
+		ENUMClient client = new ENUMClient(suffixes);
 		
-		// Run the lookups in parallel
-		for(String suffix : suffixes) {
-			LookupThread t = new LookupThread(b, number, suffix);
-			v.add(t);
-			t.start();
-		}
-		
-		// Wait for all lookups to finish
-		try {
-			b.await();
-		} catch (InterruptedException e) {
-			logger.error("InterruptedException", e);
-		} catch (BrokenBarrierException e) {
-			logger.error("BrokenBarrierException", e);
-		}
+		List<ENUMResult> results = client.query(number);
 		
 		// Process the results
 		// Notice that we process them in the order of the suffixes
 		// Earlier results should have priority over later results
-		for(LookupThread t : v) {
-			for (Rule rule : t.getRules()) {
-				parseRule(rule, c);
-			}
-		}
+		fillCursor(results, c);
 		return c;
 	}
 
