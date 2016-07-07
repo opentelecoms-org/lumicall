@@ -118,4 +118,3 @@ tasks.whenTaskAdded { task ->
         task.dependsOn askForPassword
     }
 }
-
