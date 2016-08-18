@@ -1,12 +1,19 @@
 
-
-Building with IDE:
-
-   http://lumicall.org/source-code-and-build-instructions
-
-
 Building Lumicall from the command line with Gradle:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Prerequisites:
+
+- gradle version 2.2.1 in the PATH. You can download it from the
+  gradle website and unzip it to /opt. Then:
+
+  export PATH=/opt/gradle-2.2.1/bin:$PATH
+
+- zlib (32bits). On 64bit Debian based systems this can be done
+  by installing lib32z1:
+
+  apt-get install lib32z1
+
 
 To build the project from the command line:
 
