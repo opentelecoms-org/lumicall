@@ -736,7 +736,6 @@ public class SipdroidEngine implements RegisterAgentListener {
 	}
 	
 	String lastError = null;
-
 	public String getLastError(boolean clear) {
 		String result = lastError;
 		if(clear)
