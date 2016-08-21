@@ -79,7 +79,10 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 	/** Register Agent */
 	public RegisterAgent[] ras;
-	
+
+	/** Publish Agent */
+	public PublishAgent[] pas;
+
 	/** Messaging */
 	public MessageAgent[] mas;
 
@@ -326,6 +329,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 				i++;
 			}
 			register();
+			publishAll();
 			listen();
 
 			return true;
@@ -406,11 +410,6 @@ public class SipdroidEngine implements RegisterAgentListener {
 			i++;
 		}
 		register();
-		for (PublishAgent pa : pas) {
-			if (pa != null) {
-				pa.publish();
-			}
-		}
 	}
 	
 	public void unregister(int i) {
@@ -427,6 +426,14 @@ public class SipdroidEngine implements RegisterAgentListener {
 				wl[i].acquire();
 			} else
 				Receiver.onText(Receiver.REGISTER_NOTIFICATION+i, null, 0, 0);
+	}
+
+	public void publishAll () {
+		for (PublishAgent pa : pas) {
+			if (pa != null) {
+				pa.publish();
+			}
+		}
 	}
 
 	public void unpublish (int i) {
@@ -514,12 +521,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			}
 			i++;
 		}
-		for (PublishAgent pa : pas) {
-			if (pa != null) {
-				pa.publish();
-			}
-		}
-
+		publishAll();
 	}
 
 	public void halt() { // modified
@@ -551,11 +553,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 				sip_providers[i].halt();
 			i++;
 		}
-		for (PublishAgent pa : pas) {
-			if (pa != null) {
-				pa.publish();
-			}
-		}
+		publishAll();
 	}
 
 	public boolean isRegistered()
@@ -595,12 +593,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			wl[i].release();
 			if (pwl[i] != null && pwl[i].isHeld()) pwl[i].release();
 		}
-		for (PublishAgent pa : pas) {
-			if (pa != null) {
-				pa.publish();
-			}
-
-		}
+		publishAll();
 	}
 
 	String[] lastmsgs;
