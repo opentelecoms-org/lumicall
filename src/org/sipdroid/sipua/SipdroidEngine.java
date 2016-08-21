@@ -620,7 +620,6 @@ public class SipdroidEngine implements RegisterAgentListener {
 			Receiver.onText(Receiver.MWI_NOTIFICATION, null, 0,0);
 			lastmsgs[i] = null;
 		}
-		unPublishAll();
 	}
 
 	static long lasthalt,lastpwl;
