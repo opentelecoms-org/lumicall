@@ -436,10 +436,11 @@ public class SipdroidEngine implements RegisterAgentListener {
 		}
 	}
 
-	public void unpublish (int i) {
-		PublishAgent pa = pas[i];
-		if (pa != null) {
+	public void unPublishAll () {
+		for (PublishAgent pa : pas) {
+			if (pa != null) {
 				pa.unPublish();
+			}
 		}
 	}	
 	
@@ -553,7 +554,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 				sip_providers[i].halt();
 			i++;
 		}
-		publishAll();
+		unPublishAll();
 	}
 
 	public boolean isRegistered()
@@ -619,11 +620,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			Receiver.onText(Receiver.MWI_NOTIFICATION, null, 0,0);
 			lastmsgs[i] = null;
 		}
-		i=0;
-		for (PublishAgent pa : pas) {
-			unpublish(i);
-			i++;
-		}
+		unPublishAll();
 	}
 
 	static long lasthalt,lastpwl;

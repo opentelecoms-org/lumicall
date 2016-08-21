@@ -100,7 +100,7 @@ public class PublishAgent implements TransactionClientListener {
 	public void publish(String status, int expireTime, String note) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		Boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
-		if (publish_enable_status == true) {
+		if (publish_enable_status == true && (status=="open" || status=="close")) {
 			MessageDigest md = null;
 			String tupleId;
 			try {
@@ -153,6 +153,10 @@ public class PublishAgent implements TransactionClientListener {
 	}
 
 	public void onTransSuccessResponse(TransactionClient tc, Message resp) {
+		StatusLine status = resp.getStatusLine();
+		int code = status.getCode();
+		logger.fine(String.valueOf(status));
+		logger.fine(String.valueOf(code));
 	}
 
 	public void onTransFailureResponse(TransactionClient tc, Message resp) {
@@ -197,16 +201,15 @@ public class PublishAgent implements TransactionClientListener {
 
 	@Override
 	public void onTransTimeout(TransactionClient tc) {
-
+		//FIXME
 	}
 
 	public void onTransProvisionalResponse(TransactionClient tc, Message resp) {
+		// FIXME
 		StatusLine status = resp.getStatusLine();
 		int code = status.getCode();
 		logger.fine(String.valueOf(status));
 		logger.fine(String.valueOf(code));
-		// FIXME
 	}
-
 
 }
