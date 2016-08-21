@@ -20,7 +20,7 @@ dependencies {
     compile 'org.opentelecoms.ddds:nominet-ddds:1.0'
     compile 'info.ganglia.gmetric4j:gmetric4j:1.0.10'
     compile 'de.rtner:PBKDF2:1.1.1'
-    compile 'org.opentelecoms.sip:mjsip-fork:1.6+lumicall.2'
+    compile 'org.opentelecoms.sip:mjsip-fork:1.6+lumicall.3'
     compile ('org.opentelecoms.zrtp:zorg-zrtp:1.0.0+f.2') {
         // We exclude the transitive dependency Bouncy Castle and
         // use Spongy Castle instead because of the classpath issues

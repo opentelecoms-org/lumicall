@@ -321,6 +321,8 @@
 <string name="settings_auth_full_uri">URI as auth user</string>
 <string name="settings_auth_full_uri_info">When authentication username unspecified, use the full URI as authentication username.  By default, only the user-part is used.</string>
 
+<string name="settings_publish_title">Enable PUBLISH</string>
+
 <string name="menu_settings">Settings</string>
 <string name="menu_add_account">Add account</string>
 <string name="menu_exit">Exit</string>
