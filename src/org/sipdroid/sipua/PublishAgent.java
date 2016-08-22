@@ -40,7 +40,6 @@ import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.transaction.TransactionClient;
 import org.zoolu.sip.transaction.TransactionClientListener;
-import org.zoolu.tools.BasicTimerFactory;
 import org.zoolu.tools.LogLevel;
 
 import java.security.MessageDigest;
@@ -91,10 +90,14 @@ public class PublishAgent implements TransactionClientListener {
 	}
 
 	public void publish() {
-		this.publish(BasicStatus.OPEN, SipStack.default_expires, "");
+		this.publish(Status.open, SipStack.default_expires, "");
 	}
 
-	public void publish(BasicStatus status, int expireTime, String note) {
+	public enum Status {
+		open,
+		close
+	}
+	public void publish(Status status, int expireTime, String note) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		Boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
 		if (publish_enable_status == true) {
@@ -114,7 +117,7 @@ public class PublishAgent implements TransactionClientListener {
 							" entity=\"" + entity + "\">" +
 							"<tuple id=\"" + tupleId + "\">" +
 							"<status>" +
-							"<basic>" + status.pidf() + "</basic>" +
+							"<basic>" + status + "</basic>" +
 							"<note>" + note + "</note>" +
 							"</status>" +
 							"</tuple>" +
@@ -150,7 +153,7 @@ public class PublishAgent implements TransactionClientListener {
 
 	public void onTransSuccessResponse(TransactionClient tc, Message resp) {
 		StatusLine status = resp.getStatusLine();
-		String log = MessageFormat.format("onTransSuccessResponse: status {0}: {1}", status.getCode(), status);
+		String log = MessageFormat.format("onTransSuccessResponse: status {0}: {1}",status.getCode(),status);
 		logger.fine(log);
 	}
 
@@ -160,7 +163,7 @@ public class PublishAgent implements TransactionClientListener {
 		if (code == 401 || code == 407) {
 			processAuthenticationResponse(tc, resp, code);
 		}
-		String log = MessageFormat.format("onTransFailureResponse: status {0}: {1}", code, status);
+		String log = MessageFormat.format("onTransFailureResponse: status {0}: {1}",code,status);
 		logger.fine(log);
 	}
 
@@ -207,7 +210,7 @@ public class PublishAgent implements TransactionClientListener {
 	public void onTransProvisionalResponse(TransactionClient tc, Message resp) {
 		//FIXME
 		StatusLine status = resp.getStatusLine();
-		String log = MessageFormat.format("onTransProvisionalResponse: status {0}: {1}", status.getCode(), status);
+		String log = MessageFormat.format("onTransProvisionalResponse: status {0}: {1}",status.getCode(),status);
 		logger.fine(log);
 	}
 }
