@@ -312,7 +312,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 							user_profile.contact_url, user_profile.username,
 							user_profile.realm, user_profile.passwd, this, user_profile,
 							user_profile.qvalue, icsi, user_profile.pub, user_profile.mwi);
-						pas[i] = new PublishAgent(sip_providers[i], user_profile,user_profile.username,user_profile.realm,user_profile.passwd,context);
+						pas[i] = new PublishAgent(sip_providers[i], user_profile,user_profile.username, user_profile.realm, user_profile.passwd, context);
 						mas[i] = new MessageAgent(sip_providers[i], user_profile, messageManager);
 						mas[i].receive();
 					} else {

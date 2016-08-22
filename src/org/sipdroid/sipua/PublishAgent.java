@@ -44,6 +44,7 @@ import org.zoolu.tools.LogLevel;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.logging.Logger;
 
 
@@ -69,10 +70,6 @@ public class PublishAgent implements TransactionClientListener {
 	 * User's passwd.
 	 */
 	String passwd;
-	/**
-	 * Expiration time.
-	 */
-	int expire_time;
 
 	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 	/**
@@ -93,14 +90,17 @@ public class PublishAgent implements TransactionClientListener {
 	}
 
 	public void publish() {
-		this.expire_time = SipStack.default_expires;
-		this.publish("open", expire_time, "");
+		this.publish(Status.open, SipStack.default_expires, "");
 	}
 
-	public void publish(String status, int expireTime, String note) {
+	public enum Status {
+		open,
+		close
+	}
+	public void publish(Status status, int expireTime, String note) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		Boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
-		if (publish_enable_status == true && (status=="open" || status=="close")) {
+		if (publish_enable_status == true) {
 			MessageDigest md = null;
 			String tupleId;
 			try {
@@ -112,8 +112,7 @@ public class PublishAgent implements TransactionClientListener {
 			}
 			String from = user_profile.username;
 			String entity = "sip:" + user_profile.username;
-			String xml =
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
 							"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"" +
 							" entity=\"" + entity + "\">" +
 							"<tuple id=\"" + tupleId + "\">" +
@@ -154,15 +153,18 @@ public class PublishAgent implements TransactionClientListener {
 
 	public void onTransSuccessResponse(TransactionClient tc, Message resp) {
 		StatusLine status = resp.getStatusLine();
-		int code = status.getCode();
-		logger.fine(String.valueOf(status));
-		logger.fine(String.valueOf(code));
+		String log = MessageFormat.format("onTransSuccessResponse: status {0}: {1}",status.getCode(),status);
+		logger.fine(log);
 	}
 
 	public void onTransFailureResponse(TransactionClient tc, Message resp) {
 		StatusLine status = resp.getStatusLine();
 		int code = status.getCode();
-		processAuthenticationResponse(tc, resp, code);
+		if (code == 401 || code == 407) {
+			processAuthenticationResponse(tc, resp, code);
+		}
+		String log = MessageFormat.format("onTransFailureResponse: status {0}: {1}",code,status);
+		logger.fine(log);
 	}
 
 	private boolean processAuthenticationResponse(TransactionClient transaction, Message resp, int respCode) {
@@ -202,14 +204,13 @@ public class PublishAgent implements TransactionClientListener {
 	@Override
 	public void onTransTimeout(TransactionClient tc) {
 		//FIXME
+		logger.fine("onTransTimeout : Timeout!");
 	}
 
 	public void onTransProvisionalResponse(TransactionClient tc, Message resp) {
-		// FIXME
+		//FIXME
 		StatusLine status = resp.getStatusLine();
-		int code = status.getCode();
-		logger.fine(String.valueOf(status));
-		logger.fine(String.valueOf(code));
+		String log = MessageFormat.format("onTransProvisionalResponse: status {0}: {1}",status.getCode(),status);
+		logger.fine(log);
 	}
-
 }
