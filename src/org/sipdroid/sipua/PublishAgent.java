@@ -121,7 +121,7 @@ public class PublishAgent implements TransactionClientListener {
 							"</tuple>" +
 							"</presence>";
 			MessageFactory msgf = new MessageFactory();
-			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(from), "presence", expireTime, "application/pidf+xml", xml);
+			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(user_profile.from_url), "presence", expireTime, "application/pidf+xml", xml);
 			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
 			t.request();
 		}
