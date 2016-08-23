@@ -108,8 +108,7 @@ public class PublishAgent implements TransactionClientListener {
 				tupleId = user_profile.username;
 				e.printStackTrace();
 			}
-			String from = user_profile.username;
-			String entity = "sip:" + user_profile.username;
+			String entity = "sip:" + user_profile.from_url;
 			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
 							"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"" +
 							" entity=\"" + entity + "\">" +
