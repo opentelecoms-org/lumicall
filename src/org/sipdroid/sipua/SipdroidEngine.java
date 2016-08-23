@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009 The Sipdroid Open Source Project
  * Copyright (C) 2008 Hughes Systique Corporation, USA (http://www.hsc.com)
+ * Copyright (C) 2016 Pranav Jain
  * 
  * This file is part of Sipdroid (http://www.sipdroid.org)
  * 
@@ -78,7 +79,10 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 	/** Register Agent */
 	public RegisterAgent[] ras;
-	
+
+	/** Publish Agent */
+	public PublishAgent[] pas;
+
 	/** Messaging */
 	public MessageAgent[] mas;
 
@@ -250,6 +254,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 			uas = new UserAgent[lineCount];
 			ras = new RegisterAgent[lineCount];
+			pas = new PublishAgent[lineCount];
 			mas = new MessageAgent[lineCount];
 			kas = new KeepAliveSip[lineCount];
 			lastmsgs = new String[lineCount];
@@ -307,10 +312,12 @@ public class SipdroidEngine implements RegisterAgentListener {
 							user_profile.contact_url, user_profile.username,
 							user_profile.realm, user_profile.passwd, this, user_profile,
 							user_profile.qvalue, icsi, user_profile.pub, user_profile.mwi);
+						pas[i] = new PublishAgent(sip_providers[i], user_profile,user_profile.username, user_profile.realm, user_profile.passwd, context);
 						mas[i] = new MessageAgent(sip_providers[i], user_profile, messageManager);
 						mas[i].receive();
 					} else {
 						ras[i] = null;
+						pas[i] = null;
 						mas[i] = null;
 					}
 					kas[i] = new KeepAliveSip(sip_providers[i],100000);
@@ -322,6 +329,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 				i++;
 			}
 			register();
+			publishAll();
 			listen();
 
 			return true;
@@ -419,6 +427,22 @@ public class SipdroidEngine implements RegisterAgentListener {
 			} else
 				Receiver.onText(Receiver.REGISTER_NOTIFICATION+i, null, 0, 0);
 	}
+
+	public void publishAll () {
+		for (PublishAgent pa : pas) {
+			if (pa != null) {
+				pa.publish();
+			}
+		}
+	}
+
+	public void unPublishAll () {
+		for (PublishAgent pa : pas) {
+			if (pa != null) {
+				pa.unPublish();
+			}
+		}
+	}	
 	
 	public void registerMore() {
 		IpAddress.setLocalIpAddress();
@@ -498,6 +522,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			}
 			i++;
 		}
+		publishAll();
 	}
 
 	public void halt() { // modified
@@ -529,6 +554,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 				sip_providers[i].halt();
 			i++;
 		}
+		unPublishAll();
 	}
 
 	public boolean isRegistered()
@@ -568,6 +594,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 			wl[i].release();
 			if (pwl[i] != null && pwl[i].isHeld()) pwl[i].release();
 		}
+		publishAll();
 	}
 
 	String[] lastmsgs;

@@ -164,6 +164,10 @@
 				android:defaultValue="false"
 				android:title="@string/settings_auth_full_uri"
 				android:summary="@string/settings_auth_full_uri_info"/>
+		<CheckBoxPreference
+			android:key="publish_enable"
+			android:defaultValue="true"
+			android:title="@string/settings_publish_title" />
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/settings_wireless_options">
 			<CheckBoxPreference
