@@ -108,8 +108,7 @@ public class PublishAgent implements TransactionClientListener {
 				tupleId = user_profile.username;
 				e.printStackTrace();
 			}
-			String from = user_profile.username;
-			String entity = "sip:" + user_profile.username;
+			String entity = "sip:" + user_profile.from_url;
 			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
 							"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"" +
 							" entity=\"" + entity + "\">" +
@@ -121,7 +120,7 @@ public class PublishAgent implements TransactionClientListener {
 							"</tuple>" +
 							"</presence>";
 			MessageFactory msgf = new MessageFactory();
-			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(from), "presence", expireTime, "application/pidf+xml", xml);
+			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(user_profile.from_url), "presence", expireTime, "application/pidf+xml", xml);
 			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
 			t.request();
 		}
