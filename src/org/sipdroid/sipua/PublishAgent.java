@@ -99,10 +99,15 @@ public class PublishAgent implements TransactionClientListener {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		Boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
 		if (publish_enable_status == true) {
-			MessageDigest md = null;
 			String tupleId;
-			byte[] _digest = md.digest(user_profile.username.getBytes());
-			tupleId = Util.byteToHexString(_digest, 0, _digest.length);
+			try {
+				MessageDigest md = MessageDigest.getInstance("MD5");
+				byte[] _digest = md.digest(user_profile.username.getBytes());
+				tupleId = Util.byteToHexString(_digest, 0, _digest.length);
+			} catch (NoSuchAlgorithmException e) {
+				tupleId = user_profile.username;
+				e.printStackTrace();
+			}
 			String from = user_profile.username;
 			String entity = "sip:" + user_profile.username;
 			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
