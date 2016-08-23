@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import org.lumicall.android.Util;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.authentication.DigestAuthentication;
 import org.zoolu.sip.header.AuthorizationHeader;
@@ -100,13 +101,8 @@ public class PublishAgent implements TransactionClientListener {
 		if (publish_enable_status == true) {
 			MessageDigest md = null;
 			String tupleId;
-			try {
-				md = MessageDigest.getInstance("MD5");
-				tupleId =  md.digest(user_profile.username.getBytes()).toString();
-			} catch (NoSuchAlgorithmException e) {
-				tupleId = user_profile.username;
-				e.printStackTrace();
-			}
+			byte[] _digest = md.digest(user_profile.username.getBytes());
+			tupleId = Util.byteToHexString(_digest, 0, _digest.length);
 			String from = user_profile.username;
 			String entity = "sip:" + user_profile.username;
 			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -157,11 +153,11 @@ public class PublishAgent implements TransactionClientListener {
 	public void onTransFailureResponse(TransactionClient tc, Message resp) {
 		StatusLine status = resp.getStatusLine();
 		int code = status.getCode();
+		String log = MessageFormat.format("onTransFailureResponse: status {0}: {1}", code, status);
+		logger.fine(log);
 		if (code == 401 || code == 407) {
 			processAuthenticationResponse(tc, resp, code);
 		}
-		String log = MessageFormat.format("onTransFailureResponse: status {0}: {1}", code, status);
-		logger.fine(log);
 	}
 
 	private boolean processAuthenticationResponse(TransactionClient transaction, Message resp, int respCode) {
@@ -201,7 +197,7 @@ public class PublishAgent implements TransactionClientListener {
 	@Override
 	public void onTransTimeout(TransactionClient tc) {
 		//FIXME
-		logger.fine("onTransTimeout : Timeout!");
+		logger.warning("onTransTimeout : Timeout!");
 	}
 
 	public void onTransProvisionalResponse(TransactionClient tc, Message resp) {
