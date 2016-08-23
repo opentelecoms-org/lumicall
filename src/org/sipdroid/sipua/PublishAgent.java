@@ -122,7 +122,7 @@ public class PublishAgent implements TransactionClientListener {
 							"</presence>";
 			MessageFactory msgf = new MessageFactory();
 			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(from), "presence", expireTime, "application/pidf+xml", xml);
-			TransactionClient t = new TransactionClient(sip_provider, req, this);
+			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
 			t.request();
 		}
 	}
@@ -134,7 +134,7 @@ public class PublishAgent implements TransactionClientListener {
 		if (publish_enable_status == true) {
 			MessageFactory msgf = new MessageFactory();
 			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(from), "presence", 0, null, null);
-			TransactionClient t = new TransactionClient(sip_provider, req, this);
+			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
 			t.request();
 		}
 	}
