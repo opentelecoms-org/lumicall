@@ -141,7 +141,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	public RegisterAgent(SipProvider sip_provider, String target_url,
 			String contact_url, String username, String realm, String passwd,
 			RegisterAgentListener listener,UserAgentProfile user_profile,
-			String qvalue, String icsi, Boolean pub, boolean mwi, Context context) {									// modified by mandrajg
+			String qvalue, String icsi, Boolean pub, boolean mwi, boolean enablePublish) {									// modified by mandrajg
 		
 		init(sip_provider, target_url, contact_url, listener);
 		
@@ -159,7 +159,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		
 		this.mwi = mwi;
 
-		pas = new PublishAgent(sip_provider, user_profile,user_profile.username, user_profile.realm, user_profile.passwd, context);
+		pas = new PublishAgent(sip_provider, user_profile, enablePublish);
 	}
 
 	public void halt() {
