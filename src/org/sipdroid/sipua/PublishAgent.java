@@ -22,10 +22,6 @@
 package org.sipdroid.sipua;
 
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
 import org.lumicall.android.Util;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.authentication.DigestAuthentication;
@@ -79,7 +75,7 @@ public class PublishAgent implements TransactionClientListener {
 		this.user_profile = user_profile;
 		this.username = user_profile.username;
 		this.passwd = user_profile.passwd;
-		this.enablePublish=enablePublish;
+		this.enablePublish = enablePublish;
 	}
 
 	public void publish() {
@@ -104,8 +100,9 @@ public class PublishAgent implements TransactionClientListener {
 					"xmlns:rpid=\"urn:ietf:params:xml:ns:pidf:rpid\"" +
 					" entity=\"" + entity + "\">" +
 					" <dm:person id=\"" + "ID-" + tupleId + ">" +
+					"<rpid:activities/>" +
 					"</dm:person>" +
-					"<tuple id=\"" + "ID-" + tupleId + "\">" +
+					"<tuple id=\"" + "TID-" + tupleId + "\">" +
 					"<status>" +
 					"<basic>" + status.pidf() + "</basic>" +
 					"</status>" +
