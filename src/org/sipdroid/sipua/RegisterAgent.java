@@ -55,6 +55,7 @@ import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 import org.zoolu.tools.Parser;
 
+import android.content.Context;
 import android.preference.PreferenceManager;
 
 /**
@@ -131,6 +132,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	Message currentSubscribeMessage;
 	public final int SUBSCRIPTION_EXPIRES = 184000;
 
+	PublishAgent pas;
+
 	/**
 	 * Creates a new RegisterAgent with authentication credentials (i.e.
 	 * username, realm, and passwd).
@@ -138,7 +141,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	public RegisterAgent(SipProvider sip_provider, String target_url,
 			String contact_url, String username, String realm, String passwd,
 			RegisterAgentListener listener,UserAgentProfile user_profile,
-			String qvalue, String icsi, Boolean pub, boolean mwi) {									// modified by mandrajg
+			String qvalue, String icsi, Boolean pub, boolean mwi, Context context) {									// modified by mandrajg
 		
 		init(sip_provider, target_url, contact_url, listener);
 		
@@ -155,6 +158,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		this.pub = pub;
 		
 		this.mwi = mwi;
+
+		pas = new PublishAgent(sip_provider, user_profile,user_profile.username, user_profile.realm, user_profile.passwd, context);
 	}
 
 	public void halt() {
@@ -227,6 +232,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 			//this is the case for de-registration
 			expire_time = 0;
 			CurrentState = DEREGISTERING;
+			pas.unPublish();
 		}
 		
 		//Create message re (modified by mandrajg)
@@ -495,7 +501,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 						expires = exp_i;
 				}
 			}
-			
+			pas.publish();
 			printLog("Registration success: " + result, LogLevel.HIGH);
 			
 			if (CurrentState == REGISTERING)

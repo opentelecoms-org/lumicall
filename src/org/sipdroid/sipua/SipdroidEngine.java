@@ -254,7 +254,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 
 			uas = new UserAgent[lineCount];
 			ras = new RegisterAgent[lineCount];
-			pas = new PublishAgent[lineCount];
+			//pas = new PublishAgent[lineCount];
 			mas = new MessageAgent[lineCount];
 			kas = new KeepAliveSip[lineCount];
 			lastmsgs = new String[lineCount];
@@ -311,13 +311,13 @@ public class SipdroidEngine implements RegisterAgentListener {
 						ras[i] = new RegisterAgent(sip_providers[i], user_profile.from_url, // modified
 							user_profile.contact_url, user_profile.username,
 							user_profile.realm, user_profile.passwd, this, user_profile,
-							user_profile.qvalue, icsi, user_profile.pub, user_profile.mwi);
-						pas[i] = new PublishAgent(sip_providers[i], user_profile,user_profile.username, user_profile.realm, user_profile.passwd, context);
+							user_profile.qvalue, icsi, user_profile.pub, user_profile.mwi, context);
+						//pas[i] = new PublishAgent(sip_providers[i], user_profile,user_profile.username, user_profile.realm, user_profile.passwd, context);
 						mas[i] = new MessageAgent(sip_providers[i], user_profile, messageManager);
 						mas[i].receive();
 					} else {
 						ras[i] = null;
-						pas[i] = null;
+						//pas[i] = null;
 						mas[i] = null;
 					}
 					kas[i] = new KeepAliveSip(sip_providers[i],100000);
@@ -429,19 +429,19 @@ public class SipdroidEngine implements RegisterAgentListener {
 	}
 
 	public void publishAll () {
-		for (PublishAgent pa : pas) {
+/*		for (PublishAgent pa : pas) {
 			if (pa != null) {
 				pa.publish();
 			}
-		}
+		}*/
 	}
 
 	public void unPublishAll () {
-		for (PublishAgent pa : pas) {
+/*		for (PublishAgent pa : pas) {
 			if (pa != null) {
 				pa.unPublish();
 			}
-		}
+		}*/
 	}	
 	
 	public void registerMore() {
