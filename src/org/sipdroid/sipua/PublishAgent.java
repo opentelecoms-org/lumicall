@@ -99,7 +99,7 @@ public class PublishAgent implements TransactionClientListener {
 					"xmlns:dm=\"urn:ietf:params:xml:ns:pidf:data-model\" " +
 					"xmlns:rpid=\"urn:ietf:params:xml:ns:pidf:rpid\"" +
 					" entity=\"" + entity + "\">" +
-					" <dm:person id=\"" + "PID-" + tupleId + ">" +
+					" <dm:person id=\"" + "PID-" + tupleId + "\">" +
 					"<rpid:activities/>" +
 					"</dm:person>" +
 					"<tuple id=\"" + "TID-" + tupleId + "\">" +
