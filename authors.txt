@@ -19,6 +19,7 @@ nio.von = Nio Von <nio.von@gmail.com>
 (no author) = Pascal Merle <pmerle@bluebottle.com>
 piotrek.zurek@gmail.com = Piotrek Zurek <piotrek.zurek@gmail.com>
 pmerle71 = Pascal Merle <pmerle@bluebottle.com>
+contact@pranavjain.me = Pranav Jain <contact@pranavjain.me>
 ray.bellis = Ray Bellis <ray.bellis@gmail.com>
 ReeeYeees = Reee Yeees <ReeeYeees@gmail.com>
 thilo.bangert = Thilo Bangert <thilo.bangert@gmail.com>
