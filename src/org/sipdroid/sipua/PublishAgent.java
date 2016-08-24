@@ -95,8 +95,8 @@ public class PublishAgent implements TransactionClientListener {
 			}
 			String entity = "sip:" + user_profile.from_url;
 			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-					"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"\n" +
-					"xmlns:dm=\"urn:ietf:params:xml:ns:pidf:data-model\"\n" +
+					"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" " +
+					"xmlns:dm=\"urn:ietf:params:xml:ns:pidf:data-model\" " +
 					"xmlns:rpid=\"urn:ietf:params:xml:ns:pidf:rpid\"" +
 					" entity=\"" + entity + "\">" +
 					" <dm:person id=\"" + "PID-" + tupleId + ">" +
