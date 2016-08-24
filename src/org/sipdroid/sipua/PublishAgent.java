@@ -99,15 +99,20 @@ public class PublishAgent implements TransactionClientListener {
 			}
 			String entity = "sip:" + user_profile.from_url;
 			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-							"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"" +
-							" entity=\"" + entity + "\">" +
-							"<tuple id=\"" + "ID-"+ tupleId + "\">" +
-							"<status>" +
-							"<basic>" + status.pidf() + "</basic>" +
-							"<note>" + note + "</note>" +
-							"</status>" +
-							"</tuple>" +
-							"</presence>";
+					"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"\n" +
+					"xmlns:dm=\"urn:ietf:params:xml:ns:pidf:data-model\"\n" +
+					"xmlns:rpid=\"urn:ietf:params:xml:ns:pidf:rpid\"" +
+					" entity=\"" + entity + "\">" +
+					" <dm:person id=\"" + "ID-" + tupleId + ">" +
+					"</dm:person>" +
+					"<tuple id=\"" + "ID-" + tupleId + "\">" +
+					"<status>" +
+					"<basic>" + status.pidf() + "</basic>" +
+					"</status>" +
+					"<contact>" + entity + "</contact>" +
+					"<note>" + note + "</note>" +
+					"</tuple>" +
+					"</presence>";
 			MessageFactory msgf = new MessageFactory();
 			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(user_profile.from_url), "presence", expireTime, "application/pidf+xml", xml);
 			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
