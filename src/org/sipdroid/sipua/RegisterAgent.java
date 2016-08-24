@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009 The Sipdroid Open Source Project
  * Copyright (C) 2005 Luca Veltri - University of Parma - Italy
+ * Copyright (C) 2016 Pranav Jain
  * 
  * This file is part of Sipdroid (http://www.sipdroid.org)
  * 
@@ -55,6 +56,7 @@ import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
 import org.zoolu.tools.Parser;
 
+import android.content.Context;
 import android.preference.PreferenceManager;
 
 /**
@@ -131,6 +133,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	Message currentSubscribeMessage;
 	public final int SUBSCRIPTION_EXPIRES = 184000;
 
+	PublishAgent pa;
+
 	/**
 	 * Creates a new RegisterAgent with authentication credentials (i.e.
 	 * username, realm, and passwd).
@@ -138,7 +142,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 	public RegisterAgent(SipProvider sip_provider, String target_url,
 			String contact_url, String username, String realm, String passwd,
 			RegisterAgentListener listener,UserAgentProfile user_profile,
-			String qvalue, String icsi, Boolean pub, boolean mwi) {									// modified by mandrajg
+			String qvalue, String icsi, Boolean pub, boolean mwi, boolean enablePublish) {									// modified by PranavJain
 		
 		init(sip_provider, target_url, contact_url, listener);
 		
@@ -155,6 +159,8 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 		this.pub = pub;
 		
 		this.mwi = mwi;
+
+		pa = new PublishAgent(sip_provider, user_profile, enablePublish);
 	}
 
 	public void halt() {
@@ -227,6 +233,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 			//this is the case for de-registration
 			expire_time = 0;
 			CurrentState = DEREGISTERING;
+			pa.unPublish();
 		}
 		
 		//Create message re (modified by mandrajg)
@@ -495,7 +502,7 @@ public class RegisterAgent implements TransactionClientListener, SubscriberDialo
 						expires = exp_i;
 				}
 			}
-			
+			pa.publish();
 			printLog("Registration success: " + result, LogLevel.HIGH);
 			
 			if (CurrentState == REGISTERING)

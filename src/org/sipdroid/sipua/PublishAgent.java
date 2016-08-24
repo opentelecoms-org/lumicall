@@ -22,10 +22,6 @@
 package org.sipdroid.sipua;
 
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
 import org.lumicall.android.Util;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.authentication.DigestAuthentication;
@@ -61,44 +57,33 @@ public class PublishAgent implements TransactionClientListener {
 	 */
 	String username;
 	/**
-	 * User realm.
-	 */
-	String realm;
-	/**
-	 * Nonce for the next authentication.
-	 */
-	String next_nonce;
-	/**
 	 * User's passwd.
 	 */
 	String passwd;
-
+	/**
+	 * Publish Setting.
+	 */
+	boolean enablePublish;
 	private Logger logger = Logger.getLogger(getClass().getCanonicalName());
 	/**
 	 * SipProvider
 	 */
 	protected SipProvider sip_provider;
-	Context context;
 
-	public PublishAgent(SipProvider sip_provider, UserAgentProfile user_profile, String username, String realm, String passwd, Context context) {
+	public PublishAgent(SipProvider sip_provider, UserAgentProfile user_profile, boolean enablePublish) {
 		this.sip_provider = sip_provider;
 		this.user_profile = user_profile;
-		this.username = username;
-		this.realm = realm;
-		this.passwd = passwd;
-		this.next_nonce = null;
-		this.context = context;
-
+		this.username = user_profile.username;
+		this.passwd = user_profile.passwd;
+		this.enablePublish = enablePublish;
 	}
 
 	public void publish() {
-		this.publish(BasicStatus.OPEN, SipStack.default_expires, "");
+		this.publish(BasicStatus.OPEN, SipStack.default_expires, "Open");
 	}
 
 	public void publish(BasicStatus status, int expireTime, String note) {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		Boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
-		if (publish_enable_status == true) {
+		if (enablePublish == true) {
 			String tupleId;
 			try {
 				MessageDigest md = MessageDigest.getInstance("MD5");
@@ -109,16 +94,22 @@ public class PublishAgent implements TransactionClientListener {
 				e.printStackTrace();
 			}
 			String entity = "sip:" + user_profile.from_url;
-			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-							"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\"" +
-							" entity=\"" + entity + "\">" +
-							"<tuple id=\"" + tupleId + "\">" +
-							"<status>" +
-							"<basic>" + status.pidf() + "</basic>" +
-							"<note>" + note + "</note>" +
-							"</status>" +
-							"</tuple>" +
-							"</presence>";
+			String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+					"<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" " +
+					"xmlns:dm=\"urn:ietf:params:xml:ns:pidf:data-model\" " +
+					"xmlns:rpid=\"urn:ietf:params:xml:ns:pidf:rpid\"" +
+					" entity=\"" + entity + "\">" +
+					" <dm:person id=\"" + "PID-" + tupleId + ">" +
+					"<rpid:activities/>" +
+					"</dm:person>" +
+					"<tuple id=\"" + "TID-" + tupleId + "\">" +
+					"<status>" +
+					"<basic>" + status.pidf() + "</basic>" +
+					"</status>" +
+					"<contact>" + entity + "</contact>" +
+					"<note>" + note + "</note>" +
+					"</tuple>" +
+					"</presence>";
 			MessageFactory msgf = new MessageFactory();
 			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(user_profile.from_url), "presence", expireTime, "application/pidf+xml", xml);
 			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
@@ -127,12 +118,9 @@ public class PublishAgent implements TransactionClientListener {
 	}
 
 	public void unPublish() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		String from = user_profile.username;
-		Boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
-		if (publish_enable_status == true) {
+		if (enablePublish == true) {
 			MessageFactory msgf = new MessageFactory();
-			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(from), "presence", 0, null, null);
+			Message req = msgf.createPublishRequest(sip_provider, new NameAddress(user_profile.from_url), "presence", 0, null, null);
 			TransactionClient t = new TransactionClient(sip_provider, req, this, 30000);
 			t.request();
 		}
