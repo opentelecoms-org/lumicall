@@ -79,7 +79,7 @@ public class PublishAgent implements TransactionClientListener {
 	}
 
 	public void publish() {
-		this.publish(BasicStatus.OPEN, SipStack.default_expires, "");
+		this.publish(BasicStatus.OPEN, SipStack.default_expires, "Open");
 	}
 
 	public void publish(BasicStatus status, int expireTime, String note) {
