@@ -304,7 +304,7 @@ public class SipdroidEngine implements RegisterAgentListener {
 					}
 		
 					uas[i] = ua = new UserAgent(sip_providers[i], user_profile);
-					if(user_profile.enable && user_profile.reg){
+					if(user_profile.enable && user_profile.reg){ 
 						SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 						boolean publish_enable_status = prefs.getBoolean("publish_enable", true);
 						ras[i] = new RegisterAgent(sip_providers[i], user_profile.from_url, // modified
