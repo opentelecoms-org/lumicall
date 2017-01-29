@@ -22,5 +22,3 @@ Building:
 	To build this code, please see the instructions here:
 	
 		http://www.lumicall.org/source-code-and-build-instructions
-
-test
