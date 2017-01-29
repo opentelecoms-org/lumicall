@@ -232,5 +232,23 @@
 			<CheckBoxPreference
 				android:key="improve"
 				android:title="@string/settings_improve"/>
-	</PreferenceScreen> --> 
+	</PreferenceScreen> -->
+	<PreferenceCategory android:title="@string/silent_config">
+		<PreferenceScreen
+			android:title="@string/silent_disable_enable">
+			<CheckBoxPreference
+				android:key="silentkey"
+				android:title="@string/silent_on"
+				android:defaultValue="false"
+				android:summaryOff="@string/silent_summary_off"/>
+
+			<Preference android:title="@string/silent_add_days_hours"
+				android:dependency="silentkey"
+				android:summary="(Optional)">
+				<intent android:action="android.intent.action.MAIN"
+					android:targetPackage="org.lumicall.android"
+					android:targetClass="org.lumicall.android.preferences.SilentMode"/>
+			</Preference>
+		</PreferenceScreen>
+	</PreferenceCategory>
 </PreferenceScreen>

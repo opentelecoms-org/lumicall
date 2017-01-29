@@ -8,8 +8,10 @@ import org.lumicall.android.R;
 import org.lumicall.android.db.LumicallDataSource;
 import org.lumicall.android.db.SIPIdentity;
 import org.lumicall.android.db.UserMessage;
+import org.lumicall.android.preferences.SilentMode;
 import org.lumicall.android.sip.MessageIndex;
 import org.sipdroid.sipua.ui.Receiver;
+import org.sipdroid.sipua.ui.Settings;
 import org.sipdroid.sipua.ui.Sipdroid;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.message.Message;
@@ -21,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 
 /**
  * This is a basic messaging manager that logs messages to an SQLite
@@ -37,6 +40,7 @@ public class MessageManager implements MessageAgentListener {
 	
 	private Notification notification;
 	private NotificationManager nm;
+	Uri alarmSound;
 	
 	public MessageManager() {
 		nm = (NotificationManager) Receiver.mContext.getSystemService(android.content.Context.NOTIFICATION_SERVICE);
@@ -87,6 +91,14 @@ public class MessageManager implements MessageAgentListener {
 		PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0, notificationIntent, 0);
 		notification.setLatestEventInfo(ctx, ctx.getText(R.string.notify_sms_received), detail, contentIntent);
 		Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		if(SilentMode.activitycount==0&& PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(Settings.PREF_SILENT_MODE, Settings.DEFAULT_SILENT_MODE))
+		{
+			alarmSound=null;
+		}
+		else if(SilentMode.activitycount==1&&SilentMode.getInstance().checkSilentMode())
+		{
+			alarmSound=null;
+		}
 		notification.sound = alarmSound;
 		notification.flags |= (Notification.FLAG_AUTO_CANCEL | Notification.FLAG_SHOW_LIGHTS);
 		notification.ledOnMS = 1;

@@ -177,7 +177,9 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_GANGLIA_PORT = "ganglia_port";
 	public static final String PREF_GANGLIA_TTL = "ganglia_ttl";
 	public static final String PREF_GANGLIA_INTERVAL = "ganglia_interval";
-	
+	public static final String PREF_SILENT_MODE = "silentkey";
+
+
 	// Default values of the preferences
 	public static final String	DEFAULT_USERNAME = "";
 	public static final String	DEFAULT_PASSWORD = "";
@@ -247,6 +249,7 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final int DEFAULT_GANGLIA_PORT = 8649;
 	public static final int DEFAULT_GANGLIA_TTL = 15; // hops
 	public static final int DEFAULT_GANGLIA_INTERVAL = 5;  // seconds
+	public static final boolean DEFAULT_SILENT_MODE = false;
 
 	// An other preference keys (not in the Preferences XML file)
 	public static final String PREF_OLDVALID = "oldvalid";
