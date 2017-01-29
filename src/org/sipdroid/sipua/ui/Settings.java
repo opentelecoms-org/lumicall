@@ -179,7 +179,6 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	public static final String PREF_GANGLIA_INTERVAL = "ganglia_interval";
 	public static final String PREF_SILENT_MODE = "silentkey";
 
-
 	// Default values of the preferences
 	public static final String	DEFAULT_USERNAME = "";
 	public static final String	DEFAULT_PASSWORD = "";
