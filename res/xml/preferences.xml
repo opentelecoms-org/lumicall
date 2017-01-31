@@ -240,11 +240,11 @@
 				android:key="silentkey"
 				android:title="@string/silent_on"
 				android:defaultValue="false"
-				android:summaryOff="@string/silent_summary_off"/>
+				android:summaryOff="@string/silent_off"/>
 
-			<Preference android:title="@string/silent_add_days_hours"
+			<Preference android:title="@string/silent_enter_days_time"
 				android:dependency="silentkey"
-				android:summary="(Optional)">
+				android:summary="@string/silent_optional">
 				<intent android:action="android.intent.action.MAIN"
 					android:targetPackage="org.lumicall.android"
 					android:targetClass="org.lumicall.android.preferences.SilentMode"/>

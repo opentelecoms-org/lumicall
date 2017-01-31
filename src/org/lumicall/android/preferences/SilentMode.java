@@ -23,7 +23,7 @@ import java.util.Locale;
  */
 
 public class SilentMode extends Activity {
-    EditText hh1,mm1,hh2,mm2;
+    EditText hhStart,mmStart,hhEnd,mmEnd;
     CheckBox mon, tue, wed, thur, fri, sat, sun;
     public static int activitycount=0;
     public Date date;
@@ -37,7 +37,7 @@ public class SilentMode extends Activity {
     SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext);
     SharedPreferences.Editor editor = settings.edit();
     Boolean check_mon, check_tue, check_wed, check_thur, check_fri, check_sat, check_sun;
-    String hour1, min1, hour2, min2;
+    String hourStart, minStart, hourEnd, minEnd;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -47,10 +47,10 @@ public class SilentMode extends Activity {
         activitycount=1;
         sv=this;
 
-        hh1 = (EditText)findViewById(R.id.hour1);
-        mm1 = (EditText)findViewById(R.id.min1);
-        hh2 = (EditText)findViewById(R.id.hour2);
-        mm2 = (EditText)findViewById(R.id.min2);
+        hhStart = (EditText)findViewById(R.id.hour_start);
+        mmStart = (EditText)findViewById(R.id.min_start);
+        hhEnd = (EditText)findViewById(R.id.hour_end);
+        mmEnd = (EditText)findViewById(R.id.min_end);
         mon = (CheckBox)findViewById(R.id.checkbox_mon);
         tue = (CheckBox)findViewById(R.id.checkbox_tue);
         wed = (CheckBox)findViewById(R.id.checkbox_wed);
@@ -135,10 +135,10 @@ public class SilentMode extends Activity {
     }
     public void commitEditTextValues()
     {
-        hh1.setText(settings.getString("hour1", ""));
-        mm1.setText(settings.getString("min1", ""));
-        hh2.setText(settings.getString("hour2", ""));
-        mm2.setText(settings.getString("min2", ""));
+        hhStart.setText(settings.getString("hourStart", ""));
+        mmStart.setText(settings.getString("minStart", ""));
+        hhEnd.setText(settings.getString("hourEnd", ""));
+        mmEnd.setText(settings.getString("minEnd", ""));
     }
     public void getCheckBoxValue()
     {
@@ -152,24 +152,24 @@ public class SilentMode extends Activity {
     }
     public void setEditTextValue()
     {
-        hour1 = hh1.getText().toString();
-        hour2 = hh2.getText().toString();
-        min1 = mm1.getText().toString();
-        min2 = mm2.getText().toString();
+        hourStart = hhStart.getText().toString();
+        hourEnd = hhEnd.getText().toString();
+        minStart = mmStart.getText().toString();
+        minEnd = mmEnd.getText().toString();
 
-        if(hour1.equals("") && hour2.equals("") && min1.equals("") && min2.equals(""))
+        if(hourStart.equals("") && hourEnd.equals("") && minStart.equals("") && minEnd.equals(""))
         {
-            editor.putString("hour1", "");
-            editor.putString("hour2", "");
-            editor.putString("min1", "");
-            editor.putString("min2", "");
+            editor.putString("hourStart", "");
+            editor.putString("hourEnd", "");
+            editor.putString("minStart", "");
+            editor.putString("minEnd", "");
         }
         else
         {
-            editor.putString("hour1" , hour1);
-            editor.putString("hour2" , hour2);
-            editor.putString("min1" , min1);
-            editor.putString("min2" , min2);
+            editor.putString("hourStart" , hourStart);
+            editor.putString("hourEnd" , hourEnd);
+            editor.putString("minStart" , minStart);
+            editor.putString("minEnd" , minEnd);
         }
         editor.commit();
     }
@@ -206,18 +206,18 @@ public class SilentMode extends Activity {
 
     public boolean compareDates()
     {
-        if( hh1.getText().toString().equals("") &&
-                mm1.getText().toString().equals("") &&
-                hh2.getText().toString().equals("") &&
-                mm2.getText().toString().equals(""))
+        if( hhStart.getText().toString().equals("") &&
+                mmStart.getText().toString().equals("") &&
+                hhEnd.getText().toString().equals("") &&
+                mmEnd.getText().toString().equals(""))
         //If no time constraints are set by user, the silent mode will be enabled for the entire day
         {
             return true;
         }
         else
         {
-            String compareStringOne = hour1 + ":" + min1;
-            String compareStringTwo = hour2 + ":" + min2;
+            String compareStringOne = hourStart + ":" + minStart;
+            String compareStringTwo = hourEnd + ":" + minEnd;
             String inputFormat = "HH:mm";
 
             inputParser = new SimpleDateFormat(inputFormat, Locale.ENGLISH);
@@ -257,8 +257,8 @@ public class SilentMode extends Activity {
                 (!check_tue) && (!check_wed) &&
                 (!check_thur) && (!check_fri) &&
                 (!check_sat) && (!check_sun) &&
-                (hour1.equals("")) && (min1.equals("")) &&
-                (hour2.equals("")) && (min2.equals("")))
+                (hourStart.equals("")) && (minStart.equals("")) &&
+                (hourEnd.equals("")) && (minEnd.equals("")))
         {
             return true;
         }
