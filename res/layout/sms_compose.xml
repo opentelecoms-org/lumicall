@@ -20,21 +20,25 @@
             android:textStyle="bold" >
         </TextView>
 
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
         <EditText
             android:id="@+id/sms_recipient"
             android:layout_width="0dip"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:inputType="textEmailAddress"
             android:singleLine="true"
             android:text="" />
-
         <Button
             android:id="@+id/sms_send"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="right"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textAlignment="center"
             android:text="@string/sms_send" />
+    </LinearLayout>
     </LinearLayout>
     
     <EditText

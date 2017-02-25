@@ -142,13 +142,25 @@ public class MessageIndex extends ActionBarActivity {
 			String peerUri = null;
 			String peerName = null;
 			boolean outgoing = um.isOriginLocal();
+
+			LinearLayout bubbleLayout=(LinearLayout)view.findViewById(R.id.bubble_layout);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.WRAP_CONTENT,
+					LinearLayout.LayoutParams.WRAP_CONTENT);
+
 			if(outgoing) {
 				peerUri = um.getRecipientUri();
 				peerName = um.getRecipientName();
+				bubbleLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_outgoing));
+				params.gravity = Gravity.RIGHT;
 			} else {
 				peerUri = um.getSenderUri();
 				peerName = um.getSenderName();
+				bubbleLayout.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble_incoming));
 			}
+			params.setMargins(5,1,5,0);
+			bubbleLayout.setLayoutParams(params);
+
 			StringBuilder peer = new StringBuilder("");
 			if(peerName != null) {
 				peer.append(peerName).append(" ");
