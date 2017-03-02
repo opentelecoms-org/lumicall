@@ -11,6 +11,7 @@ To build this code, please see the instructions here: http://www.lumicall.org/so
 **Licence:**
 	
 Copyright (C) 2012-2016 Daniel Pocock (http://danielpocock.com)  
+Copyright (C) 2016 Pranav Jain contact@pranavjain.me
 Copyright (C) 2009 The Sipdroid Open Source Project (http://sipdroid.org)  
 Copyright (C) 2008 Hughes Systique Corporation, USA (http://hsc.com)  
 Copyright (C) 2006 The Android Open Source Project (http://android.com)  
