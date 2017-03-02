@@ -66,6 +66,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import org.lumicall.android.R;
+import org.lumicall.android.preferences.SilentMode;
 import org.sipdroid.media.Bluetooth;
 import org.sipdroid.media.RtpStreamReceiver;
 import org.sipdroid.media.RtpStreamSender;
@@ -184,6 +185,16 @@ import org.zoolu.sip.provider.SipProvider;
 					ccConn.date = System.currentTimeMillis();
 					ccCall.base = 0;
 					AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+					int SaveState=am.getRingerMode();
+					am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+					if(SilentMode.activitycount==0&&PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getBoolean(org.sipdroid.sipua.ui.Settings.PREF_SILENT_MODE, org.sipdroid.sipua.ui.Settings.DEFAULT_SILENT_MODE))
+					{
+						am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+					}
+					else if(SilentMode.activitycount==1&&SilentMode.getInstance().checkSilentMode())
+					{
+						am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+					}
 					int rm = am.getRingerMode();
 					int vs = am.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER);
 			        KeyguardManager mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
@@ -213,6 +224,7 @@ import org.zoolu.sip.provider.SipProvider;
 					}
 					wl.acquire();
 		        	Checkin.checkin(true);
+					am.setRingerMode(SaveState);
 					break;
 				case UserAgent.UA_STATE_OUTGOING_CALL:
 					RtpStreamReceiver.good = RtpStreamReceiver.lost = RtpStreamReceiver.loss = RtpStreamReceiver.late = 0;

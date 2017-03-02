@@ -510,4 +510,23 @@
 <string name="sms_send">Send</string>
 <string name="sms_send_failure">SIP SMS sending failed</string>
 
+    <string name="silent_config">Configure Silent Mode</string>
+    <string name="silent_disable_enable">Disable/Enable</string>
+    <string name="silent_on">Silent Mode On</string>
+    <string name="silent_off">Silent Mode is Off"</string>
+    <string name="silent_enter_days_time">Add Work Days/Hours</string>
+    <string name="silent_optional">(Optional)</string>
+    <string name="silent_heading">To enable silent mode based on your schedule</string>
+    <string name="silent_enter_time">1. Enter Time in 24 Hour Format </string>
+    <string name="silent_enter_days">2. Select Work Days</string>
+    <string name="silent_from"> From </string>
+    <string name="silent_to"> To </string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="silent_save">Save</string>
 </resources>
