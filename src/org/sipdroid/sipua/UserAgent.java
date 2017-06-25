@@ -739,7 +739,18 @@ public class UserAgent extends CallListenerAdapter {
 		boolean use2833 = audio_app != null && audio_app.sendDTMF(c); // send out-band DTMF (rfc2833) if supported
 
 		if (!use2833 && call != null)
+		{
 			call.info(c, duration);
+			logger.info("sent DTMF code '" + c + "' using SIP INFO");
+		}
+		else if(use2833)
+		{
+			logger.info("sent DTMF code '" + c + "' using RFC2833");
+		}
+		else
+		{
+			logger.warning("failed to send DTMF code '" + c + "'");
+		}
 	}
 	
 	/** Waits for an incoming call (acting as UAS). */

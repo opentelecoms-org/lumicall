@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import zorg.SRTP;
@@ -436,7 +437,9 @@ public class RtpStreamSender extends Thread {
 			 }
 			 //DTMF change start
 			 if (dtmf.length() != 0) {
-	 			 byte[] dtmfbuf = new byte[dtframesize + 12];
+				 logger.fine("must send DTMF code '" + dtmf.charAt(0) + "'");
+				 int dtmf_buf_size = dtframesize + 12 + (srtp != null ? 10 : 0);
+	 			 byte[] dtmfbuf = new byte[dtmf_buf_size];
 				 RtpPacket dt_packet = new RtpPacket(dtmfbuf, 0);
 				 dt_packet.setPayloadType(dtmf_payload_type);
  				 dt_packet.setPayloadLength(dtframesize);
@@ -445,6 +448,7 @@ public class RtpStreamSender extends Thread {
 				 int duration;
 				 
 	 			 for (int i = 0; i < 6; i++) { 
+					 logger.finer("sending DTMF start");
  	 				 time += 160;
  	 				 duration = (int)(time - dttime);
 	 				 dt_packet.setSequenceNumber(seqn++);
@@ -457,9 +461,11 @@ public class RtpStreamSender extends Thread {
 						sendPacket(dt_packet);
 						sleep(20);
 	 				 } catch (Exception e1) {
+						 logger.log(Level.SEVERE, "failed to send DTMF start packet", e1);
 	 				 }
 	 			 }
 	 			 for (int i = 0; i < 3; i++) {
+					 logger.finer("sending DTMF stop");
 	 				 duration = (int)(time - dttime);
 	 				 dt_packet.setSequenceNumber(seqn);
 	 				 dt_packet.setTimestamp(dttime);
@@ -470,6 +476,7 @@ public class RtpStreamSender extends Thread {
 	 				 try {
 						sendPacket(dt_packet);
 	 				 } catch (Exception e1) {
+						 logger.log(Level.SEVERE, "failed to send DTMF stop packet", e1);
 	 				 }	 			 
 	 			 }
 	 			 time += 160; seqn++;
@@ -617,10 +624,12 @@ public class RtpStreamSender extends Thread {
 	/** Set RTP payload type of outband DTMF packets. **/  
 	public void setDTMFpayloadType(int payload_type){
 		dtmf_payload_type = payload_type; 
+		logger.info("using DTMF payload type " + dtmf_payload_type);
 	}
 	
 	/** Send outband DTMF packets */
 	public void sendDTMF(char c) {
+		logger.fine("adding DTMF character '" + c + "' to queue");
 		dtmf = dtmf+c; // will be set to 0 after sending tones
 	}
 	//DTMF change

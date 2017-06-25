@@ -186,8 +186,12 @@ public class JAudioLauncher implements MediaLauncher
    //change DTMF
 	/** Send outband DTMF packets **/
   public boolean sendDTMF(char c){
-	    if (! useDTMF) return false;
+	    if (! useDTMF) {
+		    logger.warning("DTMF not supported using RFC2833 in this session");
+		    return false;
+	    }
 	    sender.sendDTMF(c);
+	    logger.info("sent DTMF code '" + c + "' to RTP stack");
 	    return true;
   }
   
