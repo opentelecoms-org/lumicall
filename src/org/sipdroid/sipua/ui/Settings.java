@@ -555,7 +555,11 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 		if (set != get) {
 			Toast.makeText(this, set == android.provider.Settings.System.WIFI_SLEEP_POLICY_DEFAULT?
 					R.string.settings_policy_default:R.string.settings_policy_never, Toast.LENGTH_LONG).show();
-			android.provider.Settings.System.putInt(cr, android.provider.Settings.System.WIFI_SLEEP_POLICY, set);
+			try {
+				android.provider.Settings.System.putInt(cr, android.provider.Settings.System.WIFI_SLEEP_POLICY, set);
+			} catch (java.lang.SecurityException ex) {
+				// FIXME - API 17 and above
+			}
 		}
 	}
 

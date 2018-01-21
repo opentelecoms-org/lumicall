@@ -433,7 +433,11 @@ public class RtpStreamReceiver extends Thread {
 			int oldpolicy = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getInt(org.sipdroid.sipua.ui.Settings.PREF_OLDPOLICY, org.sipdroid.sipua.ui.Settings.DEFAULT_OLDPOLICY);
 			am.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,oldvibrate);
 			am.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION,oldvibrate2);
-			Settings.System.putInt(cr, Settings.System.WIFI_SLEEP_POLICY, oldpolicy);
+			try {
+				Settings.System.putInt(cr, Settings.System.WIFI_SLEEP_POLICY, oldpolicy);
+			} catch (java.lang.SecurityException ex) {
+				// FIXME - API 17 and above
+			}
 			int oldring = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).getInt("oldring",0);
 			if (oldring > 0) am.setStreamVolume(AudioManager.STREAM_RING, oldring, 0);
 			Editor edit = PreferenceManager.getDefaultSharedPreferences(Receiver.mContext).edit();
@@ -620,7 +624,11 @@ public class RtpStreamReceiver extends Thread {
 		am = (AudioManager) Receiver.mContext.getSystemService(Context.AUDIO_SERVICE);
         cr = Receiver.mContext.getContentResolver();
 		saveSettings();
-		Settings.System.putInt(cr, Settings.System.WIFI_SLEEP_POLICY,Settings.System.WIFI_SLEEP_POLICY_NEVER);
+		try {
+			Settings.System.putInt(cr, Settings.System.WIFI_SLEEP_POLICY,Settings.System.WIFI_SLEEP_POLICY_NEVER);
+		} catch (java.lang.SecurityException ex) {
+			// FIXME - API 17 and above
+		}
 		am.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER,AudioManager.VIBRATE_SETTING_OFF);
 		am.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION,AudioManager.VIBRATE_SETTING_OFF);
 		if (oldvol == -1) oldvol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
