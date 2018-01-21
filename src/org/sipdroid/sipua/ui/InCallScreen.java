@@ -84,13 +84,21 @@ public class InCallScreen extends CallScreen implements View.OnClickListener, Se
         if (off) {
         	if (oldtimeout == 0) {
         		oldtimeout = Settings.System.getInt(cr, Settings.System.SCREEN_OFF_TIMEOUT, 60000);
-	        	Settings.System.putInt(cr, Settings.System.SCREEN_OFF_TIMEOUT, SCREEN_OFF_TIMEOUT);
+			try {
+	        		Settings.System.putInt(cr, Settings.System.SCREEN_OFF_TIMEOUT, SCREEN_OFF_TIMEOUT);
+			} catch (java.lang.SecurityException ex) {
+				// FIXME - API 17 and above
+			}
         	}
         } else {
         	if (oldtimeout == 0 && Settings.System.getInt(cr, Settings.System.SCREEN_OFF_TIMEOUT, 60000) == SCREEN_OFF_TIMEOUT)
         		oldtimeout = 60000;
         	if (oldtimeout != 0) {
-	        	Settings.System.putInt(cr, Settings.System.SCREEN_OFF_TIMEOUT, oldtimeout);
+			try {
+	        		Settings.System.putInt(cr, Settings.System.SCREEN_OFF_TIMEOUT, oldtimeout);
+			} catch (java.lang.SecurityException ex) {
+				// FIXME - API 17 and above
+			}
         		oldtimeout = 0;
         	}
         }
