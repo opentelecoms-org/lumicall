@@ -104,6 +104,7 @@ public class Caller extends BroadcastReceiver {
 	        // decisions are made about call routing, so let's start with
 	        // something to draw attention to it:
 	        Log.d("SipUA:", "Caller.onReceive *****************************************************************************************************");
+                Log.d(TAG, "number = " + number + " intent = " + intent + " data = " + intent.getData());
 	        
 	        if (intentAction.equals(Intent.ACTION_NEW_OUTGOING_CALL) && number != null)
 	        {
@@ -116,16 +117,30 @@ public class Caller extends BroadcastReceiver {
         			return;
         		}
         		
+			boolean bypassLumicall = false;
         		String originalUri = intent.getStringExtra("android.phone.extra.ORIGINAL_URI"); 
 			if(originalUri != null) {
+				Log.d(TAG, "originalUri = " + originalUri);
         			String uriFragment = Uri.parse(originalUri).getFragment();
+				Log.d(TAG, "uriFragment = " + uriFragment);
         			if(uriFragment != null && uriFragment.contains(PSTN.BYPASS_LUMICALL)) {
-        				// Let the call go through to the next handler/GSM network
-        				Log.i(TAG, "*** Lumicall detected `lumicall-bypass' in URI, letting call go to next handler ***");
-        				setResultData(number);
-        				abortBroadcast();
-        				return;
+					bypassLumicall = true;
 				}
+			}
+
+			String gatewayPackage = intent.getStringExtra("com.android.phone.extra.GATEWAY_PROVIDER_PACKAGE");
+			if(gatewayPackage != null)
+			{
+				bypassLumicall = true;
+			}
+
+			if(bypassLumicall)
+			{
+        			// Let the call go through to the next handler/GSM network
+        			Log.i(TAG, "*** Lumicall detected `lumicall-bypass' in URI, letting call go to next handler ***");
+        			setResultData(number);
+        			abortBroadcast();
+        			return;
 	        	}
         		
         		boolean dialingIntegration =

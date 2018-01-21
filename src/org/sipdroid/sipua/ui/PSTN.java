@@ -53,6 +53,7 @@ public class PSTN extends Activity {
 	public static void callPSTN2(String uri) {
 		String number;
 		
+		logger.fine("uri = " + uri);
 		if (uri.indexOf(":") >= 0) {
 			number = uri.substring(uri.indexOf(":")+1);
 			if (!number.equals("")) {
@@ -61,12 +62,22 @@ public class PSTN extends Activity {
 					Intent intent = new Intent(Intent.ACTION_CALL,
 		                Uri.fromParts("tel", Uri.decode(number), BYPASS_LUMICALL));
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra("com.android.phone.extra.GATEWAY_PROVIDER_PACKAGE", "org.lumicall");
+					intent.putExtra("com.android.phone.extra.GATEWAY_URI", Uri.fromParts("tel", Uri.decode(number), BYPASS_LUMICALL).toString());
 					context.startActivity(intent);
 				} else {
 					// FIXME: we may need to display a popup for the user
 					logger.warning("callPSTN2: can't get context to sent intent, Receiver.mContext == null");
 				}
 			}
+			else
+			{
+				logger.warning("number is empty");
+			}
+		}
+		else
+		{
+			logger.warning("no colon in URI: " + uri);
 		}
 	}
 	
