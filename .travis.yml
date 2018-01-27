@@ -23,6 +23,7 @@ before_install:
 
 android:
  components:
+    - android-21
    # We are using the latest revision of Android SDK Tools
     - platform-tools
     - tools
