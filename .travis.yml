@@ -12,6 +12,7 @@ env:
     - ANDROID_TARGET=android-19
 
 before_install:
+ - chmod a+x gradlew
  - gradle -v
  - ln -s app.properties-prod assets/app.properties
  - if [ `uname -m` = x86_64]; then wget http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86_64.bin -O ndk.bin; else wget http://dl.google.com/android/ndk/android-ndk-r10d-linux-x86.bin -O ndk.bin; fi
@@ -30,5 +31,5 @@ android:
 
 script:
  - ${ANDROID_NDK_HOME}/ndk-build
- - gradle assembleDebug
+ - gradlew assembleDebug
  - find . -name '*.apk' -exec ls -l {} \;
