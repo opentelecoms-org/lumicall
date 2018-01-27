@@ -31,5 +31,5 @@ android:
 
 script:
  - ${ANDROID_NDK_HOME}/ndk-build
- - gradlew assembleDebug
+ - ./gradlew assembleDebug
  - find . -name '*.apk' -exec ls -l {} \;
