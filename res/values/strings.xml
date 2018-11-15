@@ -39,6 +39,9 @@
 \nThe software has been released for testing.
 \n
 \nCopyright (C) 2012-2016 Ready Technology (UK) Limited (http://www.lumicall.org)
+\nCopyright (C) 2017 Urvika Gola (urvika.gola@gmail.com)
+\nCopyright (C) 2017 Bruno Magalhães (bfmags@gmail.com)
+\nCopyright (C) 2017 Juliana Louback (juliana.m.louback@gmail.com)
 \nCopyright (C) 2016 Pranav Jain (contact@pranavjain.me)
 \nCopyright (C) 2011 Jitsi / ice4j
 \nCopyright (C)      DNSjava
@@ -51,7 +54,10 @@
 \n
 \nThis program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 \n
-\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details (http://www.gnu.org/licenses).</string>
+\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details (http://www.gnu.org/licenses).
+\n
+\nLumicall has been supported by Google Summer of Code and Outreachy.
+</string>
 
 <string name="reg">Registering...</string>
 <string name="regpref">Preferred</string>
