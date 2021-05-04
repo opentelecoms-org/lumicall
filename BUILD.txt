@@ -12,7 +12,7 @@ Prerequisites:
 - zlib (32bits). On 64bit Debian based systems this can be done
   by installing lib32z1:
 
-  apt-get install lib32z1
+  apt-get install lib32z1 lib32stdc++6
 
 
 To build the project from the command line:
