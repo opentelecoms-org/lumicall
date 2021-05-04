@@ -564,8 +564,7 @@ public class RtpStreamSender extends Thread {
 	 				 if (m == 2 && RtpStreamReceiver.timeout == 0)
 	 					 rtp_socket.send(rtp_packet);  // can't use sendPacket here, or double encryption
 	 			 } catch (Exception e) {
-	 				 logger.warning("Exception from rtp_socket.send(): " + e.getClass().getCanonicalName() +
-	 						 ": " + e.getMessage());
+	 				 logger.log(Level.SEVERE, "Exception from rtp_socket.send(): ", e);
 	 			 }
  			 else
  				 logger.info("not sending a packet now, RtpStreamReceiver.timeout = " +
