@@ -58,8 +58,8 @@ preBuild.doFirst {
 
 android {
     defaultConfig {
-        versionCode 190
-        versionName "1.13.1"
+        versionCode 191
+        versionName "1.13.2"
 
         minSdkVersion 8
         targetSdkVersion 8
