@@ -54,7 +54,7 @@ public class SipdroidSocket extends DatagramSocket {
 		if (useJNIImpl) {
 			impl = new PlainDatagramSocketImpl();
 			impl.create();
-			impl.bind(port,InetAddress.getByName("0"));
+			impl.bind(port,InetAddress.getByName("0.0.0.0"));
 		}
 	}
 	
