@@ -6,7 +6,7 @@
 EXTRA_ROOT_ALIAS=$1
 EXTRA_ROOT_FILE=$2
 
-keytool -keystore mytruststore.bks \
+keytool -keystore res/raw/mytruststore.bks \
   -storetype BKS -provider org.bouncycastle.jce.provider.BouncyCastleProvider \
   -providerpath /opt/bouncycastle/bcprov-jdk16-146.jar \
   -storepass secret \
