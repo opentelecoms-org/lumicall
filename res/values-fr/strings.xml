@@ -303,4 +303,24 @@
 <string name="help_speakerphone">Appuyer et maintenir les boutons de volume pour forcer la conversation</string>
 <string name="menu_create">Nouveau PBX lié à mon Google Voice</string>
 
+<string name="validation_requested_title">Validation de Lumicall</string>
+<string name="validation_requested">Validation demandé</string>
+<string name="validation_requested_detail">Validation demandé - vous pourriez maintenant essayer d\'utiliser Lumicall</string>
+
+<string name="sip_identities">Identités SIP</string>
+
+<string name="sip_address_uri">Adress/URI SIP</string>
+<string name="sip_identity_enable">Profil activé</string>
+
+<string name="enum_suffixes">Fournisseurs ENUM</string>
+<string name="enum_suffix_alias">Alias</string>
+<string name="enum_suffix_suffix">Rechercher le suffixe</string>
+<string name="enum_suffix_priority">Priorité</string>
+
+<string name="choose_route">Choisir la destination</string>
+
+<string name="srtp_secure">Appel sécurisé par SRTP</string>
+<string name="zrtp_sas">Securité/ZRTP SaS:</string>
+<string name="zrtp_no_sas">Appel non sécurisé</string>
+
 </resources>
