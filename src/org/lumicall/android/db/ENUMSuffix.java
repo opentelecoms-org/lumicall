@@ -17,7 +17,8 @@ public class ENUMSuffix extends DBObject implements Comparable<ENUMSuffix> {
 			new String[] {
 				"e164.arpa",
 				"e164-addr.sip5060.net",
-				"e164.org"
+                                "enum.enumer.org",
+                                "nrenum.net"
 	};
 	
 	private final static String DB_TABLE = "ENUMSuffix";
