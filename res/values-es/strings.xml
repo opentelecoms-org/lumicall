@@ -55,7 +55,7 @@
 <string name="auto_enabled">Auto-respuesta/Altavoz</string>
 <string name="auto_disabled">Auto-respuesta desactivada</string>
 <string name="hint">Dirección de contraparte</string>
-<string name="hint2">Número Telefónico</string>
+<string name="hint2">Número telefónico</string>
 <string name="empty">Por favor ingrese la dirección de la contraparte como nombre@dominio.com</string>
 <string name="notfast">No hay disponible una red de datos adecuada</string>
 
@@ -144,11 +144,11 @@
 <string name="settings_check">Seleccione si su operador móvil acepta VoIP</string>
 <string name="settings_vpn2">PBXes ofrece el servicio VPN gratis, vea PBXes >> AYUDA</string>
 
-<string name="dialog_default">Actualmente Lumicall no es la aplicación de telefonía predeterminada. Desea predeterminar Lumicall para hacer llamadas?
+<string name="dialog_default">Actualmente Lumicall no es la aplicación de telefonía predeterminada. ¿Desea predeterminar Lumicall para hacer llamadas?
 \n
-\nSi responde \'No\' aquí, aun puede llamar con Lumicall agregando un \'\' antes del número a llamar en la opción Teléfono, o seleccionando \'Enviar un mensaje de texto a\' en la opción Contactos.</string>
-<string name="dialog_message">Desea ver un mensaje de introducción a Lumicall 1.5 de Pascal?</string>
-<string name="yes">Si</string>
+\nSi responde \'No\' aquí, aún puede llamar con Lumicall agregando un \'\' antes del número a llamar en la opción Teléfono, o seleccionando \'Enviar un mensaje de texto a\' en la opción Contactos.</string>
+<string name="dialog_message">¿Desea ver un mensaje de introducción a Lumicall 1.5 de Pascal?</string>
+<string name="yes">Sí</string>
 <string name="no">No</string>
 <string name="dontask">No preguntarme de nuevo</string>
 
@@ -199,13 +199,13 @@
 <string name="settings_av_options">Audio/video</string>
 <string name="settings_policy_never">Changed system sleep policy to keep Wi-Fi on.</string>
 <string name="settings_policy_default">Reset Wi-Fi sleep policy to default.</string>
-<string name="settings_search">Buscar &amp; Remplazar</string>
+<string name="settings_search">Buscar y reemplazar</string>
 <string name="settings_excludepat">Patrón de exclusión</string>
 <string name="settings_sipringtone">Tono del teléfono</string>
 <string name="settings_sipringtone2">Seleccione el tono para las llamadas SIP entrantes</string>
 <string name="settings_sipringtone_dialog">Tonos</string>
-<string name="settings_eargain">Ganancia de Auricular</string>
-<string name="settings_micgain">Ganancia de Micrófono</string>
+<string name="settings_eargain">Ganancia de auricular</string>
+<string name="settings_micgain">Ganancia de micrófono</string>
 <string name="settings_heargain">Ganancia de audífonos</string>
 <string name="settings_hmicgain">Micrófono de audífonos</string>
     <string-array name="eargain_display_values">
@@ -222,19 +222,19 @@
     </string-array>
 
 <string name="settings_pbxes_options">Opciones PBXes</string>
-<string name="settings_par">Llamadas salientes simultaneas</string>
+<string name="settings_par">Llamadas salientes simultáneas</string>
 <string name="settings_par2">Marcar en paralelo todos los números telefónicos de una persona</string>
 <string name="settings_improve">Mejorar audio</string>
 <string name="settings_improve2">Requiere cuenta de pago</string>
 <string name="settings_hdvoice">PBXes soporta voz HD</string>
-<string name="settings_posurl">URL para Ubicación/Regresar Llamada</string>
+<string name="settings_posurl">URL para ubicación/regresar llamada</string>
 <string name="settings_pos">Actualizar ubicación</string>
 <string name="settings_pos2">Puede ser anunciada a los contactos PBXes (require una cuenta premium)</string>
 <string name="settings_pos3">Actualizando ubicación</string>
-<string name="settings_callback">Activar Regresar Llamada</string>
+<string name="settings_callback">Activar regresar llamada</string>
 <string name="settings_callback2">Si no hay disponible una red de datos adecuada</string>
-<string name="settings_callthru">Activar Llamada A través De</string>
-<string name="settings_callthru2">Prefijo para Llamada A Través De</string>
+<string name="settings_callthru">Activar llamada a través de</string>
+<string name="settings_callthru2">Prefijo para llamada a través de</string>
 
 <string name="settings_title">Ajustes de Lumicall</string>
 
@@ -245,17 +245,17 @@
 <string name="settings_profile_dialog_profiles_title">Perfiles</string>
 <string name="settings_profile_dialog_delete_title">Eliminar perfil</string>
 <string name="settings_profile_dialog_delete_text">Desea eliminar el perfil <xliff:g id="profile">%s</xliff:g>?</string>
-<string name="settings_profile_export_error">No se pudieron exportar los ajustes!</string>
-<string name="settings_profile_import_error">No se pudieron importar los ajustes!</string>
-<string name="settings_profile_delete_error">No se pudo eliminar el perfil!</string>
+<string name="settings_profile_export_error">¡No se pudieron exportar los ajustes!</string>
+<string name="settings_profile_import_error">¡No se pudieron importar los ajustes!</string>
+<string name="settings_profile_delete_error">¡No se pudo eliminar el perfil!</string>
 <string name="settings_profile_delete_confirmation">El perfil ha sido eliminado.</string>
 
-<string name="settings_wireless_options">Conexiones Inalámbricas</string>
+<string name="settings_wireless_options">Conexiones inalámbricas</string>
 <string name="settings_bluetooth">Requiere Android 2.2 o superior</string>
 <string name="settings_keepon">Activar pantalla</string>
 <string name="settings_keepon2">Requerido por algunos dispositivos para evitar problemas con conexiones Wi-Fi</string>
 <string name="settings_selectwifi">Seleccionar punto de acceso Wi-Fi</string>
-<string name="settings_selectwifi2">Segun la intensidad de la señal</string>
+<string name="settings_selectwifi2">Según la intensidad de la señal</string>
 <string name="settings_ownwifi">Controlar la energía Wi-Fi</string>
 <string name="settings_ownwifi2">Para ahorrar batería</string>
 
@@ -263,7 +263,7 @@
 <string name="menu_exit">Salir</string>
 <string name="menu_about">Acerca de</string>
 <string name="menu_dtmf">Enviar DTMF</string>
-<string name="menu_video">Enviar Video</string>
+<string name="menu_video">Enviar video</string>
 <string name="menu_call">Marcar</string>
 <string name="menu_mute">Silencio</string>
 <string name="menu_hold">Retener</string>
@@ -271,7 +271,7 @@
 <string name="menu_speaker">Altavoz</string>
 <string name="menu_endCall">Finalizar</string>
 <string name="menu_answer">Responder</string>
-<string name="menu_bluetooth">Bluetooth (Experimental)</string>
+<string name="menu_bluetooth">Bluetooth (experimental)</string>
 
 <string name="transfer_title">Transferir llamada a</string>
 
@@ -279,7 +279,7 @@
 <string name="card_title_in_progress">Llamada en curso</string>
 <string name="card_title_incoming_call">Llamada entrante</string>
 <string name="card_title_call_ended">Llamada finalizada</string>
-<string name="card_title_ended_no_codec">ERROR: Codecs incompatibles</string>
+<string name="card_title_ended_no_codec">ERROR: Códecs incompatibles</string>
 <string name="card_title_on_hold">Retenida</string>
 
 <string name="unknown">Desconocido</string>
@@ -289,9 +289,9 @@
 
 <string name="ongoing">Llamada actual</string>
 <string name="onHold">Retenida</string>
-<string name="codecs">Codecs de audio</string>
-<string name="codecs_summary">Seleccione los codecs de audio disponibles para las llamadas de voz</string>
-<string name="codecs_move">Prioridad de codecs</string>
+<string name="codecs">Códecs de audio</string>
+<string name="codecs_summary">Seleccione los códecs de audio disponibles para las llamadas de voz</string>
+<string name="codecs_move">Prioridad de códecs</string>
 <string name="codecs_move_up">Desplazar hacia arriba</string>
 <string name="codecs_move_down">Desplazar hacia abajo</string>
 
